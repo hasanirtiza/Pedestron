@@ -1,0 +1,29 @@
+{
+ "children": [
+  {
+   "score": 0.9, 
+   "tags": [
+    "occluded>80"
+   ], 
+   "y1": 195.36, 
+   "y0": 164.64, 
+   "x0": 677.94, 
+   "x1": 690.85, 
+   "orient": -1.66, 
+   "identity": "rider"
+  }, 
+  {
+   "score": 0.7, 
+   "tags": [
+    "truncated>80"
+   ], 
+   "y1": 195.36, 
+   "y0": 164.64, 
+   "x0": 677.94, 
+   "x1": 690.85, 
+   "orient": -1.66, 
+   "identity": "pedestrian"
+  }
+ ], 
+ "identity": "frame"
+}
