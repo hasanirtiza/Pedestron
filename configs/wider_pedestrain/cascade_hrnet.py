@@ -220,7 +220,7 @@ test_cfg = dict(
     keep_all_stages=False)
 # dataset settings
 dataset_type = 'CocoDataset'
-data_root = '/home/jl2/data/wider_challenge/'
+data_root = 'datasets/Wider_challenge/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53],
     std=[58.395, 57.12, 57.375],
@@ -230,7 +230,7 @@ data = dict(
     workers_per_gpu=5,
     train=dict(
         type=dataset_type,
-        ann_file=(data_root + 'annotations/fake_wsig_plus_ad_train.json', data_root + 'annotations/fake_wsig_plus_sur_train.json'),
+        ann_file=(data_root + 'ad_train.json', data_root + 'sur_train.json'),
         img_prefix=(data_root + 'train_images/', data_root + 'train_images/'),
         img_scale=[(1600, 400), (1600, 1400)],
         multiscale_mode='range',
@@ -248,7 +248,7 @@ data = dict(
     ),
     test=dict(
         type=dataset_type,
-	ann_file=data_root + 'day_val.json',
+	ann_file=data_root + 'val.json',
         img_prefix=data_root,
         img_scale=(1920, 1024),
         img_norm_cfg=img_norm_cfg,
