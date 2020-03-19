@@ -3,6 +3,7 @@ from pycocotools.coco import COCO
 
 from .custom import CustomDataset
 from .registry import DATASETS
+import cv2
 
 
 @DATASETS.register_module
@@ -81,7 +82,9 @@ class CocoDataset(CustomDataset):
             if ann.get('ignore', False):
                 continue
             x1, y1, w, h = ann['bbox']
-            if ann['area'] <= 0 or w < 1 or h < 1:
+            #if ann['area'] <= 0 or w < 1 or h < 1:
+            #    continue
+            if w < 1 or h < 1:
                 continue
             bbox = [x1, y1, x1 + w - 1, y1 + h - 1]
             if ann['iscrowd']:
@@ -90,7 +93,15 @@ class CocoDataset(CustomDataset):
                 gt_bboxes.append(bbox)
                 gt_labels.append(self.cat2label[ann['category_id']])
             if with_mask:
+                #create fake segmentation
+                if "segmentation" not in ann:
+                    bbox = ann['bbox']
+                    ann['segmentation'] = [[bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1],
+                                           bbox[0], bbox[1] + bbox[3], bbox[0] + bbox[2], bbox[1] + bbox[3]]]
                 gt_masks.append(self.coco.annToMask(ann))
+                # cv2.imshow('', gt_masks[-1]*255)
+                # cv2.waitKey(0)
+                # print(gt_masks[-1].shape)
                 mask_polys = [
                     p for p in ann['segmentation'] if len(p) >= 6
                 ]  # valid polygons have >= 3 points (6 coordinates)

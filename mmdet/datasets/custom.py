@@ -55,7 +55,13 @@ class CustomDataset(Dataset):
                  seg_scale_factor=1,
                  extra_aug=None,
                  resize_keep_ratio=True,
-                 test_mode=False):
+                 test_mode=False,
+                 remove_small_box=False,
+                 small_box_size=8,
+                 strides=None,
+                 regress_ranges=None,
+                 upper_factor=None,
+                 upper_more_factor=None):
         # prefix of images path
         self.img_prefix = img_prefix
 
@@ -107,6 +113,18 @@ class CustomDataset(Dataset):
         self.seg_scale_factor = seg_scale_factor
         # in test mode or not
         self.test_mode = test_mode
+        # remove small size box in gt
+        self.remove_small_box = remove_small_box
+        # the smallest box edge
+        self.small_box_size = small_box_size
+        # strides of FPN style outputs, used for generating groundtruth feature maps
+        self.strides = strides
+        # regress range of FPN style outputs, used for generating groundtruth feature maps
+        self.regress_ranges = regress_ranges
+        # upper factor for Irtiza's model which use three branches to predict upper box, full box, lower box
+        self.upper_factor = upper_factor
+        # split the upper box into more boxes
+        self.upper_more_factor = upper_more_factor
 
         # set group flag for the sampler
         if not self.test_mode:
@@ -210,6 +228,15 @@ class CustomDataset(Dataset):
         if self.extra_aug is not None:
             img, gt_bboxes, gt_labels = self.extra_aug(img, gt_bboxes,
                                                        gt_labels)
+            # Todo, make similar transform for masks
+            if self.with_mask:
+                gt_masks = []
+                for bbox in gt_bboxes:
+                    mask = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
+                    x1, y1, x2, y2 = bbox
+                    mask[int(y1):int(y2), int(x1):int(x2)] = 1
+                    gt_masks.append(mask)
+                ann['masks'] = gt_masks
 
         # apply transforms
         flip = True if np.random.rand() < self.flip_ratio else False
@@ -234,6 +261,16 @@ class CustomDataset(Dataset):
                 [proposals, scores]) if scores is not None else proposals
         gt_bboxes = self.bbox_transform(gt_bboxes, img_shape, scale_factor,
                                         flip)
+        if self.remove_small_box:
+            gt_bboxes_edges = gt_bboxes[:, [2, 3]] - gt_bboxes[:, [0, 1]]
+            small_bboxes_edge = gt_bboxes_edges.min(-1)
+            small_bboxes_edge = small_bboxes_edge > self.small_box_size
+            inds = small_bboxes_edge.nonzero()
+            if len(inds[0]) == 0:
+                return None
+            else:
+                gt_bboxes = gt_bboxes[inds]
+                gt_labels = gt_labels[inds]
         if self.with_crowd:
             gt_bboxes_ignore = self.bbox_transform(gt_bboxes_ignore, img_shape,
                                                    scale_factor, flip)

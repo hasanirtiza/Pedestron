@@ -162,7 +162,14 @@ def anchor_target_single(flat_anchors,
 def anchor_inside_flags(flat_anchors, valid_flags, img_shape,
                         allowed_border=0):
     img_h, img_w = img_shape[:2]
+    # print(img_shape, allowed_border)
     if allowed_border >= 0:
+        # print(valid_flags & \
+        #     (flat_anchors[:, 0] >= -allowed_border))
+        # print(flat_anchors[:, 0] >= -allowed_border)
+        # print(flat_anchors[:, 1] >= -allowed_border)
+        # print(flat_anchors[:, 2] < img_w + allowed_border)
+        # print(flat_anchors[:, 3] < img_h + allowed_border)
         inside_flags = valid_flags & \
             (flat_anchors[:, 0] >= -allowed_border) & \
             (flat_anchors[:, 1] >= -allowed_border) & \

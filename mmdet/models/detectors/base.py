@@ -92,7 +92,9 @@ class BaseDetector(nn.Module):
                     result,
                     img_norm_cfg,
                     dataset=None,
-                    score_thr=0.3):
+                    score_thr=0.3,
+                    save_result=False,
+                    result_name=None):
         if isinstance(result, tuple):
             bbox_result, segm_result = result
         else:
@@ -140,3 +142,13 @@ class BaseDetector(nn.Module):
                 labels,
                 class_names=class_names,
                 score_thr=score_thr)
+            if save_result:
+                mmcv.imshow_det_bboxes(
+                    img_show,
+                    bboxes,
+                    labels,
+                    class_names=class_names,
+                    score_thr=score_thr,
+                    out_file=result_name)
+
+

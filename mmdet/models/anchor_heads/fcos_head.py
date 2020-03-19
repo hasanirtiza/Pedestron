@@ -337,6 +337,7 @@ class FCOSHead(nn.Module):
         return concat_lvl_labels, concat_lvl_bbox_targets
 
     def fcos_target_single(self, gt_bboxes, gt_labels, points, regress_ranges):
+        #points shape: (num_points, 2)
         num_points = points.size(0)
         num_gts = gt_labels.size(0)
 
@@ -344,7 +345,7 @@ class FCOSHead(nn.Module):
             gt_bboxes[:, 3] - gt_bboxes[:, 1] + 1)
         # TODO: figure out why these two are different
         # areas = areas[None].expand(num_points, num_gts)
-        areas = areas[None].repeat(num_points, 1)
+        areas = areas[None].repeat(num_points, 1) #shape: (num_points, num_gts)
         regress_ranges = regress_ranges[:, None, :].expand(
             num_points, num_gts, 2)
         gt_bboxes = gt_bboxes[None].expand(num_points, num_gts, 4)

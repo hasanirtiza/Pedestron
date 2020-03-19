@@ -33,7 +33,7 @@ def init_detector(config, checkpoint=None, device='cuda:0'):
     model = build_detector(config.model, test_cfg=config.test_cfg)
     if checkpoint is not None:
         checkpoint = load_checkpoint(model, checkpoint)
-        if 'CLASSES' in checkpoint['meta']:
+        if 'meta' in checkpoint and 'CLASSES' in checkpoint['meta']:
             model.CLASSES = checkpoint['meta']['CLASSES']
         else:
             warnings.warn('Class names are not saved in the checkpoint\'s '

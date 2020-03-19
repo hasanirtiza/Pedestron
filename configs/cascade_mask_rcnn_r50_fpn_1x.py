@@ -193,7 +193,7 @@ test_cfg = dict(
     keep_all_stages=False)
 # dataset settings
 dataset_type = 'CocoDataset'
-data_root = 'data/coco/'
+data_root = '/media/ljp/Data/data/coco/2017/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
@@ -233,8 +233,10 @@ data = dict(
         with_label=False,
         test_mode=True))
 # optimizer
+mean_teacher=True
 optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
-optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
+# optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2), mean_teacher=dict(alpha=0.999))
+optimizer_config = dict(mean_teacher = dict(alpha=0.999))
 # learning policy
 lr_config = dict(
     policy='step',

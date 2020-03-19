@@ -178,3 +178,255 @@ def distance2bbox(points, distance, max_shape=None):
         x2 = x2.clamp(min=0, max=max_shape[1] - 1)
         y2 = y2.clamp(min=0, max=max_shape[0] - 1)
     return torch.stack([x1, y1, x2, y2], -1)
+
+def csp_height2bbox(points, heights, offsets, stride=1, wh_ratio = 0.41, max_shape=None):
+    """Decode height and offset prediction to bounding box.
+
+        Args:
+            points (Tensor): Shape (n, 2), [x, y].
+            heights (Tensor): height of the bounding box
+            offsets (Tensor): offset of the bounding box center.
+            stride: stride of coordinates
+            wh_ratio: ratio of width and height, equal to width/height
+            max_shape (tuple): Shape of the image.
+
+        Returns:
+            Tensor: Decoded bboxes.
+        """
+    x = points[:, 0] + (0.5 + offsets[:, 1])*stride
+    y = points[:, 1] + (0.5  + offsets[:, 0])*stride
+    # print(stride)
+    # print(torch.stack([y, x], -1))
+    # print(points)
+    heights = heights[..., 0] * stride
+    x1 = x - wh_ratio * heights/2
+    y1 = y - heights * 0.5
+    x2 = x + wh_ratio * heights/2
+    y2 = y + heights * 0.5
+
+    if max_shape is not None:
+        x1 = x1.clamp(min=0, max=max_shape[1] - 1)
+        y1 = y1.clamp(min=0, max=max_shape[0] - 1)
+        x2 = x2.clamp(min=0, max=max_shape[1] - 1)
+        y2 = y2.clamp(min=0, max=max_shape[0] - 1)
+    return torch.stack([x1, y1, x2, y2], -1)
+
+def csp_heightwidth2bbox(points, hws, offsets, stride=1, wh_ratio = 0.41, max_shape=None):
+    """Decode height and offset prediction to bounding box.
+
+        Args:
+            points (Tensor): Shape (n, 2), [x, y].
+            heights (Tensor): height of the bounding box
+            offsets (Tensor): offset of the bounding box center.
+            stride: stride of coordinates
+            wh_ratio: ratio of width and height, equal to width/height
+            max_shape (tuple): Shape of the image.
+
+        Returns:
+            Tensor: Decoded bboxes.
+        """
+    x = points[:, 0] + (0.5 + offsets[:, 1])*stride
+    y = points[:, 1] + (0.5  + offsets[:, 0])*stride
+    # print(stride)
+    # print(torch.stack([y, x], -1))
+    # print(points)
+    heights = hws[..., 0] * stride
+    widths = hws[..., 1] * stride
+    x1 = x - widths * 0.5
+    y1 = y - heights * 0.5
+    x2 = x + widths * 0.5
+    y2 = y + heights * 0.5
+
+    if max_shape is not None:
+        x1 = x1.clamp(min=0, max=max_shape[1] - 1)
+        y1 = y1.clamp(min=0, max=max_shape[0] - 1)
+        x2 = x2.clamp(min=0, max=max_shape[1] - 1)
+        y2 = y2.clamp(min=0, max=max_shape[0] - 1)
+    return torch.stack([x1, y1, x2, y2], -1)
+
+def csp_vis_height2bbox(points, heights, offsets, vis_full, stride=1, wh_ratio = 0.41, max_shape=None):
+    """Decode height and offset prediction to bounding box.
+
+        Args:
+            points (Tensor): Shape (n, 2), [x, y].
+            heights (Tensor): height of the bounding box
+            offsets (Tensor): offset of the bounding box center.
+            stride: stride of coordinates
+            wh_ratio: ratio of width and height, equal to width/height
+            max_shape (tuple): Shape of the image.
+
+        Returns:
+            Tensor: Decoded bboxes.
+        """
+    x = points[:, 0] + (0.5 + offsets[:, 1] + vis_full[:, 0])*stride
+    y = points[:, 1] + (0.5  + offsets[:, 0])*stride
+    # print(stride)
+    # print(torch.stack([y, x], -1))
+    # print(points)
+    heights = heights[..., 0] * stride
+    y1 = y - heights * 0.5 - vis_full[:, 1] * stride
+    y2 = y + heights * 0.5 + vis_full[:, 2] * stride
+    heights = y2 - y1
+    x1 = x - wh_ratio * heights/2
+    x2 = x + wh_ratio * heights/2
+
+
+    if max_shape is not None:
+        x1 = x1.clamp(min=0, max=max_shape[1] - 1)
+        y1 = y1.clamp(min=0, max=max_shape[0] - 1)
+        x2 = x2.clamp(min=0, max=max_shape[1] - 1)
+        y2 = y2.clamp(min=0, max=max_shape[0] - 1)
+    return torch.stack([x1, y1, x2, y2], -1)
+
+def csp_height2bbox_part(points, heights, offsets, stride=1, wh_ratio = 0.41, max_shape=None, upper_factor=0.4, is_upper=True):
+    """Decode height and offset prediction to bounding box.
+
+        Args:
+            points (Tensor): Shape (n, 2), [x, y].
+            heights (Tensor): height of the bounding box
+            offsets (Tensor): offset of the bounding box center.
+            stride: stride of coordinates
+            wh_ratio: ratio of width and height, equal to width/height
+            max_shape (tuple): Shape of the image.
+
+        Returns:
+            Tensor: Decoded bboxes.
+        """
+    x = points[:, 0] + (0.5 + offsets[:, 1])*stride
+    y = points[:, 1] + (0.5  + offsets[:, 0])*stride
+    # print(stride)
+    # print(torch.stack([y, x], -1))
+    # print(points)
+    if is_upper:
+        heights = heights[..., 0] * stride / upper_factor
+        x1 = x - wh_ratio * heights/2
+        y1 = y - heights*upper_factor/2
+        x2 = x + wh_ratio * heights/2
+        y2 = y1 + heights
+    else:
+        heights = heights[..., 0] * stride/(1-upper_factor)
+        x1 = x - wh_ratio*heights/2
+        x2 = x + wh_ratio*heights/2
+        y2 = y + heights*(1-upper_factor)/2
+        y1 = y2 - heights
+
+    if max_shape is not None:
+        x1 = x1.clamp(min=0, max=max_shape[1] - 1)
+        y1 = y1.clamp(min=0, max=max_shape[0] - 1)
+        x2 = x2.clamp(min=0, max=max_shape[1] - 1)
+        y2 = y2.clamp(min=0, max=max_shape[0] - 1)
+    return torch.stack([x1, y1, x2, y2], -1)
+
+def csp_height2bbox_four_part(points, heights, offsets, stride=1, wh_ratio = 0.41, max_shape=None, upper_factor=0.4, is_upper=True, is_left=True):
+    """Decode height and offset prediction to bounding box.
+
+        Args:
+            points (Tensor): Shape (n, 2), [x, y].
+            heights (Tensor): height of the bounding box
+            offsets (Tensor): offset of the bounding box center.
+            stride: stride of coordinates
+            wh_ratio: ratio of width and height, equal to width/height
+            max_shape (tuple): Shape of the image.
+
+        Returns:
+            Tensor: Decoded bboxes.
+        """
+    x = points[:, 0] + (0.5 + offsets[:, 1])*stride
+    y = points[:, 1] + (0.5  + offsets[:, 0])*stride
+    heights = heights[..., 0] * stride
+    # print(stride)
+    # print(torch.stack([y, x], -1))
+    # print(points)
+    if is_left:
+        x1 = x - wh_ratio * heights / 2
+    else:
+        x1 = x - wh_ratio * heights / 2 * 3
+
+    if is_upper:
+        y1 = y - heights/2
+        x2 = x1 + wh_ratio * heights/upper_factor
+        y2 = y1 + heights/upper_factor
+    else:
+        x2 = x1 + wh_ratio * heights/(1-upper_factor)
+        y2 = y + heights/2
+        y1 = y2 - heights/(1-upper_factor)
+
+    if max_shape is not None:
+        x1 = x1.clamp(min=0, max=max_shape[1] - 1)
+        y1 = y1.clamp(min=0, max=max_shape[0] - 1)
+        x2 = x2.clamp(min=0, max=max_shape[1] - 1)
+        y2 = y2.clamp(min=0, max=max_shape[0] - 1)
+    return torch.stack([x1, y1, x2, y2], -1)
+
+def csp_heightwidth2bbox_part(points, hws, offsets, stride=1, wh_ratio = 0.41, max_shape=None, upper_factor=0.4, is_upper=True):
+    """Decode height and offset prediction to bounding box.
+
+        Args:
+            points (Tensor): Shape (n, 2), [x, y].
+            heights (Tensor): height of the bounding box
+            offsets (Tensor): offset of the bounding box center.
+            stride: stride of coordinates
+            wh_ratio: ratio of width and height, equal to width/height
+            max_shape (tuple): Shape of the image.
+
+        Returns:
+            Tensor: Decoded bboxes.
+        """
+    x = points[:, 0] + (0.5 + offsets[:, 1])*stride
+    y = points[:, 1] + (0.5  + offsets[:, 0])*stride
+    # print(stride)
+    # print(torch.stack([y, x], -1))
+    # print(points)
+    if is_upper:
+        heights = hws[..., 0] * stride / upper_factor
+        widths = hws[..., 1] * stride
+        x1 = x - widths * 0.5
+        y1 = y - heights*upper_factor/2
+        x2 = x + widths * 0.5
+        y2 = y1 + heights
+    else:
+        heights = hws[..., 0] * stride/(1-upper_factor)
+        widths = hws[..., 1] * stride
+        x1 = x - widths * 0.5
+        x2 = x + widths * 0.5
+        y2 = y + heights*(1-upper_factor)/2
+        y1 = y2 - heights
+
+    if max_shape is not None:
+        x1 = x1.clamp(min=0, max=max_shape[1] - 1)
+        y1 = y1.clamp(min=0, max=max_shape[0] - 1)
+        x2 = x2.clamp(min=0, max=max_shape[1] - 1)
+        y2 = y2.clamp(min=0, max=max_shape[0] - 1)
+    return torch.stack([x1, y1, x2, y2], -1)
+
+def csp_topdown2bbox(points, heights, offsets, stride=1, wh_ratio = 0.41, max_shape=None):
+    """Decode height and offset prediction to bounding box.
+
+        Args:
+            points (Tensor): Shape (n, 2), [x, y].
+            heights (Tensor): height of the bounding box
+            offsets (Tensor): offset of the bounding box center.
+            stride: stride of coordinates
+            wh_ratio: ratio of width and height, equal to width/height
+            max_shape (tuple): Shape of the image.
+
+        Returns:
+            Tensor: Decoded bboxes.
+        """
+    x = points[:, 0] + (0.5 + offsets[:, 2])*stride
+    y = points[:, 1]
+    # print(stride)
+    # print(torch.stack([y, x], -1))
+    # print(points)
+    heights = (offsets[:, 1] - offsets[: ,0]) * stride
+    x1 = x - wh_ratio * heights/2
+    y1 = y + offsets[:, 0] * stride
+    x2 = x + wh_ratio * heights/2
+    y2 = y + offsets[:, 1] * stride
+
+    if max_shape is not None:
+        x1 = x1.clamp(min=0, max=max_shape[1] - 1)
+        y1 = y1.clamp(min=0, max=max_shape[0] - 1)
+        x2 = x2.clamp(min=0, max=max_shape[1] - 1)
+        y2 = y2.clamp(min=0, max=max_shape[0] - 1)
+    return torch.stack([x1, y1, x2, y2], -1)
