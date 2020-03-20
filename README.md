@@ -3,7 +3,7 @@ We are currently updating this repository. We are preparing training and testing
 
 
 # Pedestron
-Pedestron is an [MMetection](https://github.com/open-mmlab/mmdetection) based repository that focuses on the advancement of reserach on pedestrian detection.
+[Pedestron](https://128.84.21.199/pdf/2003.08799.pdf) is an [MMetection](https://github.com/open-mmlab/mmdetection) based repository that focuses on the advancement of reserach on pedestrian detection.
 We provide processed annotations and scripts to process the annotation of different pedestrian detection benchmarks.
 
 
@@ -39,6 +39,7 @@ We refer to the installation and list of dependencies of MMdetection to the offi
 
 
 ### Please cite the following work
+[ArXiv version](https://128.84.21.199/pdf/2003.08799.pdf)
 ```
 @article{irtiza20elephant,
   title={Pedestrian Detection: The Elephant In The Room},
