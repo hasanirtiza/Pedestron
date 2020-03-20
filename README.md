@@ -9,7 +9,7 @@ We provide processed annotations and scripts to process the annotation of differ
 
 ### Installation
 We refer to the installation and list of dependencies of MMdetection to the official [installation](https://github.com/open-mmlab/mmdetection/blob/master/docs/INSTALL.md) file.
-[Clone](https://github.com/open-mmlab/mmdetection) this repo and follow [installation](https://github.com/open-mmlab/mmdetection/blob/master/docs/INSTALL.md) of mmdetection.
+Clone this repo and follow [installation](https://github.com/open-mmlab/mmdetection/blob/master/docs/INSTALL.md) of mmdetection.
 
 ### List of detectors
 
