@@ -33,10 +33,16 @@ Clone this repo and follow [installation](https://github.com/open-mmlab/mmdetect
 
 
 ### Pre-Trained models
-1) CityPersons.
-2) Caltech.
-3) EuroCity Persons
+1) CityPersons [link]
+2) Caltech [link]
+3) EuroCity Persons [link]
 
+
+### Training
+Coming Soon
+
+### Testing
+Coming Soon
 
 ### Please cite the following work
 [ArXiv version](https://128.84.21.199/pdf/2003.08799.pdf)
