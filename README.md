@@ -1,5 +1,6 @@
-# **NOTE**
-We are currently updating this repository. We are preparing training and testing launchers, will be pushed soon. Moreover, we will very soon upload some pre-trained models for different benchmarks.   
+# **Updates**
+We are currently updating this repository. We are preparing training and testing launchers, will be pushed soon. 
+We have added a pre-trained model for CityPersons.
 
 
 # Pedestron
@@ -33,7 +34,7 @@ Clone this repo and follow [installation](https://github.com/open-mmlab/mmdetect
 
 
 ### Pre-Trained models
-1) CityPersons [link]
+1) [CityPersons](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8)
 2) Caltech [link]
 3) EuroCity Persons [link]
 
