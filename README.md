@@ -9,8 +9,8 @@ We provide processed annotations and scripts to process the annotation of differ
 
 
 ### Installation
-We refer to the installation and list of dependencies of MMdetection to the official [installation](https://github.com/open-mmlab/mmdetection/blob/master/docs/INSTALL.md) file.
-Clone this repo and follow [installation](https://github.com/open-mmlab/mmdetection/blob/master/docs/INSTALL.md) of mmdetection.
+We refer to the installation and list of dependencies [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md) file.
+Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md) of mmdetection.
 
 ### List of detectors
 
@@ -43,7 +43,7 @@ Clone this repo and follow [installation](https://github.com/open-mmlab/mmdetect
 1) Download the pretrained [CityPersons](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8) model and place it in the folder "models_pretrained/".
 2) Run the following command:
 
-``` 
+```shell 
 python ./tools/test_city_person.py configs/elephant/cityperson/cascade_hrnet.py ./models_pretrained/epoch_ 5 6\
  --out result_citypersons.json --mean_teacher 
 ```
