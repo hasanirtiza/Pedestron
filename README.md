@@ -9,7 +9,7 @@ We provide processed annotations and scripts to process the annotation of differ
 
 
 ### Installation
-We refer to the installation and list of dependencies [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md) file.
+We refer to the installation and list of dependencies to [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md) file.
 Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md) of mmdetection.
 
 ### List of detectors
