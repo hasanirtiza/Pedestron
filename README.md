@@ -1,6 +1,6 @@
 # **Updates**
-We are currently updating this repository. We are preparing training and testing launchers, will be pushed soon. 
-We have added a pre-trained model for CityPersons.
+We are currently updating this repository. We are preparing training and testing launchers, which will be pushed soon. 
+We have added a pre-trained model for CityPersons. 
 
 
 # Pedestron
@@ -27,10 +27,10 @@ Clone this repo and follow [installation](https://github.com/open-mmlab/mmdetect
 
 ### Preparation
 1. Download the datasets from the official sites. Fill in the copyright forms where applicable. 
-2. Place them in ./datasets folder in the follwoing heararchy, for example CityPersons should be (./datsets/CityPersons/images/) and (./datsets/CityPersons/annotations/) for images and annotations respectively.
+2. Place them in ./datasets folder in the follwoing heararchy, for example annotation file for CityPersons should be (./datsets/CityPersons/) and images should be
+ (./datsets/CityPersons/leftImg8bit_trainvaltest/leftImg8bit/train) for training images and collapse all validtaion images into(./datsets/CityPersons/leftImg8bit_trainvaltest/leftImg8bit/val_all_in_folder/). 
+  
 3. Use our pre-processing script to convert the annotations into Pedestron acceptable format.
-
-
 
 
 ### Pre-Trained models
@@ -38,6 +38,15 @@ Clone this repo and follow [installation](https://github.com/open-mmlab/mmdetect
 2) Caltech [link]
 3) EuroCity Persons [link]
 
+
+### Testing demo for CityPersons
+1) Download the pretrained [CityPersons](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8) model and place it in the folder "models_pretrained/".
+2) Run the following command:
+
+``` 
+python ./tools/test_city_person.py configs/elephant/cityperson/cascade_hrnet.py ./models_pretrained/epoch_ 5 6\
+ --out result_citypersons.json --mean_teacher 
+```
 
 ### Training
 Coming Soon
