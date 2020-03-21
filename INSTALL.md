@@ -30,14 +30,14 @@ conda install cython
 
 b. Install PyTorch stable or nightly and torchvision following the [official instructions](https://pytorch.org/).
 
-c. Clone the mmdetection repository.
+c. Clone the Pedestron repository.
 
 ```shell
-git clone https://github.com/open-mmlab/mmdetection.git
-cd mmdetection
+git clone https://github.com/hasanirtiza/Pedestron.git
+cd Pedestron
 ```
 
-d. Install mmdetection (other dependencies will be installed automatically).
+d. Install Pedestron (other dependencies will be installed automatically).
 
 ```shell
 python setup.py develop
