@@ -4,11 +4,11 @@
 
 - Linux
 - Python 3.5+ ([Say goodbye to Python2](https://python3statement.org/))
-- PyTorch 1.0+ or PyTorch-nightly
+- PyTorch 1.0+ or PyTorch-nightly (We have tested Pedestron using  PyTorch==1.4.0)
 - CUDA 9.0+
 - NCCL 2+
 - GCC 4.9+
-- [mmcv](https://github.com/open-mmlab/mmcv)
+- [mmcv](https://github.com/open-mmlab/mmcv) (We have tested Pedestron using  mmcv==0.2.10)
 
 We have tested the following versions of OS and softwares:
 
