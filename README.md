@@ -63,9 +63,10 @@ Coming Soon
 ### Please cite the following work
 [ArXiv version](https://128.84.21.199/pdf/2003.08799.pdf)
 ```
-@article{irtiza20elephant,
+@article{hasan2020pedestrian,
   title={Pedestrian Detection: The Elephant In The Room},
-  author={Hasan, Irtiza and Liao, Shengcai and Li, Jinpeng and Akram, Saad Ullah and Ling, Shao},
-  journal={arXiv preprint},
-  year={2020}}
+  author={Hasan, Irtiza and Liao, Shengcai and Li, Jinpeng and Akram, Saad Ullah and Shao, Ling},
+  journal={arXiv preprint arXiv:2003.08799},
+  year={2020}
+}
 ```
