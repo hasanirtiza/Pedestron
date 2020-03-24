@@ -5,6 +5,7 @@
 * Added testing and training scripts for all datasets.
 
 
+
  
 
 
@@ -54,7 +55,7 @@ Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestr
 
 
 
-### Running a pre-trained model on few images
+### Running a demo using pre-trained model on few images
 1) Pre-trained model can be evaluated on sample images in the following way
 
 ```shell 
