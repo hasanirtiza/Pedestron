@@ -217,7 +217,7 @@ def main():
             json.dump(res, f)
 
         MRs = validate('datasets/CityPersons/val_gt.json', args.out)
-        print('Checkpoint %d: [Reasonable: %.2f%%], [Bare: %.2f%%], [Partial: %.2f%%], [Heavy: %.2f%%]'
+        print('Checkpoint %d: [Reasonable: %.2f%%], [Reasonable_Small: %.2f%%], [Heavy: %.2f%%], [All: %.2f%%]'
               % (i, MRs[0] * 100, MRs[1] * 100, MRs[2] * 100, MRs[3] * 100))
 
 
