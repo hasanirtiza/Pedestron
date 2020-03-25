@@ -318,7 +318,7 @@ class COCOeval:
                 'dtIgnore':     dtIg,
             }
 
-    def accumulate(self, p = None, id_setup=None):
+    def accumulate(self, p = None):
         '''
         Accumulate per image evaluation results and store the result in self.eval
         :param p: input params for evaluation
@@ -352,8 +352,6 @@ class COCOeval:
         i_list = [n for n, i in enumerate(p.imgIds)  if i in setI]
         I0 = len(_pe.imgIds)
 
-        draw_fpps=[]
-        draw_scores=[]
         # retrieve E at each category, area range, and max number of detections
         for k, k0 in enumerate(k_list):
             Nk = k0*I0
@@ -369,7 +367,6 @@ class COCOeval:
                 # mergesort is used to be consistent as Matlab implementation.
 
                 inds = np.argsort(-dtScores, kind='mergesort')
-                dtScores = dtScores[inds]
 
                 dtm = np.concatenate([e['dtMatches'][:, 0:maxDet] for e in E], axis=1)[:, inds]
                 dtIg = np.concatenate([e['dtIgnore'][:, 0:maxDet] for e in E], axis=1)[:, inds]
@@ -382,7 +379,6 @@ class COCOeval:
                 inds = np.where(dtIg==0)[1]
                 tps = tps[:,inds]
                 fps = fps[:,inds]
-                dtScores = dtScores[inds]
 
                 tp_sum = np.cumsum(tps, axis=1).astype(dtype=np.float)
                 fp_sum = np.cumsum(fps, axis=1).astype(dtype=np.float)
@@ -406,10 +402,6 @@ class COCOeval:
                     try:
                         for ri, pi in enumerate(inds):
                             q[ri] = recall[pi]
-                            if id_setup==0:
-                                print('fpp: {0}, score: {1}'.format(p.fppiThrs[ri], dtScores[pi]))
-                                draw_fpps.append(p.fppiThrs[ri])
-                                draw_scores.append(dtScores[pi])
                     except:
                         pass
                     ys[t,:,k,m] = np.array(q)
@@ -421,7 +413,6 @@ class COCOeval:
         }
         toc = time.time()
         # print('DONE (t={:0.2f}s).'.format( toc-tic))
-        return draw_fpps, draw_scores
 
     def summarize(self,id_setup, res_file):
         '''
@@ -486,11 +477,8 @@ class COCOeval:
             if len(mrs[mrs<2])==0:
                 mean_s = -1
             else:
-                print('ori mean', mrs[mrs<2])
                 mean_s = np.log(mrs[mrs<2])
-                print('mean', mean_s)
                 mean_s = np.mean(mean_s)
-                print('real mean', mean_s)
                 mean_s = np.exp(mean_s)
             return mean_s
 
@@ -510,7 +498,7 @@ class Params:
         self.catIds = []
         # np.arange causes trouble.  the data point on arange is slightly larger than the true value
 
-        self.recThrs = np.linspace(.0, 1.00, int(np.round((1.00 - .0) / .01) + 1), endpoint=True)
+        self.recThrs = np.linspace(.0, 1.00, np.round((1.00 - .0) / .01) + 1, endpoint=True)
         self.fppiThrs = np.array([0.0100,    0.0178,    0.0316,    0.0562,    0.1000,    0.1778,    0.3162,    0.5623,    1.0000])
         self.maxDets = [1000]
         self.expFilter = 1.25
@@ -518,18 +506,19 @@ class Params:
 
         self.iouThrs = np.array([0.5])  # np.linspace(.5, 0.95, np.round((0.95 - .5) / .05) + 1, endpoint=True)
 
-        # self.HtRng = [[50, 1e5 ** 2], [50,75], [50, 1e5 ** 2], [20, 1e5 ** 2]]
-        # self.VisRng = [[0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.2,0.65], [0.2, 1e5 ** 2]]
-        # self.SetupLbl = ['Reasonable', 'Reasonable_small','Reasonable_occ=heavy', 'All']
+        self.HtRng = [[50, 1e5 ** 2], [50,75], [50, 1e5 ** 2], [20, 1e5 ** 2]]
+        self.VisRng = [[0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.2,0.65], [0.2, 1e5 ** 2]]
+        self.SetupLbl = ['Reasonable', 'Reasonable_small','Reasonable_occ=heavy', 'All']
 
         #self.HtRng = [[50, 1e5 ** 2], [50, 75], [75, 100], [100, 1e5 ** 2]]
-        # self.VisRng = [[0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.65, 1e5 ** 2]]
-        # self.SetupLbl = ['Reasonable', 'small', 'middle', 'large']
+        #self.VisRng = [[0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.65, 1e5 ** 2]]
+        #self.SetupLbl = ['Reasonable', 'small', 'middle', 'large']
 
-        self.HtRng = [[50, 1e5 ** 2], [50, 1e5 ** 2], [50, 1e5 ** 2], [50, 1e5 ** 2]]
-        self.VisRng = [[0.65, 1e5 ** 2], [0.9, 1e5 ** 2], [0.65, 0.9], [0, 0.65]]
-        self.SetupLbl = ['Reasonable', 'bare', 'partial', 'heavy']
-
+        #self.HtRng = [[50, 1e5 ** 2], [50, 1e5 ** 2], [50, 1e5 ** 2], [50, 1e5 ** 2]]
+        #self.VisRng = [[0.65, 1e5 ** 2], [0.9, 1e5 ** 2], [0.65, 0.9], [0, 0.65]]
+        #self.SetupLbl = ['Reasonable', 'bare', 'partial', 'heavy']
+        #print(self.SetupLbl)
+       # print(self.VisRng)
 
     def __init__(self, iouType='segm'):
         if iouType == 'segm' or iouType == 'bbox':

@@ -5,6 +5,7 @@ from tools.cityPerson.eval_MR_multisetup import COCOeval
 
 def validate(annFile, dt_path):
     mean_MR = []
+    my_id_setup = []
     for id_setup in range(0, 4):
         cocoGt = COCO(annFile)
         cocoDt = cocoGt.loadRes(dt_path)
@@ -12,16 +13,7 @@ def validate(annFile, dt_path):
         cocoEval = COCOeval(cocoGt, cocoDt, 'bbox')
         cocoEval.params.imgIds = imgIds
         cocoEval.evaluate(id_setup)
-        if id_setup==0:
-            fpps, scores = cocoEval.accumulate(id_setup=id_setup)
-        else:
-            cocoEval.accumulate(id_setup=id_setup)
+        cocoEval.accumulate()
         mean_MR.append(cocoEval.summarize_nofile(id_setup))
-    return mean_MR, fpps, scores
-
-if __name__ == "__main__":
-    MRs = validate('/home/ljp/code/citypersons/evaluation/val_gt.json', '/home/ljp/code/mmdetection/result_ori_csp.json')
-    # MRs = validate('/media/ljp/Data/data/cityscapes/leftImg8bit_trainvaltest/train_evaluation.json', '/home/ljp/code/mmdetection/train_result.json')
-    print('Checkpoint %d: [Reasonable: %.2f%%], [Bare: %.2f%%], [Partial: %.2f%%], [Heavy: %.2f%%]'
-          % (0, MRs[0] * 100, MRs[1] * 100, MRs[2] * 100, MRs[3] * 100))
-
+        my_id_setup.append(id_setup)
+    return mean_MR
