@@ -1,3 +1,5 @@
+
+
 # **Updates**
 * Added pre-trained models for Caltech, CityPersons and EuroCity Persons
 * Added some qualitative results for Caltech on [YouTube](https://www.youtube.com/watch?v=cemN7JbgxWE&feature=youtu.be)
@@ -5,12 +7,10 @@
 * Added testing and training scripts for all datasets.
 
 
-
- 
-
-
-
 # Pedestron
+
+ ![demo image](icon/demo.jpg)
+
 [Pedestron](https://128.84.21.199/pdf/2003.08799.pdf) is an [MMetection](https://github.com/open-mmlab/mmdetection) based repository that focuses on the advancement of research on pedestrian detection.
 We provide processed annotations and scripts to process the annotation of different pedestrian detection benchmarks.
 
