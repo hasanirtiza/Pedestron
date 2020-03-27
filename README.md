@@ -5,6 +5,7 @@
 * Added some qualitative results for Caltech on [YouTube](https://www.youtube.com/watch?v=cemN7JbgxWE&feature=youtu.be)
 * Added demo script to perform inference using pre-trained models on some images
 * Added testing and training scripts for all datasets.
+* **Added configurations for Faster R-CNN along with pre-trained model**
 
 
 # Pedestron
@@ -22,8 +23,9 @@ We refer to the installation and list of dependencies to [installation](https://
 Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md).
 
 ### List of detectors
-
-*Currently we provide configurations for Cascade Mask-RCNN  
+Currently We provide configurations for
+* Cascade Mask-R-CNN
+* Faster R-CNN  
 
 
 ### Following datasets are currently supported 
@@ -43,17 +45,20 @@ Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestr
 ### Benchmarking of Pre-Trained models
 |    Detector                | Dataset   | Reasonable  | Heavy    | 
 |--------------------|:--------:|:--------:|:--------:|
-| Cascade Mask R-CNN | CityPersons        | 7.5        |   28.0      | 
-| Cascade Mask R-CNN | Caltech        |   1.7      |    25.7     | 
-| Cascade Mask R-CNN | EuroCity Persons |    4.4     |  21.3       | 
+| [Cascade Mask R-CNN](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8) | CityPersons        | 7.5        |   28.0      | 
+| [Faster R-CNN](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749) | CityPersons        | 10.3        |   33.07      | 
+| [Cascade Mask R-CNN](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv) | Caltech        |   1.7      |    25.7     | 
+| [Cascade Mask R-CNN](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15) | EuroCity Persons |    4.4     |  21.3       | 
  
 
 ### Pre-Trained models
+Cascade Mask R-CNN
 1) [CityPersons](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8)
 2) [Caltech](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv)
 3) [EuroCity Persons](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15)
 
-
+Faster R-CNN
+1) [CityPersons](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749)
 
 ### Running a demo using pre-trained model on few images
 1) Pre-trained model can be evaluated on sample images in the following way
