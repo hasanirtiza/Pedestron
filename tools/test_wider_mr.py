@@ -216,7 +216,7 @@ def main():
         with open(args.out, 'w') as f:
             json.dump(res, f)
 
-        MRs = validate('/media/ljp/Data/data/wide_face_pedestrain_challenge/val.json', args.out)
+        MRs = validate('datasets/wide_pedestrain_challenge/val.json', args.out)
         print(MRs)
         print('Checkpoint %d: [Reasonable: %.2f%%], [Bare: %.2f%%], [Partial: %.2f%%], [Heavy: %.2f%%]'
               % (i, MRs[0] * 100, MRs[1] * 100, MRs[2] * 100, MRs[3] * 100))

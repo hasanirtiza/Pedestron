@@ -67,7 +67,7 @@ def run_detector_on_dataset(day='day', mode='val'):
 
     args = parse_args()
 
-    eval_imgs = glob.glob('/media/ljp/Data/data/EuroCity/ECP/{}/img/{}/*/*'.format(day, mode))
+    eval_imgs = glob.glob('datasets/EuroCity/ECP/{}/img/{}/*/*'.format(day, mode))
     destdir = './results/mock_detections/{}/{}/'.format(day, mode)
     create_base_dir(destdir)
     for i in range(args.checkpoint_start, args.checkpoint_end):
