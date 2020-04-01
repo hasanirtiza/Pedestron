@@ -6,6 +6,7 @@
 * Added demo script to perform inference using pre-trained models on some images
 * Added testing and training scripts for all datasets.
 * **Added configurations for Faster R-CNN along with pre-trained model**
+* **Added configurations for RetinaNet along with pre-trained model**
 
 
 # Pedestron
