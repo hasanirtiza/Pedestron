@@ -46,7 +46,8 @@ Currently We provide configurations for
 |    Detector                | Dataset   | Reasonable  | Heavy    | 
 |--------------------|:--------:|:--------:|:--------:|
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8) | CityPersons        | 7.5        |   28.0      | 
-| [Faster R-CNN](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749) | CityPersons        | 10.3        |   33.07      | 
+| [Faster R-CNN](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749) | CityPersons        | 10.3        |   33.07      |
+| [RetinaNet](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY) | CityPersons        | 14.6        |   39.5      | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv) | Caltech        |   1.7      |    25.7     | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15) | EuroCity Persons |    4.4     |  21.3       | 
  
