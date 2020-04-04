@@ -19,10 +19,22 @@
    4. For evaluation on Caltech tools/caltech/convert_json_to_txt.py is used to convert the caltech results from json to .txt which can be evaluated using the official [caltech matlab evalutation tool](http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/). 
 
 - **EuroCity Persons**
-   1. Download the datasets from the official sites. Fill in the copyright forms where applicable. Images and annotaions (day-time) can be downloaded from this [link](https://eurocity-dataset.tudelft.nl/)
-   2. Convert the annotations to Pedestron format from the provided scripts in tools/convert_datasets/ecp/
+   1. We provide unofficial annotations in .json format for CityPerson already contained in the repository ./datasets/EuroCity
+   2. Download the datasets from the official sites. Fill in the copyright forms where applicable. Images and annotaions (day-time) can be downloaded from this [link](https://eurocity-dataset.tudelft.nl/)
    3. Place EuroCity Person in ./datasets folder in the follwoing heararchy, for example annotation file for EuroCity Persons should be (./datasets/EuroCity/) and images should be
-   (./datsets/EuroCity/ECP/day/img/train) for training images and all validtaion images into(./datsets/EuroCity/ECP/day/img/val).   
+   (./datsets/EuroCity/ECP/day/img/train) for training images and all validtaion images into(./datsets/EuroCity/ECP/day/img/val). 
+
+- **WiderPedestrian Challenge**
+    1. We provide unofficial annotations in .json format for WiderPedestrian Challenge already contained in the repository ./datasets/Wider_challenge
+	2. Download the datasets from the official sites. Fill in the copyright forms where applicable. For WiderPedestrian Challenge official annotaions and images visit the following [link](https://competitions.codalab.org/competitions/20132)     	
+	3. Place WiderPedestrian Challenge in ./datasets folder in the following heararchy, for example annotation file for WiderPedestrian Challenge should be (./datsets/Wider_challenge/) and images should be
+   (./datsets/Wider_challenge/train_images) for training images.
+
+- **CrowdHuman**
+    1. We provide unofficial annotations in .json format for CrowdHuman already contained in the repository ./datasets/CrowdHuman
+	2. Download the datasets from the official sites. Fill in the copyright forms where applicable. For CrowdHuman official annotaions and images visit the following [link](https://www.crowdhuman.org/)     	
+	3. Place CrowdHuman in ./datasets folder in the following heararchy, for example annotation file for CrowdHuman should be (./datsets/CrowdHuman/) and images should be
+   (./datsets/CrowdHuman/Images) for training images.    
 
 - **Custom Dataset**
 	1. Pedestron accepts annotations in the .json format similar to COCO annotation style.
