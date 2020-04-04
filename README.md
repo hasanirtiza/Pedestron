@@ -26,7 +26,8 @@ Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestr
 ### List of detectors
 Currently We provide configurations for
 * Cascade Mask-R-CNN
-* Faster R-CNN  
+* Faster R-CNN
+* RetinaNet  
 
 
 ### Following datasets are currently supported 
@@ -44,13 +45,13 @@ Currently We provide configurations for
 
 
 ### Benchmarking of Pre-Trained models
-|    Detector                | Dataset   | Reasonable  | Heavy    | 
-|--------------------|:--------:|:--------:|:--------:|
-| [Cascade Mask R-CNN](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8) | CityPersons        | 7.5        |   28.0      | 
-| [Faster R-CNN](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749) | CityPersons        | 10.3        |   33.07      |
-| [RetinaNet](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY) | CityPersons        | 14.6        |   39.5      | 
-| [Cascade Mask R-CNN](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv) | Caltech        |   1.7      |    25.7     | 
-| [Cascade Mask R-CNN](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15) | EuroCity Persons |    4.4     |  21.3       | 
+|    Detector                | Dataset   | Backbone| Reasonable  | Heavy    | 
+|--------------------|:--------:|:--------:|:--------:|:--------:|
+| [Cascade Mask R-CNN](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8) | CityPersons        | HRNet | 7.5        |   28.0      | 
+| [Faster R-CNN](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749) | CityPersons        | HRNet | 10.3        |   33.07      |
+| [RetinaNet](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY) | CityPersons        | ResNeXt | 14.6        |   39.5      | 
+| [Cascade Mask R-CNN](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv) | Caltech        | HRNet |   1.7      |    25.7     | 
+| [Cascade Mask R-CNN](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15) | EuroCity Persons | HRNet |    4.4     |  21.3       | 
  
 
 ### Pre-Trained models
@@ -61,6 +62,9 @@ Cascade Mask R-CNN
 
 Faster R-CNN
 1) [CityPersons](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749)
+
+RetinaNet
+1) [CityPersons](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY)
 
 ### Running a demo using pre-trained model on few images
 1) Pre-trained model can be evaluated on sample images in the following way
