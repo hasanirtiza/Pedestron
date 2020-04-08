@@ -1,5 +1,5 @@
 # **Notes**
-* We provide unoffical processd annotations for Caltech and CityPersons datasets.
+* We provide unoffical processd annotations (.json format) for Caltech, CityPersons, EuroCity Persons, WiderPedestrian Challenge and CrowdHuman datasets.
 * For images and original annotations of these two datasets along with other datasets, you need to visit the official pages of the respective datasets, fill sign up forms where applicable.  
 * Cite the respective sources for each datasets
 
