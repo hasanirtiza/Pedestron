@@ -7,7 +7,7 @@
 * Added testing and training scripts for all datasets.
 * **Added configurations for Faster R-CNN along with pre-trained model**
 * **Added configurations for RetinaNet along with pre-trained model**
-* **Added processed un-official anntations in  .json format for Caltech, CityPersons, EuroCity Persons, WiderPedestrian Challenge and CrowdHuman**
+* **Added processed un-official annotations in  .json format for Caltech, CityPersons, EuroCity Persons, WiderPedestrian Challenge and CrowdHuman**
 
 
 # Pedestron
