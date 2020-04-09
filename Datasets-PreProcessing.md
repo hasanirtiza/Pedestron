@@ -16,7 +16,8 @@
    2. Download the datasets from the official sites. Fill in the copyright forms where applicable. For Caltech **new annotaions** visit the following [link](https://www.mpi-inf.mpg.de/departments/computer-vision-and-machine-learning/research/people-detection-pose-estimation-and-tracking/how-far-are-we-from-solving-pedestrian-detection/) and for images visit this [link](http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/)     	
    3. Place Caltech in ./datasets folder in the follwoing heararchy, for example annotation file for Caltech should be (./datsets/Caltech/) and extract images and images should be
    (./datsets/Caltech/train_images) for training images and all validtaion images into(./datsets/Caltech/test_images). 
-   4. For evaluation on Caltech tools/caltech/convert_json_to_txt.py is used to convert the caltech results from json to .txt which can be evaluated using the official [caltech matlab evalutation tool](http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/). 
+   4. For evaluation on Caltech we have borrowed it from (https://github.com/liuwei16/CSP), tools/caltech/convert_json_to_txt.py is used to convert the caltech results from .json to .txt. The output will be save in tools/caltech/eval_caltech/Pedestron_Results with the following hierarchy Pedestron_Results/epoch_number/set_number/*.txt 
+   5. Open Matlab(evaluation code is only available in Matlab at the momment) and navigate Matlab to the folder tools/caltech/eval_caltech. Run dbEval.m, results will be saved at eval_caltech/ResultsEval/eval-newReasonable.txt       
 
 - **EuroCity Persons**
    1. We provide unofficial annotations in .json format for CityPerson already contained in the repository ./datasets/EuroCity

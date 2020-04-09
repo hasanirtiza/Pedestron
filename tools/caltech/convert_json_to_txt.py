@@ -9,7 +9,7 @@ gt_json = 'datasets/Caltech/test.json'
 result_dir = 'work_dirs/cascade_ch_wider_plus_sur_ecp_day_caltech/jsons/'
 result_jsons = glob.glob(result_dir + '/*.json')
 print(result_jsons)
-matlab_results_dir = 'work_dirs/cascade_ch_wider_plus_sur_ecp_day_caltech/matlab_result/'
+matlab_results_dir = 'tools/caltech/eval_caltech/Pedestron_Result/'
 with open(gt_json, 'r') as f:
     gt_json = json.load(f)
 image_names = []
