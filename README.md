@@ -48,7 +48,7 @@ Currently we provide configurations for with different backbones
 |    Detector                | Dataset   | Backbone| Reasonable  | Heavy    | 
 |--------------------|:--------:|:--------:|:--------:|:--------:|
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8) | CityPersons        | HRNet | 7.5        |   28.0      | 
-| [Cascade Mask R-CNN](https://drive.google.com/open?id=1ysWlzN92EInIjDD_QwIq3iQEZJDo8wtT) | CityPersons        | MobileNet | 10.3        |   37.3      | 
+| [Cascade Mask R-CNN](https://drive.google.com/open?id=1ysWlzN92EInIjDD_QwIq3iQEZJDo8wtT) | CityPersons        | MobileNet | 10.2        |   37.3      | 
 | [Faster R-CNN](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749) | CityPersons        | HRNet | 10.2        |   36.2      |
 | [RetinaNet](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY) | CityPersons        | ResNeXt | 14.6        |   39.5      |
 | [Hybrid Task Cascade(HTC)](https://drive.google.com/open?id=1qPEJ1r48Ggl2TdE1ohcDoprZomC2j3SX) | CityPersons        | ResNeXt | 9.5       |   35.8      | 
