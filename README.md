@@ -1,10 +1,11 @@
 
 
 # **Updates**
-* Added pre-trained models for Caltech, CityPersons and EuroCity Persons
-* **Added configurations for Faster R-CNN along with pre-trained model**
-* **Added configurations for RetinaNet along with pre-trained model**
-* **Added processed un-official annotations in  .json format for Caltech, CityPersons, EuroCity Persons, WiderPedestrian Challenge and CrowdHuman**
+* Added configurations for Faster R-CNN along with pre-trained model
+* Added configurations for RetinaNet along with pre-trained model
+* Added processed un-official annotations in  .json format for Caltech, CityPersons, EuroCity Persons, WiderPedestrian Challenge and CrowdHuman
+* [NEW] **Added configurations and pre-trained model for Hybrid Task Cascade (HTC)**
+* [NEW] **Added backbone MobileNet along with its benchmarking**
 
 
 # Pedestron
@@ -22,10 +23,11 @@ We refer to the installation and list of dependencies to [installation](https://
 Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md).
 
 ### List of detectors
-Currently We provide configurations for
+Currently we provide configurations for with different backbones
 * Cascade Mask-R-CNN
 * Faster R-CNN
-* RetinaNet  
+* RetinaNet
+* Hybrid Task Cascade(HTC)  
 
 
 ### Following datasets are currently supported 
@@ -46,8 +48,10 @@ Currently We provide configurations for
 |    Detector                | Dataset   | Backbone| Reasonable  | Heavy    | 
 |--------------------|:--------:|:--------:|:--------:|:--------:|
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8) | CityPersons        | HRNet | 7.5        |   28.0      | 
-| [Faster R-CNN](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749) | CityPersons        | HRNet | 10.3        |   33.07      |
-| [RetinaNet](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY) | CityPersons        | ResNeXt | 14.6        |   39.5      | 
+| [Cascade Mask R-CNN](https://drive.google.com/open?id=1ysWlzN92EInIjDD_QwIq3iQEZJDo8wtT) | CityPersons        | MobileNet | 10.3        |   37.3      | 
+| [Faster R-CNN](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749) | CityPersons        | HRNet | 10.2        |   36.2      |
+| [RetinaNet](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY) | CityPersons        | ResNeXt | 14.6        |   39.5      |
+| [Hybrid Task Cascade(HTC)](https://drive.google.com/open?id=1qPEJ1r48Ggl2TdE1ohcDoprZomC2j3SX) | CityPersons        | ResNeXt | 9.5       |   35.8      | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv) | Caltech        | HRNet |   1.7      |    25.7     | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15) | EuroCity Persons | HRNet |    4.4     |  21.3       | 
  
@@ -63,6 +67,9 @@ Faster R-CNN
 
 RetinaNet
 1) [CityPersons](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY)
+
+Hybrid Task Cascade(HTC)
+1) [CityPersons](https://drive.google.com/open?id=1qPEJ1r48Ggl2TdE1ohcDoprZomC2j3SX)
 
 ### Running a demo using pre-trained model on few images
 1) Pre-trained model can be evaluated on sample images in the following way
