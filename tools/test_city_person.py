@@ -176,6 +176,7 @@ def main():
             while i+1 != args.checkpoint_end and not osp.exists(args.checkpoint + str(i+1) + '.pth'):
                 time.sleep(5)
             checkpoint = load_checkpoint(model, args.checkpoint + str(i) + '.pth', map_location='cpu')
+            model.CLASSES = dataset.CLASSES
         else:
             while not osp.exists(args.checkpoint + str(i) + '.pth.stu'):
                 time.sleep(5)
@@ -183,12 +184,12 @@ def main():
                 time.sleep(5)
             checkpoint = load_checkpoint(model, args.checkpoint + str(i) + '.pth.stu', map_location='cpu')
             checkpoint['meta'] = dict()
-        # old versions did not save class info in checkpoints, this walkaround is
+            if 'CLASSES' in checkpoint['meta']:
+                model.CLASSES = checkpoint['meta']['CLASSES']
+            else:
+                model.CLASSES = dataset.CLASSES        # old versions did not save class info in checkpoints, this walkaround is
         # for backward compatibility
-        if 'CLASSES' in checkpoint['meta']:
-            model.CLASSES = checkpoint['meta']['CLASSES']
-        else:
-            model.CLASSES = dataset.CLASSES
+        
 
         if not distributed:
             model = MMDataParallel(model, device_ids=[0])
