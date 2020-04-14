@@ -49,14 +49,14 @@ test_cfg = dict(
 )
 # dataset settings
 dataset_type = 'CocoDataset'
-data_root = 'datasets/CityPersons'
+data_root = 'datasets/CityPersons/'
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
     imgs_per_gpu=2,
     workers_per_gpu=2,
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'annotations/val_gt_for_mmdetction.json',
+        ann_file=data_root + 'val_gt_for_mmdetction.json',
         img_prefix=data_root + '/leftImg8bit_trainvaltest/leftImg8bit/val_all_in_folder/',
         img_scale=(2048, 1024),
         img_norm_cfg=img_norm_cfg,
