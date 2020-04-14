@@ -5,12 +5,12 @@
 
 
 [Pedestron](https://128.84.21.199/pdf/2003.08799.pdf) is a [MMetection](https://github.com/open-mmlab/mmdetection) based repository that focuses on the advancement of research on pedestrian detection.
-We provide processed annotations and scripts to process the annotation of different pedestrian detection benchmarks.
+We provide processed annotations and scripts to process the annotation of different pedestrian detection benchmarks. If you use Pedestron, please cite other sources appropriately.
 
 # **Updates**
-* [NEW] **Added configurations and pre-trained model for Hybrid Task Cascade (HTC)**
-* [NEW] **Added backbone MobileNet along with its benchmarking**
+* [NEW] **Added configurations and pre-trained model for Hybrid Task Cascade (HTC) and MobileNet**
 * [NEW] **Evaluation code for the Caltech dataset, added to the repository**
+* [NEW] **Ported testing of Mask-Guided Attention Network for Occluded Pedestrian Detection (MGAN). (ICCV'19), into Pedestron along with pretrained model**
 
 
 ### YouTube
@@ -26,6 +26,7 @@ Currently we provide configurations for with different backbones
 * Faster R-CNN
 * RetinaNet
 * Hybrid Task Cascade (HTC)  
+* MGAN  
 
 
 ### Following datasets are currently supported 
@@ -50,6 +51,7 @@ Currently we provide configurations for with different backbones
 | [Faster R-CNN](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749) | CityPersons        | HRNet | 10.2        |   36.2      |
 | [RetinaNet](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY) | CityPersons        | ResNeXt | 14.6        |   39.5      |
 | [Hybrid Task Cascade (HTC)](https://drive.google.com/open?id=1qPEJ1r48Ggl2TdE1ohcDoprZomC2j3SX) | CityPersons        | ResNeXt | 9.5       |   35.8      | 
+| [MGAN](https://drive.google.com/open?id=1c191nSSRUGd0LfkjYXKcyJEZCtjUeWr-) | CityPersons        | VGG | 11.2       |   52.5      | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv) | Caltech        | HRNet |   1.7      |    25.7     | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15) | EuroCity Persons | HRNet |    4.4     |  21.3       | 
  
@@ -68,6 +70,9 @@ RetinaNet
 
 Hybrid Task Cascade (HTC)
 1) [CityPersons](https://drive.google.com/open?id=1qPEJ1r48Ggl2TdE1ohcDoprZomC2j3SX)
+
+MGAN
+1) [CityPersons](https://drive.google.com/open?id=1c191nSSRUGd0LfkjYXKcyJEZCtjUeWr-)
 
 ### Running a demo using pre-trained model on few images
 1) Pre-trained model can be evaluated on sample images in the following way
@@ -124,6 +129,13 @@ For example for CityPersons inference can be done the following way
 python ./tools/test_city_person.py configs/elephant/cityperson/cascade_hrnet.py ./models_pretrained/epoch_ 5 6\
  --out result_citypersons.json --mean_teacher 
 ```
+or without mean_teacher flag for MGAN
+
+```shell 
+python ./tools/test_city_person.py configs/elephant/cityperson/mgan_vgg.py ./models_pretrained/epoch_ 1 2\
+ --out result_citypersons.json  
+```
+
 * Similarly change respective paths for EuroCity Persons
 * For Caltech refer to [Datasets preparation file](Datasets-PreProcessing.md)
 
