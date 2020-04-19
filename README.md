@@ -73,6 +73,8 @@ Hybrid Task Cascade (HTC)
 MGAN
 1) [CityPersons](https://drive.google.com/open?id=1c191nSSRUGd0LfkjYXKcyJEZCtjUeWr-)
 
+# Getting Started
+
 ### Running a demo using pre-trained model on few images
 1) Pre-trained model can be evaluated on sample images in the following way
 
