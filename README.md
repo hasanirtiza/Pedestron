@@ -10,6 +10,7 @@
 * [NEW] **Added configurations and pre-trained model for Hybrid Task Cascade (HTC) and MobileNet**
 * [NEW] **Evaluation code for the Caltech dataset, added to the repository**
 * [NEW] **Ported testing of Mask-Guided Attention Network for Occluded Pedestrian Detection (MGAN). (ICCV'19), into Pedestron along with pretrained model**
+* [NEW] **Added a pre-trained model for generic person detection**
 
 
 ### YouTube
@@ -60,6 +61,7 @@ Cascade Mask R-CNN
 1) [CityPersons](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8)
 2) [Caltech](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv)
 3) [EuroCity Persons](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15)
+4) [CrowdHuman](https://drive.google.com/open?id=1rXopG04Dv-HKge3ZyqNYAHdCi9gmLuNe)
 
 Faster R-CNN
 1) [CityPersons](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749)
