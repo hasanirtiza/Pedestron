@@ -147,7 +147,7 @@ python ./tools/test_city_person.py configs/elephant/cityperson/mgan_vgg.py ./mod
 * For Caltech refer to [Datasets preparation file](Datasets-PreProcessing.md)
 
 ### Please cite the following work
-[ArXiv version](https://128.84.21.199/pdf/2003.08799.pdf)
+[ArXiv version](https://arxiv.org/pdf/2003.08799.pdf)
 ```
 @article{hasan2020pedestrian,
   title={Pedestrian Detection: The Elephant In The Room},
