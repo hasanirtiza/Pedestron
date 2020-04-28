@@ -17,8 +17,8 @@
 * [NEW] **Added a pre-trained model for generic person detection**
 
 
-### YouTube
-* YouTube [link](https://www.youtube.com/watch?v=cemN7JbgxWE&feature=youtu.be)  for qualitative results on Caltech. Pre-Trained model available.
+### YouTube demo
+* [Caltech](https://www.youtube.com/watch?v=cemN7JbgxWE&feature=youtu.be) and [EuroCity Person](https://www.youtube.com/watch?v=ZFObRPa_yMM). Pre-Trained model available.
 
 ### Installation
 We refer to the installation and list of dependencies to [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md) file.
