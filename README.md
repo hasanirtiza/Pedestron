@@ -15,6 +15,7 @@
 * [NEW] **Evaluation code for the Caltech dataset, added to the repository**
 * [NEW] **Ported testing of Mask-Guided Attention Network for Occluded Pedestrian Detection (MGAN). (ICCV'19), into Pedestron along with pretrained model**
 * [NEW] **Added a pre-trained model for generic person detection**
+* [NEW] **Pedestron now supports genenral person and pedestrian detection in crowded scenarios. Pre-trained model along with evaluation script on CrowdHuman benchmark is added**
 
 
 ### YouTube demo
