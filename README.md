@@ -11,8 +11,6 @@
 [Pedestron](https://128.84.21.199/pdf/2003.08799.pdf) is a [MMetection](https://github.com/open-mmlab/mmdetection) based repository that focuses on the advancement of research on pedestrian detection. We provide a list of detectors, both general purpose and pedestrian specific to train and test. Moreover, we provide pre-trained models and benchmarking of several detectors on different pedestrian detection datasets. Additionally, we provide processed annotations and scripts to process the annotation of different pedestrian detection benchmarks. If you use Pedestron, please consider citing respective sources.
 
 # **Updates**
-* [NEW] **Added configurations and pre-trained model for Hybrid Task Cascade (HTC) and MobileNet**
-* [NEW] **Evaluation code for the Caltech dataset, added to the repository**
 * [NEW] **Ported testing of Mask-Guided Attention Network for Occluded Pedestrian Detection (MGAN). (ICCV'19), into Pedestron along with pretrained model**
 * [NEW] **Added a pre-trained model for generic person detection**
 * [NEW] **Pedestron now supports genenral person and pedestrian detection in crowded scenarios. Pre-trained model along with evaluation script on CrowdHuman benchmark is added**
