@@ -35,7 +35,7 @@
     1. We provide unofficial annotations in .json format for CrowdHuman already contained in the repository ./datasets/CrowdHuman
 	2. Download the datasets from the official sites. Fill in the copyright forms where applicable. For CrowdHuman official annotaions and images visit the following [link](https://www.crowdhuman.org/)     	
 	3. Place CrowdHuman in ./datasets folder in the following heararchy, for example annotation file for CrowdHuman should be (./datsets/CrowdHuman/) and images should be
-   (./datsets/CrowdHuman/Images) for training images.    
+   (./datsets/CrowdHuman/Images) for training images and (./datsets/CrowdHuman/Images_val) for validation images.    
 
 - **Custom Dataset**
 	1. Pedestron accepts annotations in the .json format similar to COCO annotation style.
