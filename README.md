@@ -66,7 +66,8 @@ Cascade Mask R-CNN
 1) [CityPersons](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8)
 2) [Caltech](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv)
 3) [EuroCity Persons](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15)
-4) [CrowdHuman](https://drive.google.com/open?id=1rXopG04Dv-HKge3ZyqNYAHdCi9gmLuNe)
+4) [CrowdHuman 1](https://drive.google.com/open?id=1rXopG04Dv-HKge3ZyqNYAHdCi9gmLuNe)
+5)[CrowdHumam 2](https://drive.google.com/open?id=1MqI1-Bbn0vl5Ft1RnhD70YWl7JHRyVMx)
 
 Faster R-CNN
 1) [CityPersons](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749)
@@ -97,6 +98,10 @@ python tools/demo.py configs/elephant/cityperson/cascade_hrnet.py ./models_pretr
 
 
 ### Training
+
+- [x] single GPU training
+- [x] multiple GPU training
+
 Train with single GPU
 
 ```shell
@@ -121,6 +126,9 @@ Training on CityPersons using multiple(7 in this case) GPUs
 
 ### Testing
 
+- [x] single GPU testing
+- [x] multiple GPU testing
+
 Test can be run using the following command.
  
 ```shell 
@@ -142,6 +150,16 @@ or without mean_teacher flag for MGAN
 ```shell 
 python ./tools/test_city_person.py configs/elephant/cityperson/mgan_vgg.py ./models_pretrained/epoch_ 1 2\
  --out result_citypersons.json  
+```
+
+Testing with multiple GPUs on CrowdHuman
+
+```shell
+./tools/dist_test.sh ${CONFIG_FILE} ${CHECKPOINT_FILE} ${GPU_NUM} [--out ${RESULT_FILE}] [--eval ${EVAL_METRICS}]
+```
+
+```shell
+./tools/dist_test.sh configs/elephant/crowdhuman/cascade_hrnet.py ./models_pretrained/epoch_19.pth.stu 8 --out CrowdHuman12.pkl --eval bbox
 ```
 
 * Similarly change respective paths for EuroCity Persons
