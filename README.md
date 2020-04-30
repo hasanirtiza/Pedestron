@@ -14,6 +14,9 @@
 * [NEW] **Ported testing of Mask-Guided Attention Network for Occluded Pedestrian Detection (MGAN). (ICCV'19), into Pedestron along with pretrained model**
 * [NEW] **Added a pre-trained model for generic person detection**
 * [NEW] **Pedestron now supports general person and pedestrian detection in crowded scenarios. Pre-trained model along with evaluation script on CrowdHuman benchmark is added**
+* [NEW] **Pre-trained model for WIDER PERSON and WIDER pedestrian datasets has been added to the Pedestron**
+
+
 
 
 ### YouTube demo
@@ -65,7 +68,8 @@ Cascade Mask R-CNN
 2) [Caltech](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv)
 3) [EuroCity Persons](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15)
 4) [CrowdHuman 1](https://drive.google.com/open?id=1rXopG04Dv-HKge3ZyqNYAHdCi9gmLuNe)
-5) [CrowdHuman 2](https://drive.google.com/open?id=1MqI1-Bbn0vl5Ft1RnhD70YWl7JHRyVMx)
+5) [CrowdHuman 2](https://drive.google.com/open?id=1MqI1-Bbn0vl5Ft1RnhD70YWl7JHRyVMx) (higher AP)
+6) [WIDER PERSON and WIDER Pedestrian](https://drive.google.com/open?id=1Z1LTASbr-VTIfbk4Fu-d2VCBpKPqADH8)
 
 Faster R-CNN
 1) [CityPersons](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749)
