@@ -14,7 +14,7 @@
 * [NEW] **Ported testing of Mask-Guided Attention Network for Occluded Pedestrian Detection (MGAN). (ICCV'19), into Pedestron along with pretrained model**
 * [NEW] **Added a pre-trained model for generic person detection**
 * [NEW] **Pedestron now supports general person and pedestrian detection in crowded scenarios. Pre-trained model along with evaluation script on CrowdHuman benchmark is added**
-* [NEW] **Pre-trained model for WIDER PERSON and WIDER pedestrian datasets has been added to the Pedestron**
+* [NEW] **Pre-trained model for WIDER PERSON and WIDER pedestrian datasets has been added to the Pedestron, for general person detection**
 
 
 
