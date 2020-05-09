@@ -49,7 +49,7 @@ Currently we provide configurations for with different backbones
 
 # Benchmarking 
 
-### Benchmarking of pre-Trained models on pedestrian detection datasets (autonomous driving)
+### Benchmarking of pre-trained models on pedestrian detection datasets (autonomous driving)
 |    Detector                | Dataset   | Backbone| Reasonable  | Heavy    | 
 |--------------------|:--------:|:--------:|:--------:|:--------:|
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8) | CityPersons        | HRNet | 7.5        |   28.0      | 
