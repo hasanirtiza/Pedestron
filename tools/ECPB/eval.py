@@ -125,7 +125,7 @@ def eval(time='day', mode='val', eval_type='pedestrian', det_path=None):
     assert time in ['day', 'night']
     assert mode in ['val', 'test']
 
-    gt_path = '/media/ljp/Data/data/EuroCity/ECP/{}/labels/{}'.format(time, mode)
+    gt_path = './datasets/EuroCity/ECP/{}/labels/{}'.format(time, mode)
     if det_path is None:
         det_path = './results/mock_detections/{}/{}'.format(time, mode)
     det_method_name = 'Faster R-CNN'
