@@ -153,6 +153,12 @@ For example for CityPersons inference can be done the following way
 python ./tools/test_city_person.py configs/elephant/cityperson/cascade_hrnet.py ./models_pretrained/epoch_ 5 6\
  --out result_citypersons.json --mean_teacher 
 ```
+Alternatively, for EuroCity Persons
+
+```shell
+python ./tools/test_euroCity.py configs/elephant/eurocity/cascade_hrnet.py ./models_pretrained/epoch_ 147 148 --mean_teacher
+```
+
 or without mean_teacher flag for MGAN
 
 ```shell 
