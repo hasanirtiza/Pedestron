@@ -8,7 +8,7 @@
 - CUDA 9.0+
 - NCCL 2+
 - GCC 4.9+
-- [mmcv](https://github.com/open-mmlab/mmcv) (We have tested Pedestron using  mmcv==0.2.10)
+- [mmcv](https://github.com/open-mmlab/mmcv) (We have tested Pedestron using  mmcv==0.2.10 and 0.2.14)
 
 We have tested the following versions of OS and softwares:
 
