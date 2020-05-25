@@ -16,7 +16,7 @@
 * [NEW] **Pedestron now supports general person and pedestrian detection in crowded scenarios. Pre-trained model along with evaluation script on CrowdHuman benchmark is added**
 * [NEW] **Pre-trained model for WIDER pedestrian datasets has been added to the Pedestron, for general person detection**
 * :fire: **Configuration along with a pre-trained model for RetinaNet with Gudied Anchoring added. Its fast and accurate**
-* :fire: **Configuration along with a pre-trained model for Faster R-CNN with HRNet for EuroCity Persons has been adeed.** 
+* :fire: **Configuration along with a pre-trained model for Faster R-CNN with HRNet for EuroCity Persons has been adeed** 
 
 
 
