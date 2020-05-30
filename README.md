@@ -12,12 +12,11 @@
 
 # :fire: **Updates** :fire:
 * [NEW] **Ported testing of Mask-Guided Attention Network for Occluded Pedestrian Detection (MGAN). (ICCV'19), into Pedestron along with pretrained model**
-* [NEW] **Added a pre-trained model for generic person detection**
 * [NEW] **Pedestron now supports general person and pedestrian detection in crowded scenarios. Pre-trained model along with evaluation script on CrowdHuman benchmark is added**
 * [NEW] **Pre-trained model for WIDER pedestrian datasets has been added to the Pedestron, for general person detection**
 * :fire: **Configuration along with a pre-trained model for RetinaNet with Gudied Anchoring added. Its fast and accurate**
 * :fire: **Configuration along with a pre-trained model for Faster R-CNN with HRNet for EuroCity Persons has been adeed**
-* :fire: **Added step by step instruction on how to setup and run Pedestron on Google Colab by [Gokulan Vikash](https://github.com/gokulanv)** 
+* :fire: **Added step by step instruction on how to setup and run Pedestron on [Google Colab](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) by [Gokulan Vikash](https://github.com/gokulanv)** 
 
 
 
@@ -27,7 +26,7 @@
 
 ### Installation
 We refer to the installation and list of dependencies to [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md) file.
-Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md).
+Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md). Alternatively, [Google Colab](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) step by step instruction can be followed for installation 
 
 ### List of detectors
 Currently we provide configurations for with different backbones
@@ -113,6 +112,8 @@ Download one of our provided pre-trained model and place it in  models_pretraine
 ```shell 
 python tools/demo.py configs/elephant/cityperson/cascade_hrnet.py ./models_pretrained/epoch_5.pth.stu demo/ result_demo/ 
 ```
+
+See [Google Colab demo](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb). 
 
 
 
