@@ -16,7 +16,7 @@
 * [NEW] **Pre-trained model for WIDER pedestrian datasets has been added to the Pedestron, for general person detection**
 * :fire: **Configuration along with a pre-trained model for RetinaNet with Gudied Anchoring added. Its fast and accurate**
 * :fire: **Configuration along with a pre-trained model for Faster R-CNN with HRNet for EuroCity Persons has been adeed**
-* :fire: **Added step by step instruction on how to setup and run Pedestron on [Google Colab](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) by [Gokulan Vikash](https://github.com/gokulanv)** 
+* :fire: **[Google Colab](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) step-by-step instruction on how to setup Pedestron and run demo by [Gokulan Vikash](https://github.com/gokulanv)** 
 
 
 
