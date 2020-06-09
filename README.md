@@ -29,7 +29,7 @@ We refer to the installation and list of dependencies to [installation](https://
 Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md). Alternatively, [Google Colab](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) step by step instruction can be followed for installation 
 
 ### List of detectors
-Currently we provide configurations for with different backbones
+Currently we provide configurations for the following detectors, with different backbones
 * Cascade Mask-R-CNN
 * Faster R-CNN
 * RetinaNet
