@@ -24,6 +24,10 @@
 ### YouTube demo
 * [Caltech](https://www.youtube.com/watch?v=cemN7JbgxWE&feature=youtu.be) and [EuroCity Persons](https://www.youtube.com/watch?v=ZFObRPa_yMM). Pre-Trained model available.
 
+### Leaderboards 
+* [CityPersons](https://bitbucket.org/shanshanzhang/citypersons/src/default/)
+* [EuroCity Persons](https://eurocity-dataset.tudelft.nl/eval/benchmarks/detection)
+
 ### Installation
 We refer to the installation and list of dependencies to [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md) file.
 Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md). Alternatively, [Google Colab](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) step by step instruction can be followed for installation 
