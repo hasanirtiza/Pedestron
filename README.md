@@ -25,7 +25,7 @@
 * [Caltech](https://www.youtube.com/watch?v=cemN7JbgxWE&feature=youtu.be) and [EuroCity Persons](https://www.youtube.com/watch?v=ZFObRPa_yMM). Pre-Trained model available.
 
 ### Leaderboards 
-* [CityPersons](https://bitbucket.org/shanshanzhang/citypersons/src/default/)
+* [CityPersons](https://github.com/cvgroup-njust/CityPersons)
 * [EuroCity Persons](https://eurocity-dataset.tudelft.nl/eval/benchmarks/detection)
 
 ### Installation
