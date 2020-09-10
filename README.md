@@ -11,12 +11,10 @@
 [Pedestron](https://128.84.21.199/pdf/2003.08799.pdf) is a [MMdetection](https://github.com/open-mmlab/mmdetection) based repository that focuses on the advancement of research on pedestrian detection. We provide a list of detectors, both general purpose and pedestrian specific to train and test. Moreover, we provide pre-trained models and benchmarking of several detectors on different pedestrian detection datasets. Additionally, we provide processed annotations and scripts to process the annotation of different pedestrian detection benchmarks. If you use Pedestron, please cite us (see at the end) and other respective sources.
 
 # :fire: **Updates** :fire:
-* [NEW] **Ported testing of Mask-Guided Attention Network for Occluded Pedestrian Detection (MGAN). (ICCV'19), into Pedestron along with pretrained model**
-* [NEW] **Pedestron now supports general person and pedestrian detection in crowded scenarios. Pre-trained model along with evaluation script on CrowdHuman benchmark is added**
-* [NEW] **Pre-trained model for WIDER pedestrian datasets has been added to the Pedestron, for general person detection**
 * :fire: **Configuration along with a pre-trained model for RetinaNet with Gudied Anchoring added. Its fast and accurate**
 * :fire: **Configuration along with a pre-trained model for Faster R-CNN with HRNet for EuroCity Persons has been adeed**
 * :fire: **[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) step-by-step instruction on how to setup Pedestron and run demo by [Gokulan Vikash](https://github.com/gokulanv)** 
+* :fire: **We haved added a slightly better implementation High-Level Semantic Feature Detection: A New Perspective for Pedestrian Detection (CSP) CVPR 2019 to Pedestron along with a pre-trained model.**
 
 
 
@@ -65,7 +63,8 @@ Currently we provide configurations for the following detectors, with different 
 | [RetinaNet](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY) | CityPersons        | ResNeXt | 14.6        |   39.5      |
 | [RetinaNet with Guided Anchoring](https://drive.google.com/open?id=1eBxkjhl12ELlv7VFyH9jS2O4I3SO_t8V) | CityPersons        | ResNeXt | 11.7        |   41.5      |
 | [Hybrid Task Cascade (HTC)](https://drive.google.com/open?id=1qPEJ1r48Ggl2TdE1ohcDoprZomC2j3SX) | CityPersons        | ResNeXt | 9.5       |   35.8      | 
-| [MGAN](https://drive.google.com/open?id=1c191nSSRUGd0LfkjYXKcyJEZCtjUeWr-) | CityPersons        | VGG | 11.2       |   52.5      | 
+| [MGAN](https://drive.google.com/open?id=1c191nSSRUGd0LfkjYXKcyJEZCtjUeWr-) | CityPersons        | VGG | 11.2       |   52.5      |
+| [CSP](https://drive.google.com/file/d/1ejMOWDdoVJ73_YU_00INLeONT94I-i65/view?usp=sharing) | CityPersons        | ResNet-50 | 10.9       |   49.5      | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv) | Caltech        | HRNet |   1.7      |    25.7     | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15) | EuroCity Persons | HRNet |    4.4     |  21.3       |
 | [Faster R-CNN](https://drive.google.com/open?id=19xBNw_wJPGNFIYsylcxPGIuoDygxHa2D) | EuroCity Persons        | HRNet | 6.1        |   27.0      |
@@ -102,6 +101,9 @@ Hybrid Task Cascade (HTC)
 
 MGAN
 1) [CityPersons](https://drive.google.com/open?id=1c191nSSRUGd0LfkjYXKcyJEZCtjUeWr-)
+
+CSP
+1) [CityPersons](https://drive.google.com/file/d/1ejMOWDdoVJ73_YU_00INLeONT94I-i65/view?usp=sharing)
 
 # Getting Started
 
