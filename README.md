@@ -37,7 +37,8 @@ Currently we provide configurations for the following detectors, with different 
 * RetinaNet
 * RetinaNet with Guided Anchoring
 * Hybrid Task Cascade (HTC)  
-* MGAN  
+* MGAN
+* CSP 
 
 
 ### Following datasets are currently supported 
