@@ -65,7 +65,7 @@ Currently we provide configurations for the following detectors, with different 
 | [RetinaNet with Guided Anchoring](https://drive.google.com/open?id=1eBxkjhl12ELlv7VFyH9jS2O4I3SO_t8V) | CityPersons        | ResNeXt | 11.7        |   41.5      |
 | [Hybrid Task Cascade (HTC)](https://drive.google.com/open?id=1qPEJ1r48Ggl2TdE1ohcDoprZomC2j3SX) | CityPersons        | ResNeXt | 9.5       |   35.8      | 
 | [MGAN](https://drive.google.com/open?id=1c191nSSRUGd0LfkjYXKcyJEZCtjUeWr-) | CityPersons        | VGG | 11.2       |   52.5      |
-| [CSP](https://drive.google.com/file/d/1ejMOWDdoVJ73_YU_00INLeONT94I-i65/view?usp=sharing) | CityPersons        | ResNet-50 | 10.9       |   49.5      | 
+| [CSP](https://drive.google.com/file/d/1dGR80NiQnQRW_PMVr75Yqbab3qBXeUkU/view?usp=sharing) | CityPersons        | ResNet-50 | 10.9       |   49.5      | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv) | Caltech        | HRNet |   1.7      |    25.7     | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15) | EuroCity Persons | HRNet |    4.4     |  21.3       |
 | [Faster R-CNN](https://drive.google.com/open?id=19xBNw_wJPGNFIYsylcxPGIuoDygxHa2D) | EuroCity Persons        | HRNet | 6.1        |   27.0      |
@@ -104,7 +104,7 @@ MGAN
 1) [CityPersons](https://drive.google.com/open?id=1c191nSSRUGd0LfkjYXKcyJEZCtjUeWr-)
 
 CSP
-1) [CityPersons](https://drive.google.com/file/d/1ejMOWDdoVJ73_YU_00INLeONT94I-i65/view?usp=sharing)
+1) [CityPersons](https://drive.google.com/file/d/1dGR80NiQnQRW_PMVr75Yqbab3qBXeUkU/view?usp=sharing)
 
 # Getting Started
 
