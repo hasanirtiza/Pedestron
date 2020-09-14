@@ -11,9 +11,6 @@
 [Pedestron](https://128.84.21.199/pdf/2003.08799.pdf) is a [MMdetection](https://github.com/open-mmlab/mmdetection) based repository that focuses on the advancement of research on pedestrian detection. We provide a list of detectors, both general purpose and pedestrian specific to train and test. Moreover, we provide pre-trained models and benchmarking of several detectors on different pedestrian detection datasets. Additionally, we provide processed annotations and scripts to process the annotation of different pedestrian detection benchmarks. If you use Pedestron, please cite us (see at the end) and other respective sources.
 
 # :fire: **Updates** :fire:
-* :fire: **Configuration along with a pre-trained model for RetinaNet with Gudied Anchoring added. Its fast and accurate**
-* :fire: **Configuration along with a pre-trained model for Faster R-CNN with HRNet for EuroCity Persons has been adeed**
-* :fire: **[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) step-by-step instruction on how to setup Pedestron and run demo by [Gokulan Vikash](https://github.com/gokulanv)** 
 * :fire::fire: **We haved added a slightly better implementation of "High-Level Semantic Feature Detection: A New Perspective for Pedestrian Detection (CSP) CVPR 2019" to Pedestron along with a pre-trained model.** :fire::fire:
 
 
