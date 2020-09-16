@@ -33,6 +33,118 @@ class CocoCSPORIDataset(CustomDataset):
                'mouse', 'remote', 'keyboard', 'cell_phone', 'microwave',
                'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock',
                'vase', 'scissors', 'teddy_bear', 'hair_drier', 'toothbrush')
+    def __init__(self,
+                 ann_file,
+                 img_prefix,
+                 img_scale,
+                 img_norm_cfg,
+                 multiscale_mode='value',
+                 size_divisor=None,
+                 proposal_file=None,
+                 num_max_proposals=1000,
+                 flip_ratio=0,
+                 with_mask=True,
+                 with_crowd=True,
+                 with_label=True,
+                 with_semantic_seg=False,
+                 seg_prefix=None,
+                 seg_scale_factor=1,
+                 extra_aug=None,
+                 resize_keep_ratio=True,
+                 test_mode=False,
+                 remove_small_box=False,
+                 small_box_size=8,
+                 strides=None,
+                 regress_ranges=None,
+                 upper_factor=None,
+                 upper_more_factor=None,
+                 with_width=False):
+        # prefix of images path
+        self.img_prefix = img_prefix
+
+        # load annotations (and proposals)
+        self.img_infos = self.load_annotations(ann_file)
+        if proposal_file is not None:
+            self.proposals = self.load_proposals(proposal_file)
+        else:
+            self.proposals = None
+        # filter images with no annotation during training
+        if not test_mode:
+            valid_inds = self._filter_imgs()
+            self.img_infos = [self.img_infos[i] for i in valid_inds]
+            if self.proposals is not None:
+                self.proposals = [self.proposals[i] for i in valid_inds]
+
+        # (long_edge, short_edge) or [(long1, short1), (long2, short2), ...]
+        self.img_scales = img_scale if isinstance(img_scale,
+                                                  list) else [img_scale]
+        assert mmcv.is_list_of(self.img_scales, tuple)
+        # normalization configs
+        self.img_norm_cfg = img_norm_cfg
+
+        # multi-scale mode (only applicable for multi-scale training)
+        self.multiscale_mode = multiscale_mode
+        assert multiscale_mode in ['value', 'range']
+
+        # max proposals per image
+        self.num_max_proposals = num_max_proposals
+        # flip ratio
+        self.flip_ratio = flip_ratio
+        assert flip_ratio >= 0 and flip_ratio <= 1
+        # padding border to ensure the image size can be divided by
+        # size_divisor (used for FPN)
+        self.size_divisor = size_divisor
+
+        # with mask or not (reserved field, takes no effect)
+        self.with_mask = with_mask
+        # some datasets provide bbox annotations as ignore/crowd/difficult,
+        # if `with_crowd` is True, then these info is returned.
+        self.with_crowd = with_crowd
+        # with label is False for RPN
+        self.with_label = with_label
+        # with semantic segmentation (stuff) annotation or not
+        self.with_seg = with_semantic_seg
+        # prefix of semantic segmentation map path
+        self.seg_prefix = seg_prefix
+        # rescale factor for segmentation maps
+        self.seg_scale_factor = seg_scale_factor
+        # in test mode or not
+        self.test_mode = test_mode
+        # remove small size box in gt
+        self.remove_small_box = remove_small_box
+        # the smallest box edge
+        self.small_box_size = small_box_size
+        # strides of FPN style outputs, used for generating groundtruth feature maps
+        self.strides = strides
+        # regress range of FPN style outputs, used for generating groundtruth feature maps
+        self.regress_ranges = regress_ranges
+        # upper factor for Irtiza's model which use three branches to predict upper box, full box, lower box
+        self.upper_factor = upper_factor
+        # split the upper box into more boxes
+        self.upper_more_factor = upper_more_factor
+
+        # set group flag for the sampler
+        if not self.test_mode:
+            self._set_group_flag()
+        # transforms
+        self.img_transform = ImageTransform(
+            size_divisor=self.size_divisor, **self.img_norm_cfg)
+        self.bbox_transform = BboxTransform()
+        self.mask_transform = MaskTransform()
+        self.seg_transform = SegMapTransform(self.size_divisor)
+        self.numpy2tensor = Numpy2Tensor()
+
+        # if use extra augmentation
+        if extra_aug is not None:
+            self.extra_aug = ExtraAugmentation(**extra_aug)
+        else:
+            self.extra_aug = None
+
+        # image rescale if keep ratio
+        self.resize_keep_ratio = resize_keep_ratio
+
+        #predict width
+        self.with_width = with_width
 
     def load_annotations(self, ann_file):
         self.coco = COCO(ann_file)
@@ -218,7 +330,10 @@ class CocoCSPORIDataset(CustomDataset):
             dx = np.exp(-np.square(np.arange(kernel) - int(kernel / 2)) / s)
             return np.reshape(dx, (-1, 1))
         radius = int(radius/stride)
-        scale_map = np.zeros((2, int(image_shape[0] / stride), int(image_shape[1] / stride)), dtype=np.float32)
+        if not self.with_width:
+            scale_map = np.zeros((2, int(image_shape[0] / stride), int(image_shape[1] / stride)), dtype=np.float32)
+        else:
+            scale_map = np.zeros((3, int(image_shape[0] / stride), int(image_shape[1] / stride)), dtype=np.float32)
         offset_map = np.zeros((3, int(image_shape[0] / stride), int(image_shape[1] / stride)), dtype=np.float32)
         pos_map = np.zeros((3, int(image_shape[0] / stride), int(image_shape[1] / stride)), dtype=np.float32)
         pos_map[1, :, :, ] = 1  # channel 0: loss weights; channel 1: for ignore, ignore area will be set to 0; channel 2: classification
@@ -246,8 +361,14 @@ class CocoCSPORIDataset(CustomDataset):
                 pos_map[1, y1:y2, x1:x2] = 1  # 1-mask map
                 pos_map[2, c_y, c_x] = 1  # center map
 
-                scale_map[0, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 3] - gts[ind, 1])  #value of height
-                scale_map[1, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = 1  # 1-mask
+                if not self.with_width:
+                    scale_map[0, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 3] - gts[ind, 1])  #value of height
+                    scale_map[1, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = 1  # 1-mask
+                else:
+                    scale_map[0, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 3] - gts[ind, 1])  #value of height
+                    scale_map[1, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 2] - gts[ind, 0])  #value of height
+                    scale_map[2, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = 1  # 1-mask
+
 
                 offset_map[0, c_y, c_x] = (gts[ind, 1] + gts[ind, 3]) / 2 - c_y - 0.5  # height-Y offset
                 offset_map[1, c_y, c_x] = (gts[ind, 0] + gts[ind, 2]) / 2 - c_x - 0.5  # width-X offset

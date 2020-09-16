@@ -225,8 +225,8 @@ def csp_heightwidth2bbox(points, hws, offsets, stride=1, wh_ratio = 0.41, max_sh
         Returns:
             Tensor: Decoded bboxes.
         """
-    x = points[:, 0] + (0.5 + offsets[:, 1])*stride
-    y = points[:, 1] + (0.5  + offsets[:, 0])*stride
+    x = points[:, 0] + (offsets[:, 1])*stride
+    y = points[:, 1] + (offsets[:, 0])*stride
     # print(stride)
     # print(torch.stack([y, x], -1))
     # print(points)

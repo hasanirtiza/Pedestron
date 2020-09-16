@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from mmcv.cnn import normal_init
 
-from mmdet.core import multi_apply, multiclass_nms, csp_height2bbox, force_fp32
+from mmdet.core import multi_apply, multiclass_nms, csp_height2bbox, csp_heightwidth2bbox, force_fp32
 from ..builder import build_loss
 from ..registry import HEADS
 from ..utils import bias_init_with_prob, Scale, ConvModule
@@ -36,7 +36,8 @@ class CSPHead(nn.Module):
                      use_sigmoid=True,
                      loss_weight=1.0),
                  conv_cfg=None,
-                 norm_cfg=dict(type='GN', num_groups=32, requires_grad=True)):
+                 norm_cfg=dict(type='GN', num_groups=32, requires_grad=True),
+                 predict_width=False):
         super(CSPHead, self).__init__()
 
         self.num_classes = num_classes
@@ -47,7 +48,10 @@ class CSPHead(nn.Module):
         self.strides = strides
         self.regress_ranges = regress_ranges
         self.loss_cls = cls_pos()
-        self.loss_bbox = reg_pos()
+        if not predict_width:
+            self.loss_bbox = reg_pos()
+        else:
+            self.loss_bbox = reg_hw_pos()
         self.loss_offset = offset_pos()
         self.loss_cls_weight = loss_cls.loss_weight
         self.loss_bbox_weight = loss_bbox.loss_weight
@@ -55,6 +59,7 @@ class CSPHead(nn.Module):
         self.conv_cfg = conv_cfg
         self.norm_cfg = norm_cfg
         self.fp16_enabled = False
+        self.predict_width = predict_width
 
         self._init_layers()
 
@@ -97,7 +102,10 @@ class CSPHead(nn.Module):
             )
         self.csp_cls = nn.Conv2d(
             self.feat_channels, self.cls_out_channels, 3, padding=1)
-        self.csp_reg = nn.Conv2d(self.feat_channels, 1, 3, padding=1)
+        if not self.predict_width:
+            self.csp_reg = nn.Conv2d(self.feat_channels, 1, 3, padding=1)
+        else:
+            self.csp_reg = nn.Conv2d(self.feat_channels, 2, 3, padding=1)
         self.csp_offset = nn.Conv2d(self.feat_channels, 2, 3, padding=1)
 
         self.reg_scales = nn.ModuleList([Scale(1.0) for _ in self.strides])
@@ -232,7 +240,10 @@ class CSPHead(nn.Module):
             # self.show_debug_info(cls_score, bbox_pred, offset_pred, stride)
             scores = cls_score.permute(1, 2, 0).reshape(
                 -1, self.cls_out_channels).sigmoid()
-            bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 1).exp()
+            if not self.predict_width:
+                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 1).exp()
+            else:
+                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 2).exp()
             offset_pred = offset_pred.permute(1,2,0).reshape(-1, 2)
 
             nms_pre = cfg.get('nms_pre', -1)
@@ -244,7 +255,10 @@ class CSPHead(nn.Module):
                 scores = scores[topk_inds, :]
                 offset_pred = offset_pred[topk_inds, :]
             # bboxes = distance2bbox(points, bbox_pred, max_shape=img_shape)
-            bboxes = csp_height2bbox(points, bbox_pred, offset_pred, stride=stride, max_shape=img_shape)
+            if not self.predict_width:
+                bboxes = csp_height2bbox(points, bbox_pred, offset_pred, stride=stride, max_shape=img_shape)
+            else:
+                bboxes = csp_heightwidth2bbox(points, bbox_pred, offset_pred, stride=stride, max_shape=img_shape)
             mlvl_bboxes.append(bboxes)
             mlvl_scores.append(scores)
         mlvl_bboxes = torch.cat(mlvl_bboxes)
@@ -358,6 +372,23 @@ class reg_pos(nn.Module):
         #     print(h_pred[:, 0,:,:].reshape(-1)[pos_points])
         #     print(h_label[:,0,:,:].reshape(-1)[pos_points])
         reg_loss = torch.sum(l1_loss) / max(1.0, torch.sum(h_label[:, 1, :, :]))
+        return reg_loss
+
+class reg_hw_pos(nn.Module):
+    def __init__(self):
+        super(reg_hw_pos, self).__init__()
+        self.smoothl1 = nn.SmoothL1Loss(reduction='none')
+
+    def forward(self, h_pred, h_label):
+        l1_loss = h_label[:, 2, :, :]*self.smoothl1(h_pred[:, 0, :, :]/(h_label[:, 0, :, :]+1e-10),
+                                                    h_label[:, 0, :, :]/(h_label[:, 0, :, :]+1e-10))
+        l1_loss = l1_loss + h_label[:, 2, :, :]*self.smoothl1(h_pred[:, 1, :, :]/(h_label[:, 1, :, :]+1e-10),
+                                                    h_label[:, 1, :, :]/(h_label[:, 1, :, :]+1e-10))
+        # pos_points = h_label[:,1,:,:].reshape(-1).nonzero()
+        # if pos_points.shape[0] != 0:
+        #     print(h_pred[:, 0,:,:].reshape(-1)[pos_points])
+        #     print(h_label[:,0,:,:].reshape(-1)[pos_points])
+        reg_loss = torch.sum(l1_loss) / max(1.0, torch.sum(h_label[:, 2, :, :])*2)
         return reg_loss
 
 
