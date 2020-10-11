@@ -30,8 +30,8 @@ LICENSES = [
 CATEGORIES = [
     {
         'id': 1,
-        'name': 'pedestrain',
-        'supercategory': 'pedestrain',
+        'name': 'person',
+        'supercategory': 'person',
     },
 ]
 
