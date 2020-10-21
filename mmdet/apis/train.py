@@ -171,7 +171,7 @@ def _dist_train(model, dataset, cfg, validate=False):
         val_dataset_cfg = cfg.data.val
         eval_cfg = cfg.get('evaluation', {})
         eval_hook = eval_cfg.pop('eval_hook', 'CocoDistEvalmAPHook')
-        EvalHook= getattr(core, eval_hook)
+        EvalHook = getattr(core, eval_hook)
         runner.register_hook(EvalHook(val_dataset_cfg, **eval_cfg))
 
     if cfg.resume_from:
