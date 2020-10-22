@@ -164,6 +164,7 @@ lr_config = dict(
     warmup_ratio=1.0 / 3,
     step=[8, 11])
 checkpoint_config = dict(interval=1)
+evaluation = dict(interval=1, eval_hook='CocoDistEvalMRHook')
 # yapf:disable
 log_config = dict(
     interval=50,

@@ -12,6 +12,7 @@ from torch.utils.data import Dataset
 
 from .coco_utils import results2json, fast_eval_recall
 from .mean_ap import eval_map
+from .eval_mr import COCOeval as COCOMReval
 from mmdet import datasets
 
 
@@ -163,3 +164,47 @@ class CocoDistEvalmAPHook(DistEvalHook):
         runner.log_buffer.ready = True
         for res_type in res_types:
             os.remove(result_files[res_type])
+
+
+class CocoDistEvalMRHook(DistEvalHook):
+    """ EvalHook for MR evaluation.
+
+    Args:
+        res_types(list): detection type, currently support 'bbox'
+            and 'vis_bbox'.
+    """
+    def __init__(self, dataset, interval=1, res_types=['bbox']):
+        super().__init__(dataset, interval)
+        self.res_types = res_types
+
+    def evaluate(self, runner, results):
+        tmp_file = osp.join(runner.work_dir, 'temp_0')
+        result_files = results2json(self.dataset, results, tmp_file)
+
+        cocoGt = self.dataset.coco
+        imgIds = cocoGt.getImgIds()
+        for res_type in self.res_types:
+            assert res_type in ['bbox', 'vis_bbox']
+            try:
+                cocoDt = cocoGt.loadRes(result_files['bbox'])
+            except IndexError:
+                print('No prediction found.')
+                break
+            metrics = ['MR_Reasonable', 'MR_Small', 'MR_Middle', 'MR_Large',
+                       'MR_Bare', 'MR_Partial', 'MR_Heavy', 'MR_R+HO']
+            cocoEval = COCOMReval(cocoGt, cocoDt, res_type)
+            cocoEval.params.imgIds = imgIds
+            for id_setup in range(0,8):
+                cocoEval.evaluate(id_setup)
+                cocoEval.accumulate()
+                cocoEval.summarize(id_setup)
+                
+                key = '{}'.format(metrics[id_setup])
+                val = float('{:.3f}'.format(cocoEval.stats[id_setup]))
+                runner.log_buffer.output[key] = val
+            runner.log_buffer.output['{}_MR_copypaste'.format(res_type)] = (
+                '{mr[0]:.3f} {mr[1]:.3f} {mr[2]:.3f} {mr[3]:.3f} '
+                '{mr[4]:.3f} {mr[5]:.3f} {mr[6]:.3f} {mr[7]:.3f} ').format(
+                    mr=cocoEval.stats[:8])
+        runner.log_buffer.ready = True
+        os.remove(result_files['bbox'])
