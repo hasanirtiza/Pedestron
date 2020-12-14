@@ -97,7 +97,7 @@ def run_detector_on_dataset(day='day', mode='val'):
             frame['children'] = detections
             json.dump(frame, open(destfile, 'w'), indent=1)
             prog_bar.update()
-        eval()
+        eval(day, mode)
 
 if __name__ == '__main__':
     run_detector_on_dataset()
