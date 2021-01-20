@@ -40,7 +40,7 @@ Currently we provide configurations for the following detectors, with different 
 
 ### Following datasets are currently supported 
 * [Caltech](http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/)
-* [CityPersons](https://bitbucket.org/shanshanzhang/citypersons/src/default/)
+* [CityPersons](https://github.com/cvgroup-njust/CityPersons)
 * [EuroCity Persons](https://eurocity-dataset.tudelft.nl/)
 * [CrowdHuman](https://www.crowdhuman.org/)
 * [WiderPedestrian Challenge](https://competitions.codalab.org/competitions/20132)
