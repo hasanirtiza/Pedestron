@@ -25,7 +25,7 @@
 
 ### Installation
 We refer to the installation and list of dependencies to [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md) file.
-Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md). Alternatively, [Google Colab](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) step-by-step instruction can be followed for installation 
+Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md). Alternatively, [Google Colab](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) step-by-step instruction can be followed for installation. Addiitonally, you can also refer to the [google doc](https://docs.google.com/document/d/1cmFuGJvb1PQzJwAj7WDBUy-CEepIqpUE7WCY2dXbfKQ/edit) file for step-by-step installation. 
 
 ### List of detectors
 Currently we provide configurations for the following detectors, with different backbones
