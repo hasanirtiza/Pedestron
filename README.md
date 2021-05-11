@@ -55,16 +55,16 @@ Currently we provide configurations for the following detectors, with different 
 ### Benchmarking of pre-trained models on pedestrian detection datasets (autonomous driving)
 |    Detector                | Dataset   | Backbone| Reasonable  | Heavy    | 
 |--------------------|:--------:|:--------:|:--------:|:--------:|
-| [Cascade Mask R-CNN](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8) | CityPersons        | HRNet | 7.5        |   28.0      | 
-| [Cascade Mask R-CNN](https://drive.google.com/open?id=1ysWlzN92EInIjDD_QwIq3iQEZJDo8wtT) | CityPersons        | MobileNet | 10.2        |   37.3      | 
+| [Cascade Mask R-CNN](https://drive.google.com/file/d/12mWjmWBv-4wra8hCNF71Wq0U2va0Ai8e/view?usp=sharing) | CityPersons        | HRNet | 7.5        |   28.0      | 
+| [Cascade Mask R-CNN](https://drive.google.com/file/d/1u2YTq1ttK1Nn-XWA0TbTjyerq7-LH_EE/view?usp=sharing) | CityPersons        | MobileNet | 10.2        |   37.3      | 
 | [Faster R-CNN](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749) | CityPersons        | HRNet | 10.2        |   36.2      |
 | [RetinaNet](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY) | CityPersons        | ResNeXt | 14.6        |   39.5      |
 | [RetinaNet with Guided Anchoring](https://drive.google.com/open?id=1eBxkjhl12ELlv7VFyH9jS2O4I3SO_t8V) | CityPersons        | ResNeXt | 11.7        |   41.5      |
 | [Hybrid Task Cascade (HTC)](https://drive.google.com/open?id=1qPEJ1r48Ggl2TdE1ohcDoprZomC2j3SX) | CityPersons        | ResNeXt | 9.5       |   35.8      | 
-| [MGAN](https://drive.google.com/open?id=1c191nSSRUGd0LfkjYXKcyJEZCtjUeWr-) | CityPersons        | VGG | 11.2       |   52.5      |
+| [MGAN](https://drive.google.com/file/d/1vcB4PrS0Vpo48f27QpGtJPWo9iwGs5Vl/view?usp=sharing) | CityPersons        | VGG | 11.2       |   52.5      |
 | [CSP](https://drive.google.com/file/d/1dGR80NiQnQRW_PMVr75Yqbab3qBXeUkU/view?usp=sharing) | CityPersons        | ResNet-50 | 10.9       |   41.3      | 
 | [Cascade Mask R-CNN](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv) | Caltech        | HRNet |   1.7      |    25.7     | 
-| [Cascade Mask R-CNN](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15) | EuroCity Persons | HRNet |    4.4     |  21.3       |
+| [Cascade Mask R-CNN](https://drive.google.com/file/d/1Hu0VzsN_RAfQzP9K5UfwrqJcV14ZzTD1/view?usp=sharing) | EuroCity Persons | HRNet |    4.4     |  21.3       |
 | [Faster R-CNN](https://drive.google.com/open?id=19xBNw_wJPGNFIYsylcxPGIuoDygxHa2D) | EuroCity Persons        | HRNet | 6.1        |   27.0      |
  
  
