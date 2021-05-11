@@ -72,7 +72,7 @@ Currently we provide configurations for the following detectors, with different 
  
  |    Detector                | Dataset   | Backbone| AP  |
  |--------------------|:--------:|:--------:|:--------:|
- |    [Cascade Mask R-CNN](https://drive.google.com/open?id=1MqI1-Bbn0vl5Ft1RnhD70YWl7JHRyVMx) | CrowdHuman   | HRNet| 84.1  |
+ |    [Cascade Mask R-CNN](https://drive.google.com/file/d/1Nsvf7qU02fvRdTO2jcKo5Rgr5JOV3Ptx/view?usp=sharing) | CrowdHuman   | HRNet| 84.1  |
 
 ### Pre-Trained models
 Cascade Mask R-CNN
