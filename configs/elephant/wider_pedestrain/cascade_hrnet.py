@@ -283,5 +283,5 @@ dist_params = dict(backend='nccl')
 log_level = 'INFO'
 work_dir = './work_dirs/cityperson_cascade_rcnn_hrnetv2p_w32'
 load_from = None
-resume_from = '/home/jl2/code/irtiza/mmdetection/jobs/wider_challenge/cascade_hrnet/work_dirs/cityperson_cascade_rcnn_hrnetv2p_w32/epoch_9.pth'
+resume_from = None
 workflow = [('train', 1)]
