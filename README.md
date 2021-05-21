@@ -74,35 +74,6 @@ Currently we provide configurations for the following detectors, with different 
  |--------------------|:--------:|:--------:|:--------:|
  |    [Cascade Mask R-CNN](https://drive.google.com/file/d/1Nsvf7qU02fvRdTO2jcKo5Rgr5JOV3Ptx/view?usp=sharing) | CrowdHuman   | HRNet| 84.1  |
 
-### Pre-Trained models
-Cascade Mask R-CNN
-1) [CityPersons](https://drive.google.com/open?id=1B487ljaU9FxTSFaLoirOSqadZ-39QEH8)
-2) [Caltech](https://drive.google.com/open?id=1HkoUPlONSF04AKsPkde4gmDLMBf_vrnv)
-3) [EuroCity Persons](https://drive.google.com/open?id=1GzB3O1JxPN5EusJSyl7rl9h0sQAVKf15)
-4) [CrowdHuman 1](https://drive.google.com/open?id=1rXopG04Dv-HKge3ZyqNYAHdCi9gmLuNe)
-5) [CrowdHuman 2](https://drive.google.com/open?id=1MqI1-Bbn0vl5Ft1RnhD70YWl7JHRyVMx) (higher AP)
-6) [WIDER Pedestrian](https://drive.google.com/open?id=1Z1LTASbr-VTIfbk4Fu-d2VCBpKPqADH8)
-
-Faster R-CNN
-1) [CityPersons](https://drive.google.com/open?id=1aanqAEFBc_KGU8oCFCji-wqmLmqTd749)
-2) [EuroCity Persons](https://drive.google.com/open?id=19xBNw_wJPGNFIYsylcxPGIuoDygxHa2D)
-
-RetinaNet
-1) [CityPersons](https://drive.google.com/open?id=1MGxZitqLzQtd2EF8cVGYNzSKt73s9RYY)
-
-RetinaNet with Guided Anchoring
-1) [CityPerson](https://drive.google.com/open?id=1eBxkjhl12ELlv7VFyH9jS2O4I3SO_t8V)
-
-
-Hybrid Task Cascade (HTC)
-1) [CityPersons](https://drive.google.com/open?id=1qPEJ1r48Ggl2TdE1ohcDoprZomC2j3SX)
-
-MGAN
-1) [CityPersons](https://drive.google.com/open?id=1c191nSSRUGd0LfkjYXKcyJEZCtjUeWr-)
-
-CSP
-1) [CityPersons](https://drive.google.com/file/d/1XpAf252jxSQhinZhsRsra7VWkk9M7wzm/view?usp=sharing)
-
 # Getting Started
 
 ### Running a demo using pre-trained model on few images
