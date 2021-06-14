@@ -169,12 +169,12 @@ Testing with multiple GPUs on CrowdHuman
 ### Please cite the following work
 [ArXiv version](https://arxiv.org/pdf/2003.08799.pdf)
 ```
-@misc{hasan2020generalizable,
-      title={Generalizable Pedestrian Detection: The Elephant In The Room}, 
-      author={Irtiza Hasan and Shengcai Liao and Jinpeng Li and Saad Ullah Akram and Ling Shao},
-      year={2020},
-      eprint={2003.08799},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@InProceedings{Hasan_2021_CVPR,
+    author    = {Hasan, Irtiza and Liao, Shengcai and Li, Jinpeng and Akram, Saad Ullah and Shao, Ling},
+    title     = {Generalizable Pedestrian Detection: The Elephant in the Room},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2021},
+    pages     = {11328-11337}
 }
 ```
