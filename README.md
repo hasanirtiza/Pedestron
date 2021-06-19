@@ -167,7 +167,7 @@ Testing with multiple GPUs on CrowdHuman
 * For Caltech refer to [Datasets preparation file](Datasets-PreProcessing.md)
 
 ### Please cite the following work
-[ArXiv version](https://arxiv.org/pdf/2003.08799.pdf)
+[CVPR2021](https://openaccess.thecvf.com/content/CVPR2021/papers/Hasan_Generalizable_Pedestrian_Detection_The_Elephant_in_the_Room_CVPR_2021_paper.pdf)
 ```
 @InProceedings{Hasan_2021_CVPR,
     author    = {Hasan, Irtiza and Liao, Shengcai and Li, Jinpeng and Akram, Saad Ullah and Shao, Ling},
