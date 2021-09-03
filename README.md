@@ -77,7 +77,17 @@ Currently we provide configurations for the following detectors, with different 
 # Getting Started
 
 ### Running a demo using pre-trained model on few images
-1) Pre-trained model can be evaluated on sample images in the following way
+1) Setup environment by docker
+ - Requirements: Install [nvidia-docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)
+ - Create docker image:
+ ```shell
+sudo docker build . -t pedestron
+```
+ - Run docker image:
+```shell
+sudo docker run --gpus all --shm-size=8g -it --rm pedestron
+```
+2) Pre-trained model can be evaluated on sample images in the following way
 
 ```shell 
 python tools/demo.py config checkpoint input_dir output_dir
