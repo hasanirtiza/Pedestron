@@ -25,7 +25,7 @@
 
 ### Installation
 We refer to the installation and list of dependencies to [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md) file.
-Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md). Alternatively, [Google Colab](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) step-by-step instruction can be followed for installation. Addiitonally, you can also refer to the [google doc](https://docs.google.com/document/d/1cmFuGJvb1PQzJwAj7WDBUy-CEepIqpUE7WCY2dXbfKQ/edit) file for step-by-step installation. 
+Clone this repo and follow [installation](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md). Alternatively, [Google Colab](https://github.com/hasanirtiza/Pedestron/blob/master/colab/PedestronColab.ipynb) step-by-step instruction can be followed for installation. Addiitonally, you can also refer to the [google doc](https://docs.google.com/document/d/1cmFuGJvb1PQzJwAj7WDBUy-CEepIqpUE7WCY2dXbfKQ/edit) file for step-by-step installation. For running a [docker image](https://github.com/hasanirtiza/Pedestron/blob/master/INSTALL.md#docker-installation) please see installation file.
 
 ### List of detectors
 Currently we provide configurations for the following detectors, with different backbones
@@ -77,17 +77,8 @@ Currently we provide configurations for the following detectors, with different 
 # Getting Started
 
 ### Running a demo using pre-trained model on few images
-1) Setup environment by docker
- - Requirements: Install [nvidia-docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)
- - Create docker image:
- ```shell
-sudo docker build . -t pedestron
-```
- - Run docker image:
-```shell
-sudo docker run --gpus all --shm-size=8g -it --rm pedestron
-```
-2) Pre-trained model can be evaluated on sample images in the following way
+
+Pre-trained model can be evaluated on sample images in the following way
 
 ```shell 
 python tools/demo.py config checkpoint input_dir output_dir
