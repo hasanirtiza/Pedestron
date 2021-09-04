@@ -51,6 +51,21 @@ The git commit id will be written to the version number with step e, e.g. 0.6.0+
 
 2. Following the above instructions, mmdetection is installed on `dev` mode, any modifications to the code will take effect without installing it again.
 
+
+
+### Docker Installation
+
+1) Setup environment by docker
+ - Requirements: Install [nvidia-docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)
+ - Create docker image:
+ ```shell
+sudo docker build . -t pedestron
+```
+ - Run docker image:
+```shell
+sudo docker run --gpus all --shm-size=8g -it --rm pedestron
+```
+
 ### Prepare COCO dataset.
 
 It is recommended to symlink the dataset root to `$MMDETECTION/data`.
