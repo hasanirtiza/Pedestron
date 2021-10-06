@@ -34,8 +34,8 @@ def convert_result(result_json):
     basename = os.path.basename(result_json)
     # basename = basename.split('.')[0]
     # basename = basename.replace('result', '')
-    basename = basename.split('.')[1]
-    basename = basename.replace('json', '')
+    basename = basename.split('.')[0]
+    #basename = basename.replace('json', '')
     matlab_result_dir = matlab_results_dir + basename
     if not os.path.exists(matlab_result_dir):
         os.makedirs(matlab_result_dir)
