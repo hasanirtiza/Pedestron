@@ -278,7 +278,7 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 240
+total_epochs = 20
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 work_dir = './work_dirs/cityperson_cascade_rcnn_hrnetv2p_w32'
