@@ -217,10 +217,15 @@ class CSP(SingleStageDetector):
             *loss_inputs, gt_bboxes_ignore=gt_bboxes_ignore)
         losses.update(losses_bbox)
 
-        bbox_inputs = outs + (img_metas, self.test_cfg, True)
-        bbox_list = self.bbox_head.get_bboxes(*bbox_inputs)
-
         if self.refine:
+
+            bbox_inputs = outs + (img_metas, self.train_cfg.csp_head, False)
+            bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=True)  # no_strides to not upscale yet
+            bbox_list = [
+                bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)[0]
+                for det_bboxes, det_labels in bbox_list
+            ]
+
             bbox_assigner = build_assigner(self.train_cfg.rcnn.assigner)
             bbox_sampler = build_sampler(
                 self.train_cfg.rcnn.sampler, context=self)
@@ -257,11 +262,16 @@ class CSP(SingleStageDetector):
     def simple_test(self, img, img_meta, rescale=False):
         x = self.extract_feat(img)
         outs = self.bbox_head(x)
-        bbox_inputs = outs + (img_meta, self.test_cfg, rescale)
+        bbox_inputs = outs + (img_meta, self.test_cfg.csp_head, False)
         if self.return_feature_maps:
             return self.bbox_head.get_bboxes_features(*bbox_inputs)
-        bbox_list = self.bbox_head.get_bboxes(*bbox_inputs)
+        bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=self.refine)
+
         if self.refine:
+            bbox_list = [
+                bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)[0]
+                for det_bboxes, det_labels in bbox_list
+            ]
 
             rois = bbox2roi(bbox_list)
             roi_feats = self.refine_roi_extractor(
@@ -274,9 +284,9 @@ class CSP(SingleStageDetector):
                 cls_score,
                 bbox_pred,
                 img_shape,
-                scale_factor,
-                rescale=False,
-                cfg=self.test_cfg)
+                scale_factor / self.bbox_head.strides[0],
+                rescale=rescale,
+                cfg=self.test_cfg.rcnn)
             return bbox2result(det_bboxes, det_labels, self.refine_head.num_classes)
 
         bbox_results = [

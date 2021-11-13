@@ -195,7 +195,7 @@ class CSPHead(nn.Module):
                    offset_preds,
                    img_metas,
                    cfg,
-                   rescale=None):
+                   rescale=None, no_strides=False):
         assert len(cls_scores) == len(bbox_preds)
         num_levels = len(cls_scores)
 
@@ -218,7 +218,7 @@ class CSPHead(nn.Module):
             det_bboxes = self.get_bboxes_single(cls_score_list, bbox_pred_list,
                                                 offset_pred_list,
                                                 mlvl_points, img_shape,
-                                                scale_factor, cfg, rescale)
+                                                scale_factor, cfg, rescale, no_strides=no_strides)
             result_list.append(det_bboxes)
         return result_list
 
@@ -230,7 +230,7 @@ class CSPHead(nn.Module):
                           img_shape,
                           scale_factor,
                           cfg,
-                          rescale=False):
+                          rescale=False, no_strides=False):
         assert len(cls_scores) == len(bbox_preds) == len(mlvl_points)
         mlvl_bboxes = []
         mlvl_scores = []
@@ -257,8 +257,12 @@ class CSPHead(nn.Module):
             # bboxes = distance2bbox(points, bbox_pred, max_shape=img_shape)
             if not self.predict_width:
                 bboxes = csp_height2bbox(points, bbox_pred, offset_pred, stride=stride, max_shape=img_shape)
+                if no_strides:
+                    bboxes = bboxes/stride
             else:
                 bboxes = csp_heightwidth2bbox(points, bbox_pred, offset_pred, stride=stride, max_shape=img_shape)
+                if no_strides:
+                    bboxes = bboxes/stride
             mlvl_bboxes.append(bboxes)
             mlvl_scores.append(scores)
         mlvl_bboxes = torch.cat(mlvl_bboxes)
