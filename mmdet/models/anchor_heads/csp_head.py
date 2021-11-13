@@ -362,10 +362,10 @@ class cls_pos(nn.Module):
 class reg_pos(nn.Module):
     def __init__(self):
         super(reg_pos, self).__init__()
-        self.smoothl1 = nn.SmoothL1Loss(reduction='none')
+        self.l1 = nn.L1Loss(reduction='none')
 
     def forward(self, h_pred, h_label):
-        l1_loss = h_label[:, 1, :, :]*self.smoothl1(h_pred[:, 0, :, :]/(h_label[:, 0, :, :]+1e-10),
+        l1_loss = h_label[:, 1, :, :]*self.l1(h_pred[:, 0, :, :]/(h_label[:, 0, :, :]+1e-10),
                                                     h_label[:, 0, :, :]/(h_label[:, 0, :, :]+1e-10))
         # pos_points = h_label[:,1,:,:].reshape(-1).nonzero()
         # if pos_points.shape[0] != 0:
