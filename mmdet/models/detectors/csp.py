@@ -274,7 +274,7 @@ class CSP(SingleStageDetector):
         bbox_inputs = outs + (img_meta, self.test_cfg.csp_head if self.refine else self.test_cfg, rescale if not self.refine else False)
         if self.return_feature_maps:
             return self.bbox_head.get_bboxes_features(*bbox_inputs)
-        bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=self.refine)
+        bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=(not rescale))
 
         if self.refine:
             x = (x[0].detach(),)
@@ -282,28 +282,21 @@ class CSP(SingleStageDetector):
                 bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)[0]
                 for det_bboxes, det_labels in bbox_list
             ]
+            
             bbox_list = [torch.tensor(bbox).float().cuda() for bbox in bbox_list]
             rois = bbox2roi(bbox_list)
             if rois.shape[0] == 0:
                 return []
             
+            rois[:, 1:] /= self.bbox_head.strides[0]
             roi_feats = self.refine_roi_extractor(
                 x, rois)
             cls_score, _ = self.refine_head(roi_feats)
-            
-            img_shape = img_meta[0]['img_shape']
-            scale_factor = img_meta[0]['scale_factor']
-            
-            det_bboxes, det_labels = self.refine_head.get_det_bboxes(
-                rois,
-                cls_score,
-                None,
-                img_shape,
-                scale_factor / self.bbox_head.strides[0],
-                rescale=rescale,
-                cfg=self.test_cfg.rcnn)
-            
-            return bbox2result(det_bboxes, det_labels, self.refine_head.num_classes)
+            cls_score = nn.Sigmoid()(cls_score[:, 1])
+            alpha = 0.0
+            bbox_list[0][:, 4] *= alpha
+            bbox_list[0][:, 4] += (1.0 - alpha) * cls_score
+            return [bbox_list[0].cpu().numpy()]
 
         bbox_results = [
             bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)
