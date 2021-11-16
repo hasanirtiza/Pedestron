@@ -291,12 +291,8 @@ class CSP(SingleStageDetector):
             rois[:, 1:] /= self.bbox_head.strides[0]
             roi_feats = self.refine_roi_extractor(
                 x, rois)
-            cls_score, _ = self.refine_head(roi_feats)
-            cls_score = nn.Sigmoid()(cls_score[:, 1])
-            alpha = 0.0
-            bbox_list[0][:, 4] *= alpha
-            bbox_list[0][:, 4] += (1.0 - alpha) * cls_score
-            return [bbox_list[0].cpu().numpy()]
+            cls_score = self.refine_head.get_scores(roi_feats)
+            return self.refine_head.combine_scores(bbox_list, cls_score)
 
         bbox_results = [
             bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)

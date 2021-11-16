@@ -61,20 +61,16 @@ model = dict(
         featmap_strides=[2, 4, 8, 16, 32]
     ),
     refine_head=dict(
-        type='ConvFCBBoxHead',
+        type='RefineHead',
         num_cls_fcs=2,
-        num_cls_convs=1,
+        num_cls_convs=2,
         in_channels=768,
         fc_out_channels=1024,
-        with_reg=False,
+        alpha=0.5,
+        weight_decay=0.0005,
         roi_feat_size=7,
-        num_classes=2,
-        target_means=[0., 0., 0., 0.],
-        target_stds=[0.1, 0.1, 0.2, 0.2],
-        reg_class_agnostic=True,
         loss_cls=dict(
             type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-        #loss_bbox=dict(type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=0.01),
         ),
 )
 # training and testing settings
@@ -111,11 +107,6 @@ test_cfg = dict(
         nms=dict(type='nms', iou_thr=0.5),
         max_per_img=100,
     ),
-    rcnn=dict(
-        score_thr=0.0,
-        nms=dict(type='nms', iou_thr=0.5),
-        max_per_img=100,
-    )
 )
 # dataset settings
 dataset_type = 'CocoCSPORIDataset'
