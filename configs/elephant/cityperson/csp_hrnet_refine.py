@@ -57,22 +57,25 @@ model = dict(
     refine_roi_extractor=dict(
         type='SingleRoIExtractor',
         roi_layer=dict(type='RoIAlign', out_size=7, sample_num=2),
-        out_channels=256,
-        featmap_strides=[1]
+        out_channels=768,
+        featmap_strides=[2, 4, 8, 16, 32]
     ),
     refine_head=dict(
-        type='SharedFCBBoxHead',
-        num_fcs=2,
-        in_channels=256,
+        type='ConvFCBBoxHead',
+        num_cls_fcs=2,
+        num_cls_convs=1,
+        in_channels=768,
         fc_out_channels=1024,
+        with_reg=False,
         roi_feat_size=7,
         num_classes=2,
         target_means=[0., 0., 0., 0.],
         target_stds=[0.1, 0.1, 0.2, 0.2],
-        reg_class_agnostic=False,
+        reg_class_agnostic=True,
         loss_cls=dict(
             type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-        loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0))
+        #loss_bbox=dict(type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=0.01),
+        ),
 )
 # training and testing settings
 train_cfg = dict(
@@ -87,10 +90,10 @@ train_cfg = dict(
             type='RandomSampler',
             num=512,
             pos_fraction=0.25,
-            neg_pos_ub=-1,
+            neg_pos_ub=3,
             add_gt_as_proposals=True),
         pos_weight=-1,
-        debug=False
+        debug=True
     ),
     csp_head=dict(
         nms_pre=1000,
@@ -105,11 +108,11 @@ test_cfg = dict(
         nms_pre=1000,
         min_bbox_size=0,
         score_thr=0.1, #0.2, #0.05,
-        nms=dict(type='nms', iou_thr=0.7),
+        nms=dict(type='nms', iou_thr=0.5),
         max_per_img=100,
     ),
     rcnn=dict(
-        score_thr=0.05,
+        score_thr=0.0,
         nms=dict(type='nms', iou_thr=0.5),
         max_per_img=100,
     )
@@ -137,7 +140,6 @@ data = dict(
         with_label=True,
         remove_small_box=True,
         small_box_size=8,
-        mask_height_ratio=0.5,
         strides=[4],
         regress_ranges=((-1, INF),)),
     val=dict(
