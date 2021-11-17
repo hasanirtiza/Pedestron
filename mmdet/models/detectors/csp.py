@@ -284,7 +284,7 @@ class CSP(SingleStageDetector):
         return (cls_score > 0.5).float().sum(), rois.size(0)
 
     def simple_test(self, img, img_meta, rescale=False, return_accuracy=False):
-        gts = img_meta[0]["gts"]
+        gts = np.array(img_meta[0]["gts"])
         x = self.extract_feat(img)
         outs = self.bbox_head(x)
         bbox_inputs = outs + (img_meta, self.test_cfg.csp_head if self.refine else self.test_cfg, False) # TODO://Handle rescalling
@@ -299,26 +299,35 @@ class CSP(SingleStageDetector):
                 bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)[0]
                 for det_bboxes, det_labels in bbox_list
             ]
-
-            if return_accuracy:
+            
+            if return_accuracy and gt_count > 0:
+                gts = np.concatenate((gts, np.zeros_like(gts[:, :1])), axis=1)
+                gts = torch.tensor([gts]).float().cuda()
                 gts_rois = bbox2roi(gts)
             
             bbox_list = [torch.tensor(bbox).float().cuda() for bbox in bbox_list]
             rois = bbox2roi(bbox_list)
             if rois.shape[0] == 0:
-                return []
-            
-            roi_feats = self.refine_roi_extractor(
-                x, rois)
-            cls_score = self.refine_head.get_scores(roi_feats)
+                cls_score = None
+            else:
+                roi_feats = self.refine_roi_extractor(
+                    x, rois)
+                cls_score = self.refine_head.get_scores(roi_feats)
             if return_accuracy:
-                gts_feats = self.refine_roi_extractor(
-                    x, gts_rois
-                )
-                gts_score = self.refine_head.get_scores(gts_feats)
-                tp = (gts_score > 0.5).float().sum().cpu()
-                return self.refine_head.combine_scores(bbox_list, cls_score), tp, gt_count
-            return self.refine_head.combine_scores(bbox_list, cls_score)
+                if gt_count > 0:
+                    gts_feats = self.refine_roi_extractor(
+                        x, gts_rois
+                    )
+                    gts_score = self.refine_head.get_scores(gts_feats)
+                    tp = (gts_score > 0.5).float().sum().cpu().numpy()
+                if cls_score is not None:
+                    det_res = self.refine_head.combine_scores(bbox_list, cls_score)
+                else:
+                    det_res = []
+                return det_res, tp, gt_count
+            if cls_score is not None:
+                return self.refine_head.combine_scores(bbox_list, cls_score)
+            return []
 
         bbox_results = [
             bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)
