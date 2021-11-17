@@ -268,6 +268,21 @@ class CSP(SingleStageDetector):
 
         return losses
 
+    def simple_test_accuracy(self, img, img_meta):
+        gts = img_meta[0]["gts"]
+        x = self.extract_feat(img)
+        x = (x[0].detach(),)
+
+        rois = bbox2roi(gts)
+        if rois.shape[0] == 0:
+            return 0, 0
+
+        roi_feats = self.refine_roi_extractor(
+            x, rois)
+        cls_score = self.refine_head.get_scores(roi_feats)
+
+        return (cls_score > 0.5).sum(), rois.size(0)
+
     def simple_test(self, img, img_meta, rescale=False):
         x = self.extract_feat(img)
         outs = self.bbox_head(x)

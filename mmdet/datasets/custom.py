@@ -305,6 +305,9 @@ class CustomDataset(Dataset):
     def prepare_test_img(self, idx):
         """Prepare an image for testing (multi-scale and flipping)"""
         img_info = self.img_infos[idx]
+        ann = self.get_ann_info(idx)
+        gt_bboxes = ann['bboxes']
+
         img = mmcv.imread(osp.join(self.img_prefix, img_info['filename']))
         if self.proposals is not None:
             proposal = self.proposals[idx][:self.num_max_proposals]
@@ -347,6 +350,7 @@ class CustomDataset(Dataset):
             _img, _img_meta, _proposal = prepare_single(
                 img, scale, False, proposal)
             imgs.append(_img)
+            _img_meta["gts"] = gt_bboxes
             img_metas.append(DC(_img_meta, cpu_only=True))
             proposals.append(_proposal)
             if self.flip_ratio > 0:
