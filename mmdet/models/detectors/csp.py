@@ -319,7 +319,7 @@ class CSP(SingleStageDetector):
                         x, gts_rois
                     )
                     gts_score = self.refine_head.get_scores(gts_feats)
-                    tp = (gts_score > 0.5).float().sum().cpu().numpy()
+                    tp = (gts_score[:, 1] > 0.5).float().sum().cpu().numpy()
                 if cls_score is not None:
                     det_res = self.refine_head.combine_scores(bbox_list, cls_score)
                 else:
