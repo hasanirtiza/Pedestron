@@ -281,15 +281,17 @@ class CSP(SingleStageDetector):
             x, rois)
         cls_score = self.refine_head.get_scores(roi_feats)
 
-        return (cls_score > 0.5).sum(), rois.size(0)
+        return (cls_score > 0.5).float().sum(), rois.size(0)
 
-    def simple_test(self, img, img_meta, rescale=False):
+    def simple_test(self, img, img_meta, rescale=False, return_accuracy=False):
+        gts = img_meta[0]["gts"]
         x = self.extract_feat(img)
         outs = self.bbox_head(x)
         bbox_inputs = outs + (img_meta, self.test_cfg.csp_head if self.refine else self.test_cfg, False) # TODO://Handle rescalling
         if self.return_feature_maps:
             return self.bbox_head.get_bboxes_features(*bbox_inputs)
         bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=False)
+        tp, gt_count = 0.0, gts.shape[0]
 
         if self.refine:
             x = (x[0].detach(),)
@@ -297,6 +299,9 @@ class CSP(SingleStageDetector):
                 bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)[0]
                 for det_bboxes, det_labels in bbox_list
             ]
+
+            if return_accuracy:
+                gts_rois = bbox2roi(gts)
             
             bbox_list = [torch.tensor(bbox).float().cuda() for bbox in bbox_list]
             rois = bbox2roi(bbox_list)
@@ -306,12 +311,21 @@ class CSP(SingleStageDetector):
             roi_feats = self.refine_roi_extractor(
                 x, rois)
             cls_score = self.refine_head.get_scores(roi_feats)
+            if return_accuracy:
+                gts_feats = self.refine_roi_extractor(
+                    x, gts_rois
+                )
+                gts_score = self.refine_head.get_scores(gts_feats)
+                tp = (gts_score > 0.5).float().sum().cpu()
+                return self.refine_head.combine_scores(bbox_list, cls_score), tp, gt_count
             return self.refine_head.combine_scores(bbox_list, cls_score)
 
         bbox_results = [
             bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)
             for det_bboxes, det_labels in bbox_list
         ]
+        if return_accuracy:
+            return bbox_results[0], tp, gt_count
         return bbox_results[0]
 
     def foward_features(self, features):
