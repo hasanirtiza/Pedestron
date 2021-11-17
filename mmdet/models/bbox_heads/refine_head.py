@@ -26,7 +26,7 @@ class RefineHead(BBoxHead):
                  weight_decay=0.0005,
                  *args,
                  **kwargs):
-        super(RefineHead, self).__init__(*args, num_classes=1, with_reg=False, **kwargs)
+        super(RefineHead, self).__init__(*args, num_classes=2, with_reg=False, **kwargs)
         assert (num_cls_convs + num_cls_fcs > 0)
 
         self.alpha = alpha
@@ -45,7 +45,7 @@ class RefineHead(BBoxHead):
 
         self.relu = nn.LeakyReLU(0.2, inplace=True)
         # reconstruct fc_cls and fc_reg since input channels are changed
-        self.fc_cls = nn.Linear(self.cls_last_dim, 1)
+        self.fc_cls = nn.Linear(self.cls_last_dim, 2)
 
     def _add_conv_fc_branch(self,
                             num_branch_convs,
@@ -116,7 +116,7 @@ class RefineHead(BBoxHead):
 
     def forward(self, x):
 
-        _cls = x
+        x_cls = x
         for conv in self.cls_convs:
             x_cls = conv(x_cls)
         if x_cls.dim() > 2:
@@ -130,11 +130,11 @@ class RefineHead(BBoxHead):
     def get_scores(self, x):
 
         cls_score = self.forward(x)
-        return F.sigmoid(cls_score)
+        return F.softmax(cls_score, dim=1)
 
     def combine_scores(self, results, scores):
         results = results[0]
-        results[:, 4] *= self.half()
-        results[:, 4] += (1.0 - self.alpha) * scores
+        results[:, 4] *= self.alpha
+        results[:, 4] += (1.0 - self.alpha) * scores[:, 1]
         return [results.cpu().numpy()]
 

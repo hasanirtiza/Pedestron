@@ -222,7 +222,7 @@ class CSP(SingleStageDetector):
         if self.refine:
             x = (x[0].detach(),)
             bbox_inputs = outs + (img_metas, self.train_cfg.csp_head, False)
-            bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=True)  # no_strides to not upscale yet
+            bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=False)  # no_strides to not upscale yet
             
             bbox_list = [
                 bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)[0]
@@ -259,11 +259,11 @@ class CSP(SingleStageDetector):
             
             bbox_feats = self.refine_roi_extractor(
                 x, rois)
-            cls_score, _ = self.refine_head(bbox_feats)
+            cls_score = self.refine_head(bbox_feats)
             bbox_targets = self.refine_head.get_target(
                 sampling_results, gt_bboxes, gt_labels, self.train_cfg.rcnn)
-            loss_refine = self.refine_head.loss(cls_score, None,
-                                            *bbox_targets)
+            loss_refine = self.refine_head.loss(cls_score,
+                                            *bbox_targets[:2])
             losses.update(dict(loss_refine_cls=loss_refine["loss_cls"], acc=loss_refine["acc"]))
 
         return losses
@@ -271,10 +271,10 @@ class CSP(SingleStageDetector):
     def simple_test(self, img, img_meta, rescale=False):
         x = self.extract_feat(img)
         outs = self.bbox_head(x)
-        bbox_inputs = outs + (img_meta, self.test_cfg.csp_head if self.refine else self.test_cfg, rescale if not self.refine else False)
+        bbox_inputs = outs + (img_meta, self.test_cfg.csp_head if self.refine else self.test_cfg, False) # TODO://Handle rescalling
         if self.return_feature_maps:
             return self.bbox_head.get_bboxes_features(*bbox_inputs)
-        bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=(not rescale))
+        bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=False)
 
         if self.refine:
             x = (x[0].detach(),)
@@ -288,7 +288,6 @@ class CSP(SingleStageDetector):
             if rois.shape[0] == 0:
                 return []
             
-            rois[:, 1:] /= self.bbox_head.strides[0]
             roi_feats = self.refine_roi_extractor(
                 x, rois)
             cls_score = self.refine_head.get_scores(roi_feats)

@@ -58,7 +58,7 @@ model = dict(
         type='SingleRoIExtractor',
         roi_layer=dict(type='RoIAlign', out_size=7, sample_num=2),
         out_channels=768,
-        featmap_strides=[2, 4, 8, 16, 32]
+        featmap_strides=[4]
     ),
     refine_head=dict(
         type='RefineHead',
@@ -66,7 +66,7 @@ model = dict(
         num_cls_convs=2,
         in_channels=768,
         fc_out_channels=1024,
-        alpha=0.5,
+        alpha=0.0,
         weight_decay=0.0005,
         roi_feat_size=7,
         loss_cls=dict(
@@ -88,7 +88,7 @@ train_cfg = dict(
             pos_fraction=0.25,
             neg_pos_ub=3,
             add_gt_as_proposals=True),
-        pos_weight=-1,
+        pos_weight=2,
         debug=True
     ),
     csp_head=dict(
