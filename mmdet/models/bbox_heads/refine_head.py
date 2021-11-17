@@ -6,7 +6,7 @@ from ..utils import ConvModule
 import torch.nn.functional as F
 from ..losses import accuracy
 import torch
-from mmdet.core import (delta2bbox, multiclass_nms, bbox_target, force_fp32,
+from mmdet.core import (delta2bbox, multiclass_nms, bbox_target, force_fp32, bbox2result,
                         auto_fp16)
 
 
@@ -131,6 +131,17 @@ class RefineHead(BBoxHead):
 
         cls_score = self.forward(x)
         return F.softmax(cls_score, dim=1)
+
+    def suppress_boxes(self, rois, scores, img_meta=None, cfg=None):
+        img_shape = img_meta[0]['img_shape']
+
+        bboxes = rois[:, 1:].clone()
+        if img_shape is not None:
+            bboxes[:, [0, 2]].clamp_(min=0, max=img_shape[1] - 1)
+            bboxes[:, [1, 3]].clamp_(min=0, max=img_shape[0] - 1)
+
+        det_bboxes, det_labels = multiclass_nms(bboxes, scores, cfg.score_thr, cfg.nms, cfg.max_per_img)
+        return [bbox2result(det_bboxes, det_labels, self.num_classes)[0]]
 
     def combine_scores(self, results, scores):
         results = results[0]

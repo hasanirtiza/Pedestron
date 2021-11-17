@@ -299,6 +299,7 @@ class CSP(SingleStageDetector):
                 bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)[0]
                 for det_bboxes, det_labels in bbox_list
             ]
+            refine_cfg = self.test_cfg.get('rcnn', None)
             
             if return_accuracy and gt_count > 0:
                 gts = np.concatenate((gts, np.zeros_like(gts[:, :1])), axis=1)
@@ -321,11 +322,16 @@ class CSP(SingleStageDetector):
                     gts_score = self.refine_head.get_scores(gts_feats)
                     tp = (gts_score[:, 1] > 0.5).float().sum().cpu().numpy()
                 if cls_score is not None:
-                    det_res = self.refine_head.combine_scores(bbox_list, cls_score)
+                    if refine_cfg is not None:
+                        det_res = self.refine_head.suppress_boxes(rois, cls_score, img_meta, cfg=refine_cfg)
+                    else:
+                        det_res = self.refine_head.combine_scores(bbox_list, cls_score)
                 else:
                     det_res = []
                 return det_res, tp, gt_count
             if cls_score is not None:
+                if refine_cfg is not None:
+                    return self.refine_head.suppress_boxes(rois, cls_score, img_meta, cfg=refine_cfg)
                 return self.refine_head.combine_scores(bbox_list, cls_score)
             return []
 
