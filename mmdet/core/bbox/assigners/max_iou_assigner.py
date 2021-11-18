@@ -36,7 +36,9 @@ class MaxIoUAssigner(BaseAssigner):
                  min_pos_iou=.0,
                  gt_max_assign_all=True,
                  ignore_iof_thr=-1,
+                 soft_labels=False,
                  ignore_wrt_candidates=True):
+        self.soft_labels = soft_labels
         self.pos_iou_thr = pos_iou_thr
         self.neg_iou_thr = neg_iou_thr
         self.min_pos_iou = min_pos_iou
@@ -143,8 +145,12 @@ class MaxIoUAssigner(BaseAssigner):
             assigned_labels = assigned_gt_inds.new_zeros((num_bboxes, ))
             pos_inds = torch.nonzero(assigned_gt_inds > 0).squeeze()
             if pos_inds.numel() > 0:
-                assigned_labels[pos_inds] = gt_labels[
-                    assigned_gt_inds[pos_inds] - 1]
+                if self.soft_labels:
+                    rescale_base = self.pos_iou_thr - 0.1
+                    assigned_labels[pos_inds] = (max_overlaps[pos_inds] - rescale_base)/(1.0 - rescale_base)
+                else:
+                    assigned_labels[pos_inds] = gt_labels[
+                        assigned_gt_inds[pos_inds] - 1]
         else:
             assigned_labels = None
 
