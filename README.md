@@ -12,7 +12,7 @@
 
 # :fire: **Updates** :fire:
 * 🧨: **We have realeased [PedesFormer, Swin Tranformer](https://github.com/hasanirtiza/PedesFormer-SwinTransformer-For-Pedestrian-Detection) Based Pedetsrian Detection repo along with pre-trained models. Stay tune for the updates.** 🧨:
-* :fire: **We haved added a slightly better implementation of [CSP - CVPR 2019](https://openaccess.thecvf.com/content_CVPR_2019/papers/Liu_High-Level_Semantic_Feature_Detection_A_New_Perspective_for_Pedestrian_Detection_CVPR_2019_paper.pdf) to Pedestron along with a pre-trained model.** :fire
+
 
 
 
