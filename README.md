@@ -11,7 +11,7 @@
 [Pedestron](https://128.84.21.199/pdf/2003.08799.pdf) is a [MMdetection](https://github.com/open-mmlab/mmdetection) based repository, that focuses on the advancement of research on pedestrian detection. We provide a list of detectors, both general purpose and pedestrian specific to train and test. Moreover, we provide pre-trained models and benchmarking of several detectors on different pedestrian detection datasets. Additionally, we provide processed annotations and scripts to process the annotation of different pedestrian detection benchmarks. If you use Pedestron, please cite us (see at the end) and other respective sources.
 
 # :fire: **Updates** :fire:
-* 🧨: **We have realeased [PedesFormer, Swin Tranformer](https://github.com/hasanirtiza/PedesFormer-SwinTransformer-For-Pedestrian-Detection) Based Pedetsrian Detection repo along with pre-trained models. Stay tune for the updates.** 🧨:
+* 🧨 **We have realeased [PedesFormer, Swin Tranformer](https://github.com/hasanirtiza/PedesFormer-SwinTransformer-For-Pedestrian-Detection) Based Pedetsrian Detection repo along with pre-trained models. Stay tune for the updates.** 🧨
 
 
 
