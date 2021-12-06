@@ -175,7 +175,7 @@ class SwinTransformerBlock(nn.Module):
         attn_drop (float, optional): Attention dropout rate. Default: 0.0
     """
 
-    def __init__(self, dim, num_heads, window_size=1, shift_size=0,
+    def __init__(self, dim, num_heads, window_size=-1, shift_size=0,
                  qkv_bias=True, qk_scale=None, drop=0., attn_drop=0.):
         super().__init__()
         self.dim = dim
@@ -204,6 +204,12 @@ class SwinTransformerBlock(nn.Module):
         B, L, C = x.shape
         H, W = self.H, self.W
         assert L == H * W, "input feature has wrong size"
+
+        pad_l = pad_t = 0
+        pad_r = (self.window_size - W % self.window_size) % self.window_size
+        pad_b = (self.window_size - H % self.window_size) % self.window_size
+        x = F.pad(x, (0, 0, pad_l, pad_r, pad_t, pad_b))
+        _, Hp, Wp, _ = x.shape
 
         x = x.view(B, H, W, C)
         _, Hp, Wp, _ = x.shape
