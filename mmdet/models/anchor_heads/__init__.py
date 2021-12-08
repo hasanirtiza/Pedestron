@@ -8,9 +8,10 @@ from .ga_retina_head import GARetinaHead
 from .ssd_head import SSDHead
 from .csp_head import CSPHead
 from .csp_trans_head import CSPTransHead
+from .csp_si_head import CSPSIHead
 
 __all__ = [
     'AnchorHead', 'GuidedAnchorHead', 'FeatureAdaption', 'RPNHead',
     'GARPNHead', 'RetinaHead', 'GARetinaHead', 'SSDHead', 'FCOSHead',
-    'CSPHead', 'CSPTransHead',
+    'CSPHead', 'CSPTransHead', 'CSPSIHead',
 ]
