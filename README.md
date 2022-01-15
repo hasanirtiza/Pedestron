@@ -179,4 +179,13 @@ Testing with multiple GPUs on CrowdHuman
     year      = {2021},
     pages     = {11328-11337}
 }
+
+[arXiv2022](https://arxiv.org/pdf/2201.03176.pdf)
+
+@article{hasan2022pedestrian,
+  title={Pedestrian Detection: Domain Generalization, CNNs, Transformers and Beyond},
+  author={Hasan, Irtiza and Liao, Shengcai and Li, Jinpeng and Akram, Saad Ullah and Shao, Ling},
+  journal={arXiv preprint arXiv:2201.03176},
+  year={2022}
+}
 ```
