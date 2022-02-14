@@ -4,12 +4,13 @@ import torch.nn.functional as F
 from torch.utils.checkpoint import checkpoint
 from mmcv.cnn.weight_init import caffe2_xavier_init
 
+from .csp_neck import L2Norm
 from ..utils import ConvModule
 from ..registry import NECKS
 
 
 @NECKS.register_module
-class HRFPN(nn.Module):
+class HRCSPFPN(nn.Module):
     """HRFPN (High Resolution Feature Pyrmamids)
 
     arXiv: https://arxiv.org/abs/1904.04514
@@ -35,7 +36,7 @@ class HRFPN(nn.Module):
                  conv_cfg=None,
                  norm_cfg=None,
                  with_cp=False):
-        super(HRFPN, self).__init__()
+        super(HRCSPFPN, self).__init__()
         assert isinstance(in_channels, list)
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -49,21 +50,21 @@ class HRFPN(nn.Module):
         else:
             self.upscale_factor = [2**i for i in range(1, self.num_ins)]
 
-        self.reduction_conv = ConvModule(
-            sum(in_channels),
-            out_channels,
-            kernel_size=1,
-            conv_cfg=self.conv_cfg,
-            activation=None)
+        self.l2_norms = nn.ModuleList()
+        self.reduction_convs = nn.ModuleList()
+        for j in range(len(in_channels)):
+            i = in_channels[j]
+            self.l2_norms.append(L2Norm(i, 10))
 
         self.fpn_convs = nn.ModuleList()
-        for i in range(self.num_outs):
+        for i in range(self.num_ins):
             self.fpn_convs.append(
                 ConvModule(
-                    out_channels,
-                    out_channels,
+                    in_channels[i],
+                    in_channels[i],
                     kernel_size=3,
-                    padding=1,
+                    dilation=([1] + self.upscale_factor)[i],
+                    padding=([1] + self.upscale_factor)[i],
                     conv_cfg=self.conv_cfg,
                     activation=None))
 
@@ -79,24 +80,14 @@ class HRFPN(nn.Module):
 
     def forward(self, inputs):
         assert len(inputs) == self.num_ins
-        outs = [inputs[0]]
-        for i in range(1, self.num_ins):
-            outs.append(
-                F.interpolate(inputs[i], scale_factor=self.upscale_factor[i-1], mode='bilinear'))
+        outs = []
+        for i in range(self.num_ins):
+            feat = inputs[i]
+            if i != 0:
+                feat = F.interpolate(inputs[i], scale_factor=self.upscale_factor[i-1], mode='bilinear')
+            feat = self.l2_norms[i](feat)
+            feat = self.fpn_convs[i](feat)
+            outs.append(feat)
         out = torch.cat(outs, dim=1)
-        if out.requires_grad and self.with_cp:
-            out = checkpoint(self.reduction_conv, out)
-        else:
-            out = self.reduction_conv(out)
         outs = [out]
-        for i in range(1, self.num_outs):
-            outs.append(self.pooling(out, kernel_size=2**i, stride=2**i))
-        outputs = []
-
-        for i in range(self.num_outs):
-            if outs[i].requires_grad and self.with_cp:
-                tmp_out = checkpoint(self.fpn_convs[i], outs[i])
-            else:
-                tmp_out = self.fpn_convs[i](outs[i])
-            outputs.append(tmp_out)
-        return tuple(outputs)
+        return tuple(outs)
