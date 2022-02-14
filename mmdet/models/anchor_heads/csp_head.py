@@ -19,8 +19,10 @@ class CSPHead(nn.Module):
     def __init__(self,
                  num_classes,
                  in_channels,
+                 use_log_scale=True,
                  feat_channels=256,
                  stacked_convs=4,
+                 wh_ratio = 0.41,
                  strides=(4, 8, 16, 32, 64),
                  regress_ranges=((-1, 64), (64, 128), (128, 256), (256, 512),
                                  (512, INF)),
@@ -40,7 +42,9 @@ class CSPHead(nn.Module):
                  predict_width=False):
         super(CSPHead, self).__init__()
 
+        self.use_log_scale = use_log_scale
         self.num_classes = num_classes
+        self.wh_ratio = wh_ratio
         self.cls_out_channels = num_classes - 1
         self.in_channels = in_channels
         self.feat_channels = feat_channels
@@ -241,9 +245,11 @@ class CSPHead(nn.Module):
             scores = cls_score.permute(1, 2, 0).reshape(
                 -1, self.cls_out_channels).sigmoid()
             if not self.predict_width:
-                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 1).exp()
+                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 1)
             else:
-                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 2).exp()
+                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 2)
+            if self.use_log_scale:
+                bbox_pred = bbox_pred.exp()
             offset_pred = offset_pred.permute(1,2,0).reshape(-1, 2)
 
             nms_pre = cfg.get('nms_pre', -1)
@@ -256,7 +262,7 @@ class CSPHead(nn.Module):
                 offset_pred = offset_pred[topk_inds, :]
             # bboxes = distance2bbox(points, bbox_pred, max_shape=img_shape)
             if not self.predict_width:
-                bboxes = csp_height2bbox(points, bbox_pred, offset_pred, stride=stride, max_shape=img_shape)
+                bboxes = csp_height2bbox(points, bbox_pred, offset_pred, stride=stride, wh_ratio=self.wh_ratio, max_shape=img_shape)
                 if no_strides:
                     bboxes = bboxes/stride
             else:
