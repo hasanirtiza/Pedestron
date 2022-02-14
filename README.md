@@ -5,8 +5,7 @@ F2DNet is a [Pedestron](https://github.com/hasanirtiza/Pedestron) based reposito
 ### Installation
 Please refer to base repository for step-by-step installation. 
 
-### List of detectors<img title="Amsterdam" src="gifs/1.gif" width="400" /> <img title="Amsterdam" src="gifs/2.gif" width="400"/>
-<img title="Amsterdam" src="gifs/3.gif" width="400"/> <img title="Amsterdam" src="gifs/4.gif" width="400"/>
+### List of detectors
 
 In addition to configuration for different detectors provided in base repository we provide configuration for F2DNet.
 
