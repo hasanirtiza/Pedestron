@@ -10,10 +10,11 @@ from .extra_aug import ExtraAugmentation
 from .registry import DATASETS
 from .builder import build_dataset
 from .coco_csp_ori import CocoCSPORIDataset
+from .ecp_coco import ECPCocoDataset
 
 __all__ = [
     'CustomDataset', 'XMLDataset', 'CocoDataset',
-    'VOCDataset', 'GroupSampler',
+    'VOCDataset', 'GroupSampler', 'ECPCocoDataset',
     'DistributedGroupSampler', 'build_dataloader', 'to_tensor', 'random_scale',
     'show_ann', 'ConcatDataset', 'RepeatDataset', 'ExtraAugmentation',
     'WIDERFaceDataset', 'DATASETS', 'build_dataset', 'CocoCSPORIDataset'
