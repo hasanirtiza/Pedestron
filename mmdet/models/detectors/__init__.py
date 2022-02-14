@@ -17,5 +17,5 @@ from .csp import CSP
 __all__ = [
     'BaseDetector', 'SingleStageDetector', 'TwoStageDetector', 'RPN',
     'FastRCNN', 'FasterRCNN', 'MaskRCNN', 'CascadeRCNN', 'HybridTaskCascade',
-    'RetinaNet', 'FCOS', 'GridRCNN', 'MaskScoringRCNN','MGAN', 'CSP'
+    'RetinaNet', 'FCOS', 'GridRCNN', 'MaskScoringRCNN','MGAN', 'CSP',
 ]

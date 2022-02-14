@@ -3,14 +3,17 @@ from tools.cityPerson.coco import COCO
 from tools.cityPerson.eval_MR_multisetup import COCOeval
 
 
-def validate(annFile, dt_path):
+def validate(annFile, dt_path, ecp=False):
+    print("\n")
+    if ecp:
+        print("EvalSetMode=ECP")
     mean_MR = []
     my_id_setup = []
     for id_setup in range(0, 4):
         cocoGt = COCO(annFile)
         cocoDt = cocoGt.loadRes(dt_path)
         imgIds = sorted(cocoGt.getImgIds())
-        cocoEval = COCOeval(cocoGt, cocoDt, 'bbox')
+        cocoEval = COCOeval(cocoGt, cocoDt, 'bbox', ecp=ecp)
         cocoEval.params.imgIds = imgIds
         cocoEval.evaluate(id_setup)
         cocoEval.accumulate()

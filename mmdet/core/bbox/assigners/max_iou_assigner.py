@@ -36,13 +36,17 @@ class MaxIoUAssigner(BaseAssigner):
                  min_pos_iou=.0,
                  gt_max_assign_all=True,
                  ignore_iof_thr=-1,
+                 soft_labels=False,
+                 rescale_labels=False,
                  ignore_wrt_candidates=True):
+        self.soft_labels = soft_labels
         self.pos_iou_thr = pos_iou_thr
         self.neg_iou_thr = neg_iou_thr
         self.min_pos_iou = min_pos_iou
         self.gt_max_assign_all = gt_max_assign_all
         self.ignore_iof_thr = ignore_iof_thr
         self.ignore_wrt_candidates = ignore_wrt_candidates
+        self.rescale_labels=rescale_labels
 
     def assign(self, bboxes, gt_bboxes, gt_bboxes_ignore=None, gt_labels=None):
         """Assign gt to bboxes.
@@ -70,10 +74,15 @@ class MaxIoUAssigner(BaseAssigner):
         Returns:
             :obj:`AssignResult`: The assign result.
         """
+        
         if bboxes.shape[0] == 0 or gt_bboxes.shape[0] == 0:
             raise ValueError('No gt or bboxes')
+        prior = None
+        if bboxes.shape[1] == 5:
+            prior = bboxes[:, 4]
         bboxes = bboxes[:, :4]
         overlaps = bbox_overlaps(gt_bboxes, bboxes)
+        
 
         if (self.ignore_iof_thr > 0) and (gt_bboxes_ignore is not None) and (
                 gt_bboxes_ignore.numel() > 0):
@@ -87,10 +96,10 @@ class MaxIoUAssigner(BaseAssigner):
                 ignore_max_overlaps, _ = ignore_overlaps.max(dim=0)
             overlaps[:, ignore_max_overlaps > self.ignore_iof_thr] = -1
 
-        assign_result = self.assign_wrt_overlaps(overlaps, gt_labels)
+        assign_result = self.assign_wrt_overlaps(overlaps, gt_labels, prior)
         return assign_result
 
-    def assign_wrt_overlaps(self, overlaps, gt_labels=None):
+    def assign_wrt_overlaps(self, overlaps, gt_labels, prior):
         """Assign w.r.t. the overlaps of bboxes with gts.
 
         Args:
@@ -140,13 +149,18 @@ class MaxIoUAssigner(BaseAssigner):
                     assigned_gt_inds[gt_argmax_overlaps[i]] = i + 1
 
         if gt_labels is not None:
-            assigned_labels = assigned_gt_inds.new_zeros((num_bboxes, ))
-            pos_inds = torch.nonzero(assigned_gt_inds > 0).squeeze()
+            assigned_labels = assigned_gt_inds.new_full((num_bboxes, ), 0.0, dtype=(torch.double if self.soft_labels else torch.long))
+            pos_inds = torch.nonzero(assigned_gt_inds > 0, as_tuple=False).squeeze()
             if pos_inds.numel() > 0:
-                assigned_labels[pos_inds] = gt_labels[
-                    assigned_gt_inds[pos_inds] - 1]
+                if self.soft_labels:
+                    if self.rescale_labels:
+                        assigned_labels = prior
+                        #assigned_labels[pos_inds] = 0.5 + assigned_labels[pos_inds]
+                else:
+                    assigned_labels[pos_inds] = gt_labels[
+                        assigned_gt_inds[pos_inds] - 1]
         else:
             assigned_labels = None
-
+        
         return AssignResult(
             num_gts, assigned_gt_inds, max_overlaps, labels=assigned_labels)

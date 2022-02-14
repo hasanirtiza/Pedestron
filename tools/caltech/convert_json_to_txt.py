@@ -5,8 +5,8 @@ import numpy as np
 import pathos.multiprocessing as multiprocessing
 from pathos.multiprocessing import ProcessingPool as Pool
 
-gt_json = 'datasets/Caltech/test.json'
-result_dir = 'work_dirs/cascade_ch_wider_plus_sur_ecp_day_caltech/jsons/'
+gt_json = './datasets/Caltech/test.json'
+result_dir = './datasets/Caltech/pred'
 result_jsons = glob.glob(result_dir + '/*.json')
 print(result_jsons)
 matlab_results_dir = 'tools/caltech/eval_caltech/Pedestron_Result/'
