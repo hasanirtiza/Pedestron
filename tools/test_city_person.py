@@ -48,7 +48,7 @@ def multi_gpu_test(model, data_loader, tmpdir=None):
         prog_bar = mmcv.ProgressBar(len(dataset))
     for i, data in enumerate(data_loader):
         with torch.no_grad():
-            result = model(return_loss=False, rescale=True, **data)
+            result = model(return_loss=False, rescale=True, return_id=True, **data)
         results.append(result)
 
         if rank == 0:
