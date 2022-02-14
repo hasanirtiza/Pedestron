@@ -16,7 +16,7 @@ In addition to configuration for different detectors provided in base repository
 * [EuroCity Persons](https://eurocity-dataset.tudelft.nl/)
 
 ### Datasets Preparation
-* Please refer to base repository for dataset preparation.
+Please refer to base repository for dataset preparation.
 
 
 # Benchmarking 
