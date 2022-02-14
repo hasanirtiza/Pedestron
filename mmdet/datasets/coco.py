@@ -87,7 +87,9 @@ class CocoDataset(CustomDataset):
             if w < 1 or h < 1:
                 continue
             bbox = [x1, y1, x1 + w - 1, y1 + h - 1]
-            if ann['iscrowd']:
+            if 'iscrowd' in  ann and ann['iscrowd']:
+                gt_bboxes_ignore.append(bbox)
+            elif 'ignore' in ann and ann['ignore']:
                 gt_bboxes_ignore.append(bbox)
             else:
                 gt_bboxes.append(bbox)

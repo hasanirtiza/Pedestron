@@ -326,8 +326,10 @@ class CustomDataset(Dataset):
                 ori_shape=(img_info['height'], img_info['width'], 3),
                 img_shape=img_shape,
                 pad_shape=pad_shape,
+                id=img_info["id"],
                 scale_factor=scale_factor,
                 flip=flip)
+            
             if proposal is not None:
                 if proposal.shape[1] == 5:
                     score = proposal[:, 4, None]
@@ -341,20 +343,20 @@ class CustomDataset(Dataset):
                 _proposal = to_tensor(_proposal)
             else:
                 _proposal = None
-            return _img, _img_meta, _proposal
+            return _img, _img_meta, _proposal, scale_factor
 
         imgs = []
         img_metas = []
         proposals = []
         for scale in self.img_scales:
-            _img, _img_meta, _proposal = prepare_single(
+            _img, _img_meta, _proposal, scale_factor = prepare_single(
                 img, scale, False, proposal)
+            _img_meta["gts"] = gt_bboxes*scale_factor
             imgs.append(_img)
-            _img_meta["gts"] = gt_bboxes
             img_metas.append(DC(_img_meta, cpu_only=True))
             proposals.append(_proposal)
             if self.flip_ratio > 0:
-                _img, _img_meta, _proposal = prepare_single(
+                _img, _img_meta, _proposal, scale_factor = prepare_single(
                     img, scale, True, proposal)
                 imgs.append(_img)
                 img_metas.append(DC(_img_meta, cpu_only=True))
