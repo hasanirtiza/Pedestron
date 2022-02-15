@@ -7,11 +7,11 @@ F2DNet is a [Pedestron](https://github.com/hasanirtiza/Pedestron) based reposito
 <img title="Frankfurt" src="gifs/1.gif" width="400" /> <img title="Frankfurt" src="gifs/2.gif" width="400"/>
 
 ### Installation
-Please refer to base repository for step-by-step installation. 
+Please refer to [base repository](https://github.com/hasanirtiza/Pedestron) for step-by-step installation. 
 
 ### List of detectors
 
-In addition to configuration for different detectors provided in base repository we provide configuration for F2DNet.
+In addition to configuration for different detectors provided in [base repository](https://github.com/hasanirtiza/Pedestron) we provide configuration for F2DNet.
 
 
 ### Following datasets are currently supported 
@@ -31,7 +31,7 @@ Please refer to base repository for dataset preparation.
 | EuroCityPersons    |    6.1     |   10.7   |   28.2   | 
 | Caltech Pedestrian |  **2.2**   | **2.5**  | **38.7** |
 
-### Benchmarking of F2DNet model on pedestrian detection datasets using extra data
+### Benchmarking of F2DNet when trained using extra data on pedestrian detection datasets
 | Dataset            | Reasonable | Small | Heavy | 
 |--------------------|:----------:|:-----:|:-----:|
 | CityPersons        |    7.8     |  9.4  | **26.2**  |
