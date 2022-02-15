@@ -25,11 +25,11 @@ Please refer to base repository for dataset preparation.
 
 # Benchmarking 
 ### Benchmarking of F2DNet on pedestrian detection datasets
-| Dataset            | Reasonable | Small | Heavy | 
-|--------------------|:----------:|:-----:|:-----:|
-| CityPersons        |    **8.7**     | **11.3**  | **32.6**  | 
-| EuroCityPersons    |    **6.1**     | **10.7**  | **28.2**  | 
-| Caltech Pedestrian |    **2.2**     |  **2.5**  | **38.7**  |
+| Dataset            | Reasonable |  Small   |  Heavy   | 
+|--------------------|:----------:|:--------:|:--------:|
+| CityPersons        |  **8.7**   | **11.3** | **32.6** | 
+| EuroCityPersons    |    6.1     |   10.7   |   28.2   | 
+| Caltech Pedestrian |  **2.2**   | **2.5**  | **38.7** |
 
 ### Benchmarking of F2DNet model on pedestrian detection datasets using extra data
 | Dataset            | Reasonable | Small | Heavy | 
