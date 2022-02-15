@@ -1,6 +1,10 @@
 # F2DNet
 
+<img title="Frankfurt" src="gifs/gm.png" width="400" />
+
 F2DNet is a [Pedestron](https://github.com/hasanirtiza/Pedestron) based repository which implements a novel, two-staged detector i.e. Fast Focal Detection Network for pedestrian detection.
+
+<img title="Frankfurt" src="gifs/1.gif" width="400" /> <img title="Frankfurt" src="gifs/2.gif" width="400"/>
 
 ### Installation
 Please refer to base repository for step-by-step installation. 
