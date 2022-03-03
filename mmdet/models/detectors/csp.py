@@ -294,7 +294,6 @@ class CSP(SingleStageDetector):
         return (cls_score > 0.5).float().sum(), rois.size(0)
 
     def simple_test(self, img, img_meta, rescale=False, return_id=False):
-        gts = np.zeros((1, 5))
         x = self.extract_feat(img)
         outs = self.bbox_head(x)
         bbox_inputs = outs + (img_meta, self.test_cfg.csp_head if self.refine else self.test_cfg, False) # TODO://Handle rescalling
@@ -324,15 +323,15 @@ class CSP(SingleStageDetector):
                     x, rois)
                 cls_score = self.refine_head.get_scores(roi_feats)
 
+            res_buffer = []
             if cls_score is not None:
-                res_buffer = None
                 if refine_cfg is not None:
                     res_buffer = self.refine_head.suppress_boxes(rois, cls_score, img_meta, cfg=refine_cfg)
-                res_buffer = self.refine_head.combine_scores(bbox_list, cls_score)
-                if return_id:
-                    return res_buffer, img_id
-                return res_buffer
-            return []
+                else:
+                    res_buffer = self.refine_head.combine_scores(bbox_list, cls_score)
+            if return_id:
+                return res_buffer, img_id
+            return res_buffer
 
         bbox_results = [
             bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)
