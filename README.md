@@ -32,12 +32,12 @@ Please refer to base repository for dataset preparation.
 | Caltech Pedestrian |  **2.2**   | **2.5**  | **38.7** |
 
 ### Benchmarking of F2DNet when trained using extra data on pedestrian detection datasets
-| Dataset            | Config                                                                                                       | Model                                                                                        | &#8595;Reasonable |  &#8595;Small  |  &#8595;Heavy   | 
-|--------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|:----------:|:-------:|:--------:|
-| CityPersons        | cascade_hrnet | Cascade Mask R-CNN                                                                           |  **7.5**   |        |   28.0   |
-| CityPersons        | [ecp_cp](https://github.com/AbdulHannanKhan/F2DNet/blob/master/configs/f2dnet/cp/ecp_sup.py)                 | [F2DNet](https://drive.google.com/file/d/1IrwvdLtpOjUpmz2_IXWENbVNAQtEZKn-/view?usp=sharing) |    7.8     |   9.4   | **26.2** |
-| Caltech Pedestrian | cascade_hrnet | Cascade Mask R-CNN                                                                           |  **1.7**   |        |   25.7   |
-| Caltech Pedestrian | [ecp_cp_caltech](https://github.com/AbdulHannanKhan/F2DNet/blob/master/configs/f2dnet/caltech/ecp_cp_sup.py) | [F2DNet](https://drive.google.com/file/d/1DzcKR-tKy-Oa6uVoiYUt_q_7h5iwwCeh/view?usp=sharing)                                                                                   |  **1.7**   | **2.1** | **20.4** |
+| Dataset            | Config                                                                                                       | Model                                                                                        | &#8595;Reasonable | &#8595;Small |  &#8595;Heavy   | 
+|--------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|:----------:|:------------:|:--------:|
+| CityPersons        | cascade_hrnet | Cascade Mask R-CNN                                                                           |  **7.5**   |   **8.0**    |   28.0   |
+| CityPersons        | [ecp_cp](https://github.com/AbdulHannanKhan/F2DNet/blob/master/configs/f2dnet/cp/ecp_sup.py)                 | [F2DNet](https://drive.google.com/file/d/1IrwvdLtpOjUpmz2_IXWENbVNAQtEZKn-/view?usp=sharing) |    7.8     |     9.4      | **26.2** |
+| Caltech Pedestrian | cascade_hrnet | Cascade Mask R-CNN                                                                           |  **1.7**   |              |   25.7   |
+| Caltech Pedestrian | [ecp_cp_caltech](https://github.com/AbdulHannanKhan/F2DNet/blob/master/configs/f2dnet/caltech/ecp_cp_sup.py) | [F2DNet](https://drive.google.com/file/d/1DzcKR-tKy-Oa6uVoiYUt_q_7h5iwwCeh/view?usp=sharing)                                                                                   |  **1.7**   |   **2.1**    | **20.4** |
 
 
 # References
