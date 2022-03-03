@@ -47,15 +47,13 @@ def single_gpu_test(model, data_loader, show=False, save_img=False, save_img_dir
 def multi_gpu_test(model, data_loader, tmpdir=None):
     model.eval()
     results = []
-    accs = []
     dataset = data_loader.dataset
     rank, world_size = get_dist_info()
     if rank == 0:
         prog_bar = mmcv.ProgressBar(len(dataset))
     for i, data in enumerate(data_loader):
         with torch.no_grad():
-            result, tp, gts_count, id = model(return_loss=False, rescale=True, return_accuracy=True, return_id=True, **data)
-        accs.append([tp, gts_count])
+            result, id = model(return_loss=False, rescale=True, return_id=True, **data)
         results.append((result, id))
 
         if rank == 0:
@@ -65,9 +63,8 @@ def multi_gpu_test(model, data_loader, tmpdir=None):
 
     # collect results from all ranks
     results = collect_results(results, len(dataset), tmpdir)
-    accs = collect_results(accs, len(dataset), tmpdir)
 
-    return results, accs
+    return results
 
 
 def collect_results(result_part, size, tmpdir=None):
@@ -183,6 +180,9 @@ def main():
         # build the model and load checkpoint
         model = build_detector(cfg.model, train_cfg=None, test_cfg=cfg.test_cfg)
         fp16_cfg = cfg.get('fp16', None)
+
+        test_json = cfg.data.test.get("ann_file", "")
+
         if fp16_cfg is not None:
             wrap_fp16_model(model)
         if not args.mean_teacher:
@@ -210,7 +210,7 @@ def main():
             outputs = single_gpu_test(model, data_loader, args.show, args.save_img, args.save_img_dir)
         else:
             model = MMDistributedDataParallel(model.cuda())
-            outputs, accs = multi_gpu_test(model, data_loader, args.tmpdir)
+            outputs = multi_gpu_test(model, data_loader, args.tmpdir)
 
         if rank == 0:
             check = []
@@ -236,13 +236,11 @@ def main():
             stats = validate(test_json, args.out, ecp=args.ecp)
             MRs = stats
             
-            tp, num_gts = list(np.sum(accs, axis=0))
-            print("Checkpoint %d: [VR: %.2f], [VS: %.2f], [VH: %.2f], [VA: %.2f], [Acc: %.2f]" % (i, MRs[0], MRs[1], MRs[2], MRs[3], tp/num_gts))
+            print("Checkpoint %d: [VR: %.2f], [VS: %.2f], [VH: %.2f], [VA: %.2f]" % (i, MRs[0], MRs[1], MRs[2], MRs[3]))
             tval_writer.add_scalar('Reasonable', MRs[0], i)
             tval_writer.add_scalar('Small', MRs[1], i)
             tval_writer.add_scalar('Heavy', MRs[2], i)
             tval_writer.add_scalar('All', MRs[3], i)
-            tval_writer.add_scalar('Accuracy', tp/num_gts, i)
             tval_writer.flush()
             print("Checkpoint %d: " % i)
             print(stats)
