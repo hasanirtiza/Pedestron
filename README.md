@@ -25,14 +25,14 @@ Please refer to base repository for dataset preparation.
 
 # Benchmarking 
 ### Benchmarking of F2DNet on pedestrian detection datasets
-| Dataset            | Reasonable |  Small   |  Heavy   | 
+| Dataset            | &#8595;Reasonable |  &#8595;Small   |  &#8595;Heavy   | 
 |--------------------|:----------:|:--------:|:--------:|
 | CityPersons        |  **8.7**   | **11.3** | **32.6** | 
 | EuroCityPersons    |    6.1     |   10.7   |   28.2   | 
 | Caltech Pedestrian |  **2.2**   | **2.5**  | **38.7** |
 
 ### Benchmarking of F2DNet when trained using extra data on pedestrian detection datasets
-| Dataset            | Config                                                                                                       | Model                                                                                        | Reasonable |  Small  |  Heavy   | 
+| Dataset            | Config                                                                                                       | Model                                                                                        | &#8595;Reasonable |  &#8595;Small  |  &#8595;Heavy   | 
 |--------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|:----------:|:-------:|:--------:|
 | CityPersons        | cascade_hrnet | Cascade Mask R-CNN                                                                           |  **7.5**   |        |   28.0   |
 | CityPersons        | [ecp_cp](https://github.com/AbdulHannanKhan/F2DNet/blob/master/configs/f2dnet/cp/ecp_sup.py)                 | [F2DNet](https://drive.google.com/file/d/1IrwvdLtpOjUpmz2_IXWENbVNAQtEZKn-/view?usp=sharing) |    7.8     |   9.4   | **26.2** |
