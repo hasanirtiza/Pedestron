@@ -45,4 +45,21 @@ Please refer to base repository for dataset preparation.
 
 
 # References
+
 * [Pedestron](https://openaccess.thecvf.com/content/CVPR2021/papers/Hasan_Generalizable_Pedestrian_Detection_The_Elephant_in_the_Room_CVPR_2021_paper.pdf)
+
+# Please Cite the following work
+### Please cite the following work
+[AxXiv2022](https://arxiv.org/pdf/2203.02331.pdf)
+```
+@Article{khan:2022,
+  author      = {Khan, Abdul Hannan AND Munir, Mohsin AND Elst, Ludger van AND Dengel, Andreas},
+  title       = {F2DNet: Fast Focal Detection Network for Pedestrian Detection},
+  version     = {1},
+  date        = {2022-03-04},
+  eprinttype  = {arxiv},
+  eprintclass = {cs.CV, I.2.10; I.4.8; I.5.4},
+  eprint      = {http://arxiv.org/abs/2203.02331v1},
+  url         = {http://arxiv.org/abs/2203.02331v1}
+}
+```
