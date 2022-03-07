@@ -48,7 +48,6 @@ Please refer to base repository for dataset preparation.
 
 * [Pedestron](https://openaccess.thecvf.com/content/CVPR2021/papers/Hasan_Generalizable_Pedestrian_Detection_The_Elephant_in_the_Room_CVPR_2021_paper.pdf)
 
-# Please Cite the following work
 ### Please cite the following work
 [AxXiv2022](https://arxiv.org/pdf/2203.02331.pdf)
 ```
