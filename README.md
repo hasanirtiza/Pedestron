@@ -1,3 +1,7 @@
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/f2dnet-fast-focal-detection-network-for/pedestrian-detection-on-caltech)](https://paperswithcode.com/sota/pedestrian-detection-on-caltech?p=f2dnet-fast-focal-detection-network-for)
+
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/f2dnet-fast-focal-detection-network-for/pedestrian-detection-on-citypersons)](https://paperswithcode.com/sota/pedestrian-detection-on-citypersons?p=f2dnet-fast-focal-detection-network-for)
+
 # F2DNet
 
 <img title="Frankfurt" src="gifs/gm.png" width="800" />
