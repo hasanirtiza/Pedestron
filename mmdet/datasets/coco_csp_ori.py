@@ -42,6 +42,7 @@ class CocoCSPORIDataset(CustomDataset):
                  size_divisor=None,
                  proposal_file=None,
                  num_max_proposals=1000,
+                 small_box_to_ignore=False,
                  flip_ratio=0,
                  with_mask=True,
                  with_crowd=True,
@@ -60,8 +61,8 @@ class CocoCSPORIDataset(CustomDataset):
                  upper_more_factor=None,
                  with_width=False):
         # prefix of images path
+        self.small_box_to_ignore = small_box_to_ignore
         self.img_prefix = img_prefix
-
         # load annotations (and proposals)
         self.img_infos = self.load_annotations(ann_file)
         if proposal_file is not None:
@@ -206,7 +207,7 @@ class CocoCSPORIDataset(CustomDataset):
             if w < 1 or h < 1:
                 continue
             bbox = [x1, y1, x1 + w - 1, y1 + h - 1]
-            if ann['iscrowd']:
+            if ('iscrowd' in ann and ann['iscrowd']) or ('ignore' in ann and ann['ignore'] == 1):
                 gt_bboxes_ignore.append(bbox)
             else:
                 gt_bboxes.append(bbox)
@@ -279,7 +280,7 @@ class CocoCSPORIDataset(CustomDataset):
 
         assert len(self.img_scales[0]) == 2 and isinstance(self.img_scales[0][0], int)
 
-        img, gt_bboxes, gt_labels, gt_bboxes_ignore = augment(img, gt_bboxes, gt_labels, gt_bboxes_ignore, self.img_scales[0])
+        img, gt_bboxes, gt_labels, gt_bboxes_ignore = augment(img, gt_bboxes, gt_labels, gt_bboxes_ignore, self.img_scales[0], small_box_to_ignore=self.small_box_to_ignore)
         ori_shape = img.shape[:2]
         img, img_shape, pad_shape, scale_factor = self.img_transform(
             img, img.shape[:2], False, keep_ratio=self.resize_keep_ratio)
@@ -362,11 +363,11 @@ class CocoCSPORIDataset(CustomDataset):
                 pos_map[2, c_y, c_x] = 1  # center map
 
                 if not self.with_width:
-                    scale_map[0, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 3] - gts[ind, 1])  #value of height
+                    scale_map[0, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 3] - gts[ind, 1]) # value of height
                     scale_map[1, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = 1  # 1-mask
                 else:
-                    scale_map[0, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 3] - gts[ind, 1])  #value of height
-                    scale_map[1, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 2] - gts[ind, 0])  #value of height
+                    scale_map[0, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 3] - gts[ind, 1]) # value of height
+                    scale_map[1, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 2] - gts[ind, 0]) # value of height
                     scale_map[2, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = 1  # 1-mask
 
 
@@ -416,7 +417,7 @@ def resize_image(image, gts, igs, scale=(0.4, 1.5)):
     return image, gts, igs
 
 
-def random_crop(image, gts, gt_labels, igs, crop_size, limit=8):
+def random_crop(image, gts, gt_labels, igs, crop_size, limit=8, small_box_to_ignore=False):
     img_height, img_width = image.shape[0:2]
     crop_h, crop_w = crop_size
 
@@ -436,14 +437,8 @@ def random_crop(image, gts, gt_labels, igs, crop_size, limit=8):
     crop_y1 -= diff_y
     cropped_image = np.copy(image[crop_y1:crop_y1 + crop_h, crop_x1:crop_x1 + crop_w])
     # crop detections
-    if len(igs) > 0:
-        igs[:, 0:4:2] -= crop_x1
-        igs[:, 1:4:2] -= crop_y1
-        igs[:, 0:4:2] = np.clip(igs[:, 0:4:2], 0, crop_w)
-        igs[:, 1:4:2] = np.clip(igs[:, 1:4:2], 0, crop_h)
-        keep_inds = ((igs[:, 2] - igs[:, 0]) >= 8) & \
-                    ((igs[:, 3] - igs[:, 1]) >= 8)
-        igs = igs[keep_inds]
+
+    add_ign = None
     if len(gts) > 0:
         ori_gts = np.copy(gts)
         gts[:, 0:4:2] -= crop_x1
@@ -456,13 +451,26 @@ def random_crop(image, gts, gt_labels, igs, crop_size, limit=8):
 
         keep_inds = ((gts[:, 2] - gts[:, 0]) >= limit) & \
                     (after_area >= 0.5 * before_area)
+        ign_inds = np.logical_not(keep_inds)
+        add_ign = gts[ign_inds]
         gts = gts[keep_inds]
         gt_labels = gt_labels[keep_inds]
+
+    if len(igs) > 0:
+        igs[:, 0:4:2] -= crop_x1
+        igs[:, 1:4:2] -= crop_y1
+        igs[:, 0:4:2] = np.clip(igs[:, 0:4:2], 0, crop_w)
+        igs[:, 1:4:2] = np.clip(igs[:, 1:4:2], 0, crop_h)
+        if add_ign is not None and small_box_to_ignore:
+            igs = np.concatenate((add_ign, igs), axis=0)
+        keep_inds = ((igs[:, 2] - igs[:, 0]) >= 8) & \
+                    ((igs[:, 3] - igs[:, 1]) >= 8)
+        igs = igs[keep_inds]
 
     return cropped_image, gts, gt_labels, igs
 
 
-def random_pave(image, gts, gt_labels, igs, pave_size, limit=8):
+def random_pave(image, gts, gt_labels, igs, pave_size, limit=8, small_box_to_ignore=False):
     img_height, img_width = image.shape[0:2]
     pave_h, pave_w = pave_size
     # paved_image = np.zeros((pave_h, pave_w, 3), dtype=image.dtype)
@@ -471,24 +479,30 @@ def random_pave(image, gts, gt_labels, igs, pave_size, limit=8):
     pave_y = int(np.random.randint(0, pave_h - img_height + 1))
     paved_image[pave_y:pave_y + img_height, pave_x:pave_x + img_width] = image
     # pave detections
-    if len(igs) > 0:
-        igs[:, 0:4:2] += pave_x
-        igs[:, 1:4:2] += pave_y
-        keep_inds = ((igs[:, 2] - igs[:, 0]) >= 8) & \
-                    ((igs[:, 3] - igs[:, 1]) >= 8)
-        igs = igs[keep_inds]
+    add_ign = None
 
     if len(gts) > 0:
         gts[:, 0:4:2] += pave_x
         gts[:, 1:4:2] += pave_y
         keep_inds = ((gts[:, 2] - gts[:, 0]) >= limit)
+        ign_inds = np.logical_not(keep_inds)
+        add_ign = gts[ign_inds]
         gts = gts[keep_inds]
         gt_labels = gt_labels[keep_inds]
+
+    if len(igs) > 0:
+        igs[:, 0:4:2] += pave_x
+        igs[:, 1:4:2] += pave_y
+        if add_ign is not None and small_box_to_ignore:
+            igs = np.concatenate((add_ign, igs), axis=0)
+        keep_inds = ((igs[:, 2] - igs[:, 0]) >= 8) & \
+                    ((igs[:, 3] - igs[:, 1]) >= 8)
+        igs = igs[keep_inds]
 
     return paved_image, gts, gt_labels, igs
 
 
-def augment(img, gt_bboxes, gt_labels, gt_bboxes_ignore, size_train):
+def augment(img, gt_bboxes, gt_labels, gt_bboxes_ignore, size_train, small_box_to_ignore=False):
     size_train = (size_train[1], size_train[0])
     img_height, img_width = img.shape[:2]
     gt_bboxes[:, [0, 2]] = np.clip(gt_bboxes[:, [0, 2]], 0, img_width-1)
@@ -510,9 +524,9 @@ def augment(img, gt_bboxes, gt_labels, gt_bboxes_ignore, size_train):
     img, gt_bboxes, gt_bboxes_ignore = resize_image(img, gt_bboxes, gt_bboxes_ignore, scale=(0.4, 1.5))
 
     if img.shape[0] >= size_train[0]:
-        img, gt_bboxes, gt_labels, gt_bboxes_ignore = random_crop(img, gt_bboxes, gt_labels, gt_bboxes_ignore, size_train, limit=16)
+        img, gt_bboxes, gt_labels, gt_bboxes_ignore = random_crop(img, gt_bboxes, gt_labels, gt_bboxes_ignore, size_train, limit=16, small_box_to_ignore=small_box_to_ignore)
     else:
-        img, gt_bboxes, gt_labels, gt_bboxes_ignore = random_pave(img, gt_bboxes, gt_labels, gt_bboxes_ignore, size_train, limit=16)
+        img, gt_bboxes, gt_labels, gt_bboxes_ignore = random_pave(img, gt_bboxes, gt_labels, gt_bboxes_ignore, size_train, limit=16, small_box_to_ignore=small_box_to_ignore)
 
     img_height, img_width = img.shape[:2]
     gt_bboxes[:, [0, 2]] = np.clip(gt_bboxes[:, [0, 2]], 0, img_width - 1)

@@ -1,9 +1,13 @@
+
 from .single_stage import SingleStageDetector
 from ..registry import DETECTORS
 from mmdet.core import bbox2result
-
+import torch.nn as nn
+import torch
+from .. import builder
 import numpy as np
 import cv2
+from mmdet.core import bbox2roi, bbox2result, build_assigner, build_sampler
 
 @DETECTORS.register_module
 class CSP(SingleStageDetector):
@@ -12,13 +16,24 @@ class CSP(SingleStageDetector):
                  backbone,
                  neck,
                  bbox_head,
+                 refine_roi_extractor=None,
+                 refine_head=None,
                  train_cfg=None,
                  test_cfg=None,
                  pretrained=None,
+                 detached=True,
                  return_feature_maps=False):
         super(CSP, self).__init__(backbone, neck, bbox_head, train_cfg,
                                    test_cfg, pretrained)
+        if refine_head is not None:
+            self.refine_roi_extractor = builder.build_roi_extractor(
+                refine_roi_extractor)
+            self.refine_head = builder.build_head(refine_head)
         self.return_feature_maps = return_feature_maps
+        self.train_cfg = train_cfg
+        self.test_cfg = test_cfg
+        self.detached = detached
+
     def show_input_debug(self, img, classification_maps, scale_maps, offset_maps):
         img_numpy = img.cpu().numpy().copy()[0]
         # img_numpy = np.transpose(img_numpy, [1, 2, 0]) * [58.395, 57.12, 57.375] + [123.675, 116.28, 103.53]
@@ -168,6 +183,10 @@ class CSP(SingleStageDetector):
                 cv2.imshow(str(i) +'img', img_now)
             cv2.waitKey(0)
 
+    @property
+    def refine(self):
+        return hasattr(self, 'refine_head') and self.refine_head is not None
+
     def forward_train(self,
                       img,
                       img_metas,
@@ -188,28 +207,138 @@ class CSP(SingleStageDetector):
             scale_maps = scale_maps[0]
             offset_maps = offset_maps[0]
 
+        losses = dict()
         x = self.extract_feat(img)
         # self.show_input_debug(img, classification_maps, scale_maps, offset_maps)
         # self.show_input_debug_caltech(img, classification_maps, scale_maps, offset_maps)
         # self.show_mot_input_debug(img, classification_maps, scale_maps, offset_maps)
         # self.show_input_debug_head(img, classification_maps, scale_maps, offset_maps)
+
         outs = self.bbox_head(x)
-        loss_inputs = outs + (gt_bboxes, gt_labels, classification_maps, scale_maps, offset_maps, img_metas, self.train_cfg)
-        losses = self.bbox_head.loss(
+        loss_inputs = outs + (gt_bboxes, gt_labels, classification_maps, scale_maps, offset_maps, img_metas, self.train_cfg.csp_head if self.refine else self.train_cfg)
+        losses_bbox = self.bbox_head.loss(
             *loss_inputs, gt_bboxes_ignore=gt_bboxes_ignore)
+        losses.update(losses_bbox)
+                
+        if self.refine:
+            if self.detached:
+                x = tuple([i.detach() for i in x])
+            bbox_inputs = outs + (img_metas, self.train_cfg.csp_head, False)
+            bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=False)  # no_strides to not upscale yet
+            
+            bbox_list = [
+                bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)[0]
+                for det_bboxes, det_labels in bbox_list
+            ]
+
+            bbox_assigner = build_assigner(self.train_cfg.rcnn.assigner)
+            bbox_sampler = build_sampler(
+                self.train_cfg.rcnn.sampler, context=self)
+            num_imgs = img.size(0)
+            if gt_bboxes_ignore is None:
+                gt_bboxes_ignore = [None for _ in range(num_imgs)]
+            sampling_results = []
+            
+            for i in range(num_imgs):
+                if bbox_list[i].shape[0] == 0 or gt_bboxes[i].shape[0] == 0:
+                    continue
+                bbox = torch.tensor(bbox_list[i]).float().cuda()
+                assign_result = bbox_assigner.assign(
+                    bbox, gt_bboxes[i], gt_bboxes_ignore[i],
+                    gt_labels[i])
+                sampling_result = bbox_sampler.sample(
+                    assign_result,
+                    bbox,
+                    gt_bboxes[i],
+                    gt_labels[i])
+                sampling_results.append(sampling_result)
+
+            samp_list = [res.bboxes for res in sampling_results]
+            if len(samp_list) == 0:
+                losses.update(dict(loss_refine_cls=torch.tensor(0).float().cuda(), acc=torch.tensor(0).float().cuda()))
+                return losses
+            rois = bbox2roi(samp_list).float()
+            if self.refine_head.loss_opinion is not None:
+                pred_scores = torch.cat([torch.tensor(bbox[:, 4]).float().cuda() for bbox in bbox_list], dim=0)
+                pred_rois = bbox2roi([torch.tensor(bbox).float().cuda() for bbox in bbox_list])
+                pred_feats = self.refine_roi_extractor(
+                    x, pred_rois)
+                pred_scores_refine = self.refine_head(pred_feats)
+                loss_opinion = self.refine_head.compute_opinion_loss(pred_scores, pred_scores_refine)
+                losses.update(loss_opinion)
+            bbox_feats = self.refine_roi_extractor(
+                x, rois)
+            cls_score = self.refine_head(bbox_feats)
+            bbox_targets = self.refine_head.get_target(
+                sampling_results, gt_bboxes, gt_labels, self.train_cfg.rcnn)
+            loss_refine = self.refine_head.loss(cls_score,
+                                            *bbox_targets[:2])
+            losses.update(dict(loss_refine_cls=loss_refine["loss_cls"], distL1=loss_refine["dist"]))
+
         return losses
 
-    def simple_test(self, img, img_meta, rescale=False):
+    def simple_test_accuracy(self, img, img_meta):
+        gts = img_meta[0]["gts"]
+        x = self.extract_feat(img)
+        if self.detached:
+            x = (x[0].detach(),)
+
+        rois = bbox2roi(gts)
+        if rois.shape[0] == 0:
+            return 0, 0
+
+        roi_feats = self.refine_roi_extractor(
+            x, rois)
+        cls_score = self.refine_head.get_scores(roi_feats)
+
+        return (cls_score > 0.5).float().sum(), rois.size(0)
+
+    def simple_test(self, img, img_meta, rescale=False, return_id=False):
         x = self.extract_feat(img)
         outs = self.bbox_head(x)
-        bbox_inputs = outs + (img_meta, self.test_cfg, rescale)
+        bbox_inputs = outs + (img_meta, self.test_cfg.csp_head if self.refine else self.test_cfg, False) # TODO://Handle rescalling
         if self.return_feature_maps:
             return self.bbox_head.get_bboxes_features(*bbox_inputs)
-        bbox_list = self.bbox_head.get_bboxes(*bbox_inputs)
+        bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=False)
+        im_scale = img_meta[0]["scale_factor"]
+        if "id" in img_meta[0]:
+            img_id = img_meta[0]["id"]
+        else:
+            img_id = 0
+        if self.refine:
+            if self.detached:
+                x = (x[0].detach(),)
+            bbox_list = [
+                bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)[0]
+                for det_bboxes, det_labels in bbox_list
+            ]
+            refine_cfg = self.test_cfg.get('rcnn', None)
+            bbox_list = [torch.tensor(bbox).float().cuda() for bbox in bbox_list]
+            rois = bbox2roi(bbox_list)
+            bbox_list = [bbox/im_scale for bbox in bbox_list]
+            if rois.shape[0] == 0:
+                cls_score = None
+            else:
+                roi_feats = self.refine_roi_extractor(
+                    x, rois)
+                cls_score = self.refine_head.get_scores(roi_feats)
+
+            res_buffer = []
+            if cls_score is not None:
+                if refine_cfg is not None:
+                    res_buffer = self.refine_head.suppress_boxes(rois, cls_score, img_meta, cfg=refine_cfg)
+                else:
+                    res_buffer = self.refine_head.combine_scores(bbox_list, cls_score)
+            if return_id:
+                return res_buffer, img_id
+            return res_buffer
+
         bbox_results = [
             bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)
             for det_bboxes, det_labels in bbox_list
         ]
+        if return_id:
+            return bbox_results[0], img_id
         return bbox_results[0]
 
     def foward_features(self, features):

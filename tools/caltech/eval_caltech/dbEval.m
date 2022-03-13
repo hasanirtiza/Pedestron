@@ -32,6 +32,7 @@ pth.gtDir=[pth.rootDir 'ResultsEval/gt-' annVer];
 exps = {
   'Reasonable',     [50 inf],  [.65 inf], 0,   .5,  1.25
   'All',            [20 inf],  [.2 inf],  0,   .5,  1.25
+  'Small',          [50 75],   [.65 inf], 0,   .5,  1.25
   'Scale=large',    [100 inf], [inf inf], 0,   .5,  1.25
   'Scale=near',     [80 inf],  [inf inf], 0,   .5,  1.25
   'Scale=medium',   [30 80],   [inf inf], 0,   .5,  1.25
@@ -72,7 +73,7 @@ end
 
 algsOt=cell2struct(algsOt',{'name','resize','color','style'});
 for i=1:numel(algsOt), algsOt(i).type='other'; end
-exps = exps(1);
+exps = exps(3);
 algs =[algsOt(:)];    % select one or more algorithms for evaluation
 % directory path
 for i=1:numel(algs)

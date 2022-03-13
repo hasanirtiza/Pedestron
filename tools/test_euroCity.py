@@ -47,6 +47,8 @@ def mock_detector(model, image):
     mock_detections = []
     if len(results) > 1:
         results = results[:][0]
+    if len(results) == 0:
+        return mock_detections
     for box in results[0]:
         box = {'x0': float(box[0]),
                'x1': float(box[2]),
