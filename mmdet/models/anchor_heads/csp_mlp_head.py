@@ -5,8 +5,8 @@ from mmcv.cnn import normal_init
 from ..registry import HEADS
 from ..utils import bias_init_with_prob, Scale, ConvModule
 from .csp_head import CSPHead
-from .transformers import *
-from .swin_transformer import SwinTransformer as ST
+#from .transformers import *
+#from .swin_transformer import SwinTransformer as ST
 
 INF = 1e8
 
