@@ -42,6 +42,7 @@ model = dict(
         type='CSPMLPHead',
         num_classes=2,
         in_channels=64,
+        windowed_input=False,
         stacked_convs=1,
         feat_channels=32,
         strides=[4],
