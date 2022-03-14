@@ -13,8 +13,8 @@ INF = 1e8
 class CSPMLPHead(CSPHead):
 
     def __init__(self, *args, patch_dim=4, windowed_input=True, **kwargs):
-        super(CSPMLPHead, self).__init__(*args, **kwargs)
         self.patch_dim = patch_dim
+        super(CSPMLPHead, self).__init__(*args, **kwargs)
         self.windowed_input = windowed_input
 
     def _init_layers(self):
