@@ -47,7 +47,6 @@ class CSPMLPHead(CSPHead):
             windows = window_partition(x, self.patch_dim, channel_last=False)
         else:
             windows = x
-
         feat = self.mlp_with_feat_reduced(windows)
 
         x_cls = self.pos_mlp(feat)

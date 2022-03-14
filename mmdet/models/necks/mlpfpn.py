@@ -18,6 +18,7 @@ class MLPFPN(nn.Module):
     def __init__(self,
                  in_channels,
                  out_channels,
+                 patch_dim=8,
                  start_index=1,
                  mixer_count=1):
         super(MLPFPN, self).__init__()
@@ -27,15 +28,19 @@ class MLPFPN(nn.Module):
         self.start_index = start_index
         self.num_ins = len(in_channels)
         self.mixer_count = mixer_count
+        self.patch_dim = patch_dim
 
         pc = int(np.sum([self.in_channels[i] * 2**(2*(self.num_ins-1 - i)) for i in range(self.num_ins)]))
-        self.intpr = nn.Linear(pc, self.out_channels)
+        self.intpr = nn.Linear(pc, (self.patch_dim**2)*self.out_channels)
 
         self.mixers = None
         if self.mixer_count > 0:
-            self.mixers = nn.Sequential([
-                MixerBlock(2 ** (2 * (self.num_ins - 1)), self.out_channels) for i in range(self.mixer_count)
+            self.mixers = nn.Sequential(*[
+                MixerBlock(self.patch_dim**2, self.out_channels) for i in range(self.mixer_count)
             ])
+
+    def init_weights(self):
+        pass
 
     def forward(self, inputs):
         assert len(inputs) == self.num_ins
@@ -45,16 +50,15 @@ class MLPFPN(nn.Module):
 
         for i in range(self.num_ins):
             part = window_partition(inputs[i], 2**(self.num_ins-1 - i), channel_last=False)
-            parts.append(part)
+            parts.append(torch.flatten(part, -2))
 
         out = torch.cat(parts, dim=-1)
-        out = torch.flatten(out, -2)
         out = self.intpr(out)
 
         B, T, _ = out.shape
-        outputs = out.view(B, T, -1, self.out_channels)
+        outputs = out.view(B, T, self.patch_dim**2, self.out_channels)
 
         if self.mixers is not None:
             outputs = self.mixers(outputs)
 
-        return tuple(outputs)
+        return tuple([outputs])
