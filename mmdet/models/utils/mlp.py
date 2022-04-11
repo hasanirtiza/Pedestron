@@ -52,17 +52,17 @@ class MixerBlock(nn.Module):
         super(MixerBlock, self).__init__()
         self.use_ln = use_ln
         if use_ln:
-            self.ln_token = nn.LayerNorm(num_channels)
+            self.ln_token = nn.LayerNorm(num_tokens)
             self.ln_channel = nn.LayerNorm(num_channels)
         self.token_mix = MlpBlock(num_tokens, num_tokens * 2)
         self.channel_mix = MlpBlock(num_channels, num_channels * 2)
 
     def forward(self, x):
+        out = x.transpose(-1, -2)
         if self.use_ln:
-            out = self.ln_token(x)
+            out = self.ln_token(out)
         else:
             out = x
-        out = out.transpose(-1, -2)
         x = x + self.token_mix(out).transpose(-1, -2)
         if self.use_ln:
             out = self.ln_channel(x)
