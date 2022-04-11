@@ -17,13 +17,15 @@ from ..utils import build_conv_layer, build_norm_layer
 
 class PatchMLPBlock(nn.Module):
 
-    def __init__(self, in_patch, out_patch, in_channel, out_channel, half_mixer_count=2, out_patch_size=32):
+    def __init__(self, in_patch, out_patch, in_channel, out_channel, half_mixer_count=2, in_patch_size=32,
+                 out_patch_size=32):
         super(PatchMLPBlock, self).__init__()
         self.in_patch = in_patch
         self.out_patch = out_patch
         self.in_feat = in_channel
         self.out_feat = out_channel
         self.half_mixer_count = half_mixer_count
+        self.patch_size = in_patch_size
         self.out_patch_size = out_patch_size
 
         self.channel_stage = nn.Linear(in_channel, out_channel)
@@ -59,7 +61,7 @@ class PatchMLPBlock(nn.Module):
         x = window_partition(x, self.patch_size, channel_last=False)
         x = self._stage(x)
         x = self.mixer_in(x)
-        x = window_reverse(x, self.patch_size, H, W)
+        x = window_reverse(x, self.out_patch_size, H, W)
 
         x = self.pad(x)
         H, W = x.shape[2:]
