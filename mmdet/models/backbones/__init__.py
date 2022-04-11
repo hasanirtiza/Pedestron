@@ -5,5 +5,6 @@ from .hrnet import HRNet
 from .senet import SENet
 from .mobilenet import MobilenetV2
 from .vgg import VGG
+from .patchmlp import PatchMLP
 
-__all__ = ['ResNet', 'make_res_layer', 'ResNeXt', 'SSDVGG', 'HRNet', 'SENet', 'MobilenetV2', 'VGG']
+__all__ = ['ResNet', 'make_res_layer', 'ResNeXt', 'SSDVGG', 'HRNet', 'SENet', 'MobilenetV2', 'VGG', 'PatchMLP']
