@@ -63,9 +63,9 @@ class PatchMLPBlock(nn.Module):
 
         x = self.pad(x)
         H, W = x.shape[2:]
-        x = window_partition(x, self.patch_size, channel_last=False)
+        x = window_partition(x, self.out_patch_size, channel_last=False)
         x = self.mixer_out(x)
-        x = window_reverse(x, self.patch_size, H, W)
+        x = window_reverse(x, self.out_patch_size, H, W)
         out = self.un_pad(x)
 
         return out

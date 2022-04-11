@@ -7,7 +7,7 @@ def window_partition(x, window_size, channel_last=True):
         x: (B, H, W, C)
         window_size (int): window size
     Returns:
-        windows: (B, num_windows, window_size, window_size, C)
+        windows: (B, num_windows, window_size * window_size, C)
         :param channel_last: if channel is last dim
     """
     if not channel_last:
