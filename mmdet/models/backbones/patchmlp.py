@@ -91,10 +91,12 @@ class PatchMLPStage(nn.Module):
 
         self.blocks = nn.Sequential(
             PatchMLPBlock(
-                self.in_patch, self.out_patch, self.in_channel, self.out_channel, out_patch_size=pz
+                self.in_patch, self.out_patch, self.in_channel, self.out_channel, in_patch_size=patch_size,
+                out_patch_size=pz
             ),
             *[
-                PatchMLPBlock(self.out_patch, self.out_patch, self.out_channel, self.out_channel, out_patch_size=pz)
+                PatchMLPBlock(self.out_patch, self.out_patch, self.out_channel, self.out_channel,
+                              in_patch_size=patch_size, out_patch_size=pz)
                 for i in range(self.block_count - 1)
             ]
         )
