@@ -30,6 +30,7 @@ class PatchMLPBlock(nn.Module):
 
         self.channel_stage = nn.Linear(in_channel, out_channel)
         self.patch_stage = nn.Linear(in_patch, out_patch)
+        self.downscale = int(in_patch_size/out_patch_size)
 
         self.mixer_in = nn.Sequential(
             *[MixerBlock(out_patch, out_channel) for i in range(self.half_mixer_count)]
@@ -51,7 +52,7 @@ class PatchMLPBlock(nn.Module):
         return x
 
     def un_pad(self, x):
-        padding = int(self.patch_size/2)
+        padding = int(self.out_patch_size/2)
         x = x[:, :, padding:-padding, padding:-padding]
         return x
 
@@ -61,7 +62,7 @@ class PatchMLPBlock(nn.Module):
         x = window_partition(x, self.patch_size, channel_last=False)
         x = self._stage(x)
         x = self.mixer_in(x)
-        x = window_reverse(x, self.out_patch_size, H, W)
+        x = window_reverse(x, self.out_patch_size, H//self.downscale, W//self.downscale)
 
         x = self.pad(x)
         H, W = x.shape[2:]
@@ -96,7 +97,7 @@ class PatchMLPStage(nn.Module):
             ),
             *[
                 PatchMLPBlock(self.out_patch, self.out_patch, self.out_channel, self.out_channel,
-                              in_patch_size=patch_size, out_patch_size=pz)
+                              in_patch_size=pz, out_patch_size=pz)
                 for i in range(self.block_count - 1)
             ]
         )

@@ -54,7 +54,6 @@ class MLPFPN(nn.Module):
         pass
 
     def forward(self, inputs):
-        assert len(inputs) == self.num_ins
 
         B, H4, W4, _ = inputs[0].shape
         parts = []
