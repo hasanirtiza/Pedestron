@@ -212,6 +212,11 @@ def main():
         # for backward compatibility
 
         if not distributed:
+            print("Param count:", sum(p.numel() for p in model.parameters() if p.requires_grad))
+            mem_params = sum([param.nelement() * param.element_size() for param in model.parameters()])
+            mem_bufs = sum([buf.nelement() * buf.element_size() for buf in model.buffers()])
+            mem = mem_params + mem_bufs
+            print("Mem Params: ", mem)
             model = MMDataParallel(model, device_ids=[0])
             outputs = single_gpu_test(model, data_loader, args.show, args.save_img, args.save_img_dir)
         else:
