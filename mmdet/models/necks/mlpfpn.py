@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from ..registry import NECKS
 import numpy as np
-from ..utils import window_partition, MixerBlock
+from ..utils import window_partition, MixerBlock,  ConvModule
 
 
 @NECKS.register_module
@@ -23,7 +23,8 @@ class MLPFPN(nn.Module):
                  start_stage=0,
                  end_stage=4,
                  feat_channels=[8, 16, 128],
-                 mixer_count=1):
+                 mixer_count=1,
+                 linear_reduction=True):
         super(MLPFPN, self).__init__()
         assert isinstance(in_channels, list)
         self.in_channels = in_channels
@@ -35,14 +36,18 @@ class MLPFPN(nn.Module):
         self.start_stage = start_stage
         self.end_stage = end_stage
         self.feat_channels = feat_channels
+        self.linear_reduction = linear_reduction
 
         pc = int(np.sum([self.feat_channels[i] * 2**(2*(self.num_ins-1 - i)) for i in range(len(feat_channels))]))
         self.intprL = nn.Linear(pc, (self.patch_dim**2)*self.out_channels)
 
         self.intpr = nn.ModuleList()
         for i in range(len(self.feat_channels)):
-            tokens = 2**(2*(self.num_ins-1 - i))
-            self.intpr.append(nn.Linear(self.in_channels[i] * tokens, self.feat_channels[i] * tokens))
+            if self.linear_reduction:
+                tokens = 2**(2*(self.num_ins-1 - i))
+                self.intpr.append(nn.Linear(self.in_channels[i] * tokens, self.feat_channels[i] * tokens))
+            else:
+                self.intpr.append(ConvModule(self.in_channels[i], self.feat_channels[i], 1))
 
         self.mixers = None
         if self.mixer_count > 0:
@@ -59,9 +64,14 @@ class MLPFPN(nn.Module):
         parts = []
 
         for i in range(len(self.feat_channels)):
-            part = window_partition(inputs[i], 2**(self.num_ins-1 - i), channel_last=False)
-            part = torch.flatten(part, -2)
-            part = self.intpr[i](part)
+            if self.linear_reduction:
+                part = window_partition(inputs[i], 2**(self.num_ins-1 - i), channel_last=False)
+                part = torch.flatten(part, -2)
+                part = self.intpr[i](part)
+            else:
+                part = self.intpr[i](inputs[i])
+                part = window_partition(part, 2 ** (self.num_ins - 1 - i), channel_last=False)
+                part = torch.flatten(part, -2)
             parts.append(part)
 
         out = torch.cat(parts, dim=-1)
