@@ -29,9 +29,14 @@ def single_gpu_test(model, data_loader, show=False, save_img=False, save_img_dir
     results = []
     dataset = data_loader.dataset
     prog_bar = mmcv.ProgressBar(len(dataset))
+    delta = 0
+    count = 0
     for i, data in enumerate(data_loader):
         with torch.no_grad():
+            set = time.time()
             result, id = model(return_loss=False, rescale=not show, return_id=True, **data)
+            delta += time.time() - set
+            count += 1
         results.append((result, id))
 
         if show:
@@ -41,6 +46,7 @@ def single_gpu_test(model, data_loader, show=False, save_img=False, save_img_dir
         batch_size = data['img'][0].size(0)
         for _ in range(batch_size):
             prog_bar.update()
+    print("Img/sec: ", count/delta)
     return results
 
 
