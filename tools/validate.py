@@ -46,7 +46,7 @@ def single_gpu_test(model, data_loader, show=False, save_img=False, save_img_dir
         batch_size = data['img'][0].size(0)
         for _ in range(batch_size):
             prog_bar.update()
-    print("Img/sec: ", count/delta)
+    print("\nImg/sec: ", int(count/delta * 1000)/1000)
     return results
 
 
