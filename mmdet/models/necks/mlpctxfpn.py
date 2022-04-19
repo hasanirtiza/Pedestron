@@ -60,7 +60,7 @@ class MLPCTXFPN(nn.Module):
             part = self.ctx[i](part)
             parts.append(part)
 
-        out = torch.cat(parts, dim=-1)
+        out = torch.cat(parts, dim=1)
         out = window_partition(out, self.patch_dim, channel_last=False)
 
         B, T = out.shape[:2]
