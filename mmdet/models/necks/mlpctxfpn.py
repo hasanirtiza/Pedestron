@@ -63,7 +63,7 @@ class MLPCTXFPN(nn.Module):
         out = torch.cat(parts, dim=-1)
         out = window_partition(out, self.patch_dim, channel_last=False)
 
-        B, T, _ = out.shape
+        B, T = out.shape[:2]
         outputs = out.view(B, T, self.patch_dim**2, self.out_channels)
 
         if self.mixers is not None:
