@@ -40,7 +40,7 @@ class MLPFPNX(nn.Module):
             self.reduction.append(ConvModule(self.in_channels[i], self.feat_channels[i], 1, activation=None))
             self.ctx.append(ConvModule(self.feat_channels[i], self.feat_channels[i], 3, dilation=2**i, padding=2**i,
                                        activation=None))
-            self.norms.append(L2Norm(self.in_channels[i], 10))
+            self.norms.append(L2Norm(self.feat_channels[i], 10))
 
         self.mixers = None
         if self.mixer_count > 0:
