@@ -57,7 +57,7 @@ class MLPFPNX(nn.Module):
         parts = []
 
         for i in range(len(self.feat_channels)):
-            part = self.mapper[i](inputs[i])
+            part = inputs[i]
             if i > 0:
                 part = F.interpolate(part, scale_factor=2**i, mode='bilinear')
             part = self.norms[i](part)
