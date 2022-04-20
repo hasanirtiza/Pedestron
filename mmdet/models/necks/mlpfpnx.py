@@ -32,11 +32,13 @@ class MLPFPNX(nn.Module):
         self.patch_dim = patch_dim
         self.feat_channels = feat_channels
 
-        self.mapper = ConvModule(sum(self.in_channels), self.out_channels, 1, activation=None)
+        self.mapper = ConvModule(sum(self.feat_channels), self.out_channels, 1, activation=None)
         self.ctx = nn.ModuleList()
         self.norms = nn.ModuleList()
+        self.reduction = nn.ModuleList()
         for i in range(len(self.feat_channels)):
-            self.ctx.append(ConvModule(self.in_channels[i], self.in_channels[i], 3, dilation=2**i, padding=2**i,
+            self.reduction.append(ConvModule(self.in_channels[i], self.feat_channels[i], 1, activation=None))
+            self.ctx.append(ConvModule(self.feat_channels[i], self.feat_channels[i], 3, dilation=2**i, padding=2**i,
                                        activation=None))
             self.norms.append(L2Norm(self.in_channels[i], 10))
 
@@ -57,7 +59,7 @@ class MLPFPNX(nn.Module):
         parts = []
 
         for i in range(len(self.feat_channels)):
-            part = inputs[i]
+            part = self.reduction[i](inputs[i])
             if i > 0:
                 part = F.interpolate(part, scale_factor=2**i, mode='bilinear')
             part = self.norms[i](part)
