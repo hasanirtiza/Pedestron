@@ -1,10 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mmdet.models.registry import NECKS
-from mmcv.cnn.weight_init import caffe2_xavier_init
-from mmdet.models.utils import window_partition, MixerBlock,  ConvModule
-from .csp_neck import L2Norm
+from ..registry import NECKS
+import numpy as np
+from ..utils import window_partition, MixerBlock,  ConvModule
 
 
 @NECKS.register_module
@@ -20,27 +19,36 @@ class MLPFPNX(nn.Module):
                  in_channels,
                  out_channels,
                  patch_dim=8,
-                 feat_channels=[4, 16, 128, 1024],
+                 start_index=1,
+                 start_stage=0,
+                 end_stage=4,
+                 feat_channels=[8, 16, 128],
                  mixer_count=1,
-                 ):
+                 linear_reduction=True):
         super(MLPFPNX, self).__init__()
         assert isinstance(in_channels, list)
         self.in_channels = in_channels
         self.out_channels = out_channels
+        self.start_index = start_index
         self.num_ins = len(in_channels)
         self.mixer_count = mixer_count
         self.patch_dim = patch_dim
+        self.start_stage = start_stage
+        self.end_stage = end_stage
         self.feat_channels = feat_channels
+        self.linear_reduction = linear_reduction
 
-        self.mapper = ConvModule(sum(self.feat_channels), self.out_channels, 1, activation=None)
-        self.ctx = nn.ModuleList()
-        self.norms = nn.ModuleList()
-        self.reduction = nn.ModuleList()
+        pc = int(np.sum([self.feat_channels[i] * 2**(2*(self.num_ins-1 - i)) for i in range(len(feat_channels))]))
+        self.intprL = nn.Linear(pc, (self.patch_dim**2)*self.out_channels)
+
+        self.intpr = nn.ModuleList()
         for i in range(len(self.feat_channels)):
-            self.reduction.append(ConvModule(self.in_channels[i], self.feat_channels[i], 1, activation=None))
-            self.ctx.append(ConvModule(self.feat_channels[i], self.feat_channels[i], 3, dilation=2**i, padding=2**i,
-                                       activation=None))
-            self.norms.append(L2Norm(self.feat_channels[i], 10))
+            if self.linear_reduction:
+                tokens = 2**(2*(self.num_ins-1 - i))
+                self.intpr.append(nn.Linear(self.in_channels[i] * tokens, self.feat_channels[i] * tokens))
+            else:
+                self.intpr.append(ConvModule(self.in_channels[i], self.feat_channels[i], 3, padding=i+1, dilation=i+1,
+                                             activation=None))
 
         self.mixers = None
         if self.mixer_count > 0:
@@ -49,9 +57,7 @@ class MLPFPNX(nn.Module):
             ])
 
     def init_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                caffe2_xavier_init(m)
+        pass
 
     def forward(self, inputs):
 
@@ -59,18 +65,20 @@ class MLPFPNX(nn.Module):
         parts = []
 
         for i in range(len(self.feat_channels)):
-            part = self.reduction[i](inputs[i])
-            if i > 0:
-                part = F.interpolate(part, scale_factor=2**i, mode='bilinear')
-            part = self.norms[i](part)
-            part = self.ctx[i](part)
+            if self.linear_reduction:
+                part = window_partition(inputs[i], 2**(self.num_ins-1 - i), channel_last=False)
+                part = torch.flatten(part, -2)
+                part = self.intpr[i](part)
+            else:
+                part = self.intpr[i](inputs[i])
+                part = window_partition(part, 2 ** (self.num_ins - 1 - i), channel_last=False)
+                part = torch.flatten(part, -2)
             parts.append(part)
 
-        out = torch.cat(parts, dim=1)
-        out = self.mapper(out)
-        out = window_partition(out, self.patch_dim, channel_last=False)
+        out = torch.cat(parts, dim=-1)
+        out = self.intprL(out)
 
-        B, T = out.shape[:2]
+        B, T, _ = out.shape
         outputs = out.view(B, T, self.patch_dim**2, self.out_channels)
 
         if self.mixers is not None:
