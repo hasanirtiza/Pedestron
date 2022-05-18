@@ -55,8 +55,8 @@ class CSPMLPHead(CSPHead):
         x_reg = self.reg_mlp(feat)
         x_off = self.off_mlp(feat)
 
-        h = int(self.height) * self.patch_dim
-        w = int(self.width) * self.patch_dim
+        h = int(self.height)
+        w = int(self.width)
 
         x_cls = window_reverse(x_cls, self.patch_dim, h, w)
         x_reg = window_reverse(x_reg, self.patch_dim, h, w)
