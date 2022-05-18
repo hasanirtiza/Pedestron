@@ -38,8 +38,8 @@ class DetConvMLP(ConvMLP):
         if isinstance(pretrained, str):
             logger = logging.getLogger()
             load_checkpoint(self, pretrained, strict=False, logger=logger)
-        else:
-            raise TypeError(f'Invalid backbone pretrained URL/Filename: {pretrained}')
+        #else:
+        #    raise TypeError('Invalid backbone pretrained URL/Filename: ', pretrained)
 
 
 @BACKBONES.register_module
@@ -72,4 +72,14 @@ class DetConvMLPLarge(DetConvMLP):
             dims=[192, 384, 768],
             mlp_ratios=[3, 3, 3],
             channels=96,
+            n_conv_blocks=3)
+
+@BACKBONES.register_module
+class DetConvMLPHR(DetConvMLP):
+    def __init__(self, *args, **kwargs):
+        super(DetConvMLPHR, self).__init__(
+            blocks=[4, 8, 4],
+            dims=[128, 256, 512],
+            mlp_ratios=[2, 2, 2],
+            channels=64,
             n_conv_blocks=3)

@@ -18,7 +18,7 @@ from ..utils import build_conv_layer, build_norm_layer
 class PatchMLPBlock(nn.Module):
 
     def __init__(self, in_patch, out_patch, in_channel, out_channel, half_mixer_count=2, in_patch_size=32,
-                 out_patch_size=32):
+                 out_patch_size=32, win_shift=False):
         super(PatchMLPBlock, self).__init__()
         self.in_patch = in_patch
         self.out_patch = out_patch
@@ -27,6 +27,7 @@ class PatchMLPBlock(nn.Module):
         self.half_mixer_count = half_mixer_count
         self.patch_size = in_patch_size
         self.out_patch_size = out_patch_size
+        self.win_shift = win_shift
 
         self.channel_stage = nn.Linear(in_channel, out_channel)
         self.patch_stage = nn.Linear(in_patch, out_patch)
@@ -64,19 +65,21 @@ class PatchMLPBlock(nn.Module):
         x = self.mixer_in(x)
         x = window_reverse(x, self.out_patch_size, H//self.downscale, W//self.downscale)
 
-        x = self.pad(x)
+        if self.win_shift:
+            x = self.pad(x)
         H, W = x.shape[2:]
         x = window_partition(x, self.out_patch_size, channel_last=False)
         x = self.mixer_out(x)
-        x = window_reverse(x, self.out_patch_size, H, W)
-        out = self.un_pad(x)
+        out = window_reverse(x, self.out_patch_size, H, W)
+        if self.win_shift:
+            out = self.un_pad(out)
 
         return out
 
 
 class PatchMLPStage(nn.Module):
 
-    def __init__(self, block_count, patch_size, downscale, in_channel, out_channel):
+    def __init__(self, block_count, patch_size, downscale, in_channel, out_channel, win_shift=False):
         super(PatchMLPStage, self).__init__()
 
         self.block_count = block_count
@@ -89,11 +92,12 @@ class PatchMLPStage(nn.Module):
         self.out_patch = int(pz**2)
         self.in_channel = in_channel
         self.out_channel = out_channel
+        self.win_shift = win_shift
 
         self.blocks = nn.Sequential(
             PatchMLPBlock(
                 self.in_patch, self.out_patch, self.in_channel, self.out_channel, in_patch_size=patch_size,
-                out_patch_size=pz
+                out_patch_size=pz, win_shift=self.win_shift
             ),
             *[
                 PatchMLPBlock(self.out_patch, self.out_patch, self.out_channel, self.out_channel,
@@ -119,6 +123,7 @@ class PatchMLP(nn.Module):
                  channels=[32, 64, 128],
                  patch_size=32,
                  downscales=[4, 2, 2],
+                 win_shift=False,
                  style='pytorch',
                  frozen_stages=-1,
                  ):
