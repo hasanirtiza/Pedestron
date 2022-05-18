@@ -58,8 +58,8 @@ class CSPMLPHead(CSPHead):
         h = int(self.height)
         w = int(self.width)
 
-        x_cls = window_reverse(x_cls, self.patch_dim, h, w)
-        x_reg = window_reverse(x_reg, self.patch_dim, h, w)
-        x_off = window_reverse(x_off, self.patch_dim, h, w)
+        x_cls = window_reverse(x_cls, self.patch_dim, w, h)
+        x_reg = window_reverse(x_reg, self.patch_dim, w, h)
+        x_off = window_reverse(x_off, self.patch_dim, w, h)
 
         return x_cls, reg_scale(x_reg).float(), offset_scale(x_off).float()
