@@ -32,8 +32,8 @@ def single_gpu_test(model, data_loader, show=False, save_img=False, save_img_dir
     delta = 0
     count = 0
     for i, data in enumerate(data_loader):
+        set = time.time()
         with torch.no_grad():
-            set = time.time()
             result, id = model(return_loss=False, rescale=not show, return_id=True, **data)
             delta += time.time() - set
             count += 1
