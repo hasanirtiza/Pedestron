@@ -78,7 +78,7 @@ data = dict(
         type=dataset_type,
         ann_file='./datasets/CityPersons/train.json',
         img_prefix=data_root,
-
+        mixup=True,
         img_scale=(2048, 1024),
         img_norm_cfg=img_norm_cfg,
         small_box_to_ignore=False,
@@ -154,7 +154,7 @@ wandb = dict(
     init_kwargs=dict(
         project="MLPOD",
         entity="mlpthesis",
-        name="e2e_2x4_conv_mlp_l_32c",
+        name="e2e_2x4_conv_mlp_l_mixup_32c",
         config=dict(
             work_dirs="${work_dir}",
             total_step="${runner.max_epochs}",
@@ -163,11 +163,11 @@ wandb = dict(
         interval=50,
     )
 
-total_epochs = 120
+total_epochs = 240
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x4_conv_mlp_l_32c/'
+work_dir = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x4_conv_mlp_l_mixup_32c/'
 load_from = None
 # load_from = '/netscratch/hkhan/work_dirs/csp_hrnet_ext/epoch_34.pth'
 resume_from = None

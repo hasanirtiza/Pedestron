@@ -1,24 +1,14 @@
 # model settings
 model = dict(
     type='CSP',
-    pretrained=None,
-    backbone=dict(
-        type='PatchMLP',
-        num_stages=3,
-        out_indices=(0, 1, 2),
-        channels=[32, 64, 128],
-        patch_size=32,
-        downscales=[4, 2, 2],
-        win_shift=True,
-    ),
+    pretrained='http://ix.cs.uoregon.edu/~alih/conv-mlp/checkpoints/convmlp_s_imagenet.pth',
+    backbone=dict(type='DetConvMLPSmall'),
     neck=dict(
-        type='MLPFPN',
-        in_channels=[32, 64, 128, 256],
+        type='MLPCTXFPN',
+        in_channels=[64, 128, 256, 512],
         out_channels=32,
         mixer_count=1,
-        start_stage=2,
-        end_stage=3,
-        feat_channels=[4, 16, 128]
+        feat_channels=[4, 16, 128, 512],
     ),
     bbox_head=dict(
         type='CSPMLPHead',
@@ -145,7 +135,7 @@ lr_config = dict(
     warmup_iters=250,
     warmup_ratio=1.0 / 3,
     gamma=0.3,
-    step=[240])
+    step=[120])
 
 checkpoint_config = dict(interval=1)
 evaluation = dict(interval=1, eval_hook='CocoDistEvalMRHook')
@@ -163,7 +153,7 @@ wandb = dict(
     init_kwargs=dict(
         project="MLPOD",
         entity="mlpthesis",
-        name="e2e_2x4_focus_2e4_32c",
+        name="e2e_2x4_convmlpS_ctx_32c",
         config=dict(
             work_dirs="${work_dir}",
             total_step="${runner.max_epochs}",
@@ -172,11 +162,11 @@ wandb = dict(
         interval=50,
     )
 
-total_epochs = 240
+total_epochs = 120
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x4_focus_2e4_32c/'
+work_dir = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x4_convmlpS_ctx_32c/'
 load_from = None
 # load_from = '/netscratch/hkhan/work_dirs/csp_hrnet_ext/epoch_34.pth'
 resume_from = None

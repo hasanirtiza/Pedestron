@@ -9,7 +9,7 @@ model = dict(
         channels=[32, 64, 128],
         patch_size=32,
         downscales=[4, 2, 2],
-        win_shift=True,
+        win_shift=False,
     ),
     neck=dict(
         type='MLPFPN',
@@ -81,7 +81,7 @@ INF = 1e8
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
-    imgs_per_gpu=4,
+    imgs_per_gpu=8,
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
@@ -163,7 +163,7 @@ wandb = dict(
     init_kwargs=dict(
         project="MLPOD",
         entity="mlpthesis",
-        name="e2e_2x4_focus_2e4_32c",
+        name="e2e_2x8_focus_32c_no_shift",
         config=dict(
             work_dirs="${work_dir}",
             total_step="${runner.max_epochs}",
@@ -176,7 +176,7 @@ total_epochs = 240
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x4_focus_2e4_32c/'
+work_dir = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x8_focus_32c_no_shift/'
 load_from = None
 # load_from = '/netscratch/hkhan/work_dirs/csp_hrnet_ext/epoch_34.pth'
 resume_from = None

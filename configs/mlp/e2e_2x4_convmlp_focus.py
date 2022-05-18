@@ -8,9 +8,8 @@ model = dict(
         in_channels=[64, 128, 256, 512],
         out_channels=32,
         mixer_count=1,
-        start_stage=2,
-        end_stage=3,
-        feat_channels=[4, 16, 128]
+        linear_reduction=False,
+        feat_channels=[4, 16, 128, 1024],
     ),
     bbox_head=dict(
         type='CSPMLPHead',
@@ -125,8 +124,9 @@ data = dict(
 #     paramwise_options=dict(bias_lr_mult=2., bias_decay_mult=0.))
 mean_teacher = True
 optimizer = dict(
-    type='Adam',
+    type='AdamW',
     lr=2e-4,
+    weight_decay=0.01,
 )
 # optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 optimizer_config = dict(mean_teacher = dict(alpha=0.999))
@@ -137,7 +137,7 @@ lr_config = dict(
     warmup_iters=250,
     warmup_ratio=1.0 / 3,
     gamma=0.3,
-    step=[240])
+    step=[120])
 
 checkpoint_config = dict(interval=1)
 evaluation = dict(interval=1, eval_hook='CocoDistEvalMRHook')
@@ -155,7 +155,7 @@ wandb = dict(
     init_kwargs=dict(
         project="MLPOD",
         entity="mlpthesis",
-        name="e2e_2x4_focus_2e4_32c",
+        name="e2e_2x4_convmlp_linear_focus_32c",
         config=dict(
             work_dirs="${work_dir}",
             total_step="${runner.max_epochs}",
@@ -164,11 +164,11 @@ wandb = dict(
         interval=50,
     )
 
-total_epochs = 240
+total_epochs = 120
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x4_focus_2e4_32c/'
+work_dir = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x4_convmlp_linear_focus_32c/'
 load_from = None
 # load_from = '/netscratch/hkhan/work_dirs/csp_hrnet_ext/epoch_34.pth'
 resume_from = None

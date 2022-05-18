@@ -1,24 +1,15 @@
 # model settings
 model = dict(
     type='CSP',
-    pretrained=None,
-    backbone=dict(
-        type='PatchMLP',
-        num_stages=3,
-        out_indices=(0, 1, 2),
-        channels=[32, 64, 128],
-        patch_size=32,
-        downscales=[4, 2, 2],
-        win_shift=True,
-    ),
+    pretrained='http://ix.cs.uoregon.edu/~alih/conv-mlp/checkpoints/convmlp_s_imagenet.pth',
+    backbone=dict(type='DetConvMLPSmall'),
     neck=dict(
         type='MLPFPN',
-        in_channels=[32, 64, 128, 256],
+        in_channels=[64, 128, 256, 512],
         out_channels=32,
         mixer_count=1,
-        start_stage=2,
-        end_stage=3,
-        feat_channels=[4, 16, 128]
+        linear_reduction=False,
+        feat_channels=[4, 16, 128, 1024],
     ),
     bbox_head=dict(
         type='CSPMLPHead',
@@ -87,7 +78,7 @@ data = dict(
         type=dataset_type,
         ann_file='./datasets/CityPersons/train.json',
         img_prefix=data_root,
-
+        mixup=True,
         img_scale=(2048, 1024),
         img_norm_cfg=img_norm_cfg,
         small_box_to_ignore=False,
@@ -163,7 +154,7 @@ wandb = dict(
     init_kwargs=dict(
         project="MLPOD",
         entity="mlpthesis",
-        name="e2e_2x4_focus_2e4_32c",
+        name="e2e_2x4_convmlp_linear_focus_mixup_32c",
         config=dict(
             work_dirs="${work_dir}",
             total_step="${runner.max_epochs}",
@@ -176,9 +167,9 @@ total_epochs = 240
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x4_focus_2e4_32c/'
+work_dir = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x4_convmlp_linear_focus_mixup_32c/'
 load_from = None
 # load_from = '/netscratch/hkhan/work_dirs/csp_hrnet_ext/epoch_34.pth'
 resume_from = None
-# resume_from = '/home/ljp/code/mmdetection/work_dirs/csp4_mstrain_640_800_x101_64x4d_fpn_gn_2x/epoch_10.pth'
+# resume_from = '/netscratch/hkhan/work_dirs/mlpod/e2e_2x4_convmlp_linear_focus_mixup_32c/epoch_115.pth'
 workflow = [('train', 1)]
