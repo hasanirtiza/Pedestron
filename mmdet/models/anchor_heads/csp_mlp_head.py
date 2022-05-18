@@ -12,10 +12,12 @@ INF = 1e8
 @HEADS.register_module
 class CSPMLPHead(CSPHead):
 
-    def __init__(self, *args, patch_dim=4, windowed_input=True, **kwargs):
+    def __init__(self, *args, patch_dim=4, width=2048, height=1024, windowed_input=True, **kwargs):
         self.patch_dim = patch_dim
         super(CSPMLPHead, self).__init__(*args, **kwargs)
         self.windowed_input = windowed_input
+        self.width = width/4
+        self.height = height/4
 
     def _init_layers(self):
         self.mlp_with_feat_reduced = nn.Sequential(
@@ -53,8 +55,8 @@ class CSPMLPHead(CSPHead):
         x_reg = self.reg_mlp(feat)
         x_off = self.off_mlp(feat)
 
-        h = int(2**((np.log2(feat.shape[1])-1)/2)) * self.patch_dim
-        w = int(h*2)
+        h = int(self.height) * self.patch_dim
+        w = int(self.width) * self.patch_dim
 
         x_cls = window_reverse(x_cls, self.patch_dim, h, w)
         x_reg = window_reverse(x_reg, self.patch_dim, h, w)
