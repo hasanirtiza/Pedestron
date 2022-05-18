@@ -70,3 +70,19 @@ class MixerBlock(nn.Module):
             out = x
         x = x + self.channel_mix(out)
         return x
+
+class MLP(nn.Module):
+    def __init__(self,
+                 embedding_dim_in,
+                 hidden_dim=None,
+                 embedding_dim_out=None,
+                 activation=nn.GELU):
+        super().__init__()
+        hidden_dim = hidden_dim or embedding_dim_in
+        embedding_dim_out = embedding_dim_out or embedding_dim_in
+        self.fc1 = nn.Linear(embedding_dim_in, hidden_dim)
+        self.act = activation()
+        self.fc2 = nn.Linear(hidden_dim, embedding_dim_out)
+
+    def forward(self, x):
+        return self.fc2(self.act(self.fc1(x)))
