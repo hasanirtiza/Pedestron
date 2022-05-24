@@ -59,10 +59,18 @@ class ECPCocoDataset(CustomDataset):
                  regress_ranges=None,
                  upper_factor=None,
                  upper_more_factor=None,
+                 mixup=True,
+                 mixup_ratio=(0.4, 0.6),
+                 mixup_prob=0.5,
                  with_width=False):
         # prefix of images path
         self.small_box_to_ignore = small_box_to_ignore
         self.img_prefix = img_prefix
+        self.mixup_prob = mixup_prob
+        self.mixup = mixup
+        self.mixup_ratio = mixup_ratio
+        if self.mixup:
+            print(":::::: Mixing it up at (", self.mixup_ratio[0], "-", self.mixup_ratio[1], ")")
         # load annotations (and proposals)
         self.img_infos = self.load_annotations(ann_file)
         if proposal_file is not None:
@@ -277,6 +285,21 @@ class ECPCocoDataset(CustomDataset):
         gt_labels = ann['labels']
         if self.with_crowd:
             gt_bboxes_ignore = ann['bboxes_ignore']
+
+        if self.mixup and self.mixup_prob > np.random.rand():
+            target_idx = np.random.choice(len(self.img_infos))
+            target = self.img_infos[target_idx]
+            mix_s = img
+            if target_idx != idx:
+                mix_t = mmcv.imread(osp.join(self.img_prefix, target['filename']))
+                ratio = np.random.uniform(*self.mixup_ratio)
+                img = np.uint8(mix_s * (1 - ratio) + mix_t * ratio)
+                ann_t = self.get_ann_info(target_idx)
+                gt_bboxes = np.concatenate((gt_bboxes, ann_t["bboxes"]))
+                gt_labels = np.concatenate((gt_labels, ann_t["labels"]))
+
+                if self.with_crowd:
+                    gt_bboxes_ignore = np.concatenate((gt_bboxes_ignore, ann_t["bboxes_ignore"]))
 
         assert len(self.img_scales[0]) == 2 and isinstance(self.img_scales[0][0], int)
 
