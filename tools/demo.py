@@ -3,7 +3,7 @@ import argparse
 import os
 import os.path as osp
 import sys
-sys.path.insert(0, osp.join(osp.dirname(osp.abspath(__file__)), '../'))
+#sys.path.insert(0, osp.join(osp.dirname(osp.abspath(__file__)), '../'))
 import time
 import cv2
 import torch
