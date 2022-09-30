@@ -9,16 +9,17 @@
 #include <ATen/ATen.h>
 #include <ATen/cuda/CUDAContext.h>
 
-#include <THC/THC.h>
-#include <THC/THCAtomics.cuh>
-#include <THC/THCDeviceUtils.cuh>
-
 #include <cfloat>
 
 // TODO make it in a common file
 #define CUDA_1D_KERNEL_LOOP(i, n)                            \
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; \
        i += blockDim.x * gridDim.x)
+
+template <typename T>
+__host__ __device__ __forceinline__ T ATenCeilDiv(T a, T b) {
+  return (a + b - 1) / b;
+}
 
 template <typename scalar_t>
 __global__ void SigmoidFocalLossForward(const int nthreads,
@@ -109,11 +110,11 @@ at::Tensor SigmoidFocalLoss_forward_cuda(const at::Tensor &logits,
   auto losses = at::empty({num_samples, logits.size(1)}, logits.options());
   auto losses_size = num_samples * logits.size(1);
 
-  dim3 grid(std::min(THCCeilDiv((long)losses_size, 512L), 4096L));
+  dim3 grid(std::min(ATenCeilDiv((long)losses_size, 512L), 4096L));
   dim3 block(512);
 
   if (losses.numel() == 0) {
-    THCudaCheck(cudaGetLastError());
+    TORCH_CHECK(cudaGetLastError() == cudaSuccess);
     return losses;
   }
 
@@ -124,7 +125,7 @@ at::Tensor SigmoidFocalLoss_forward_cuda(const at::Tensor &logits,
             targets.contiguous().data<long>(), num_classes, gamma, alpha,
             num_samples, losses.data<scalar_t>());
       });
-  THCudaCheck(cudaGetLastError());
+  TORCH_CHECK(cudaGetLastError() == cudaSuccess);
   return losses;
 }
 
@@ -147,11 +148,11 @@ at::Tensor SigmoidFocalLoss_backward_cuda(const at::Tensor &logits,
   auto d_logits = at::zeros({num_samples, num_classes}, logits.options());
   auto d_logits_size = num_samples * logits.size(1);
 
-  dim3 grid(std::min(THCCeilDiv((long)d_logits_size, 512L), 4096L));
+  dim3 grid(std::min(ATenCeilDiv((long)d_logits_size, 512L), 4096L));
   dim3 block(512);
 
   if (d_logits.numel() == 0) {
-    THCudaCheck(cudaGetLastError());
+    TORCH_CHECK(cudaGetLastError() == cudaSuccess);
     return d_logits;
   }
 
@@ -164,6 +165,6 @@ at::Tensor SigmoidFocalLoss_backward_cuda(const at::Tensor &logits,
             num_samples, d_logits.data<scalar_t>());
       });
 
-  THCudaCheck(cudaGetLastError());
+  TORCH_CHECK(cudaGetLastError() == cudaSuccess);
   return d_logits;
 }
