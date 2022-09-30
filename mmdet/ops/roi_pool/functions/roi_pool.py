@@ -1,13 +1,13 @@
 import torch
 from torch.autograd import Function
 
-from .. import roi_pool_cuda
-
 
 class RoIPoolFunction(Function):
 
     @staticmethod
     def forward(ctx, features, rois, out_size, spatial_scale):
+        from .. import roi_pool_cuda
+
         if isinstance(out_size, int):
             out_h = out_size
             out_w = out_size
@@ -36,6 +36,8 @@ class RoIPoolFunction(Function):
 
     @staticmethod
     def backward(ctx, grad_output):
+        from .. import roi_pool_cuda
+
         assert grad_output.is_cuda
         spatial_scale = ctx.spatial_scale
         feature_size = ctx.feature_size

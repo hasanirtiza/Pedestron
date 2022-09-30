@@ -1,12 +1,12 @@
 from torch.autograd import Function
 
-from .. import roi_align_cuda
-
 
 class RoIAlignFunction(Function):
 
     @staticmethod
     def forward(ctx, features, rois, out_size, spatial_scale, sample_num=0):
+        from .. import roi_align_cuda
+
         if isinstance(out_size, int):
             out_h = out_size
             out_w = out_size
@@ -37,6 +37,8 @@ class RoIAlignFunction(Function):
 
     @staticmethod
     def backward(ctx, grad_output):
+        from .. import roi_align_cuda
+
         feature_size = ctx.feature_size
         spatial_scale = ctx.spatial_scale
         sample_num = ctx.sample_num

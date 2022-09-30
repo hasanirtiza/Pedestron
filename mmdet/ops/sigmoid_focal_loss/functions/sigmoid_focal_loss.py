@@ -1,13 +1,13 @@
 from torch.autograd import Function
 from torch.autograd.function import once_differentiable
 
-from .. import sigmoid_focal_loss_cuda
-
 
 class SigmoidFocalLossFunction(Function):
 
     @staticmethod
     def forward(ctx, input, target, gamma=2.0, alpha=0.25):
+        from .. import sigmoid_focal_loss_cuda
+
         ctx.save_for_backward(input, target)
         num_classes = input.shape[1]
         ctx.num_classes = num_classes
@@ -21,6 +21,8 @@ class SigmoidFocalLossFunction(Function):
     @staticmethod
     @once_differentiable
     def backward(ctx, d_loss):
+        from .. import sigmoid_focal_loss_cuda
+
         input, target = ctx.saved_tensors
         num_classes = ctx.num_classes
         gamma = ctx.gamma

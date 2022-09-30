@@ -2,8 +2,6 @@ import torch
 from torch.autograd import Function
 from torch.nn.modules.utils import _pair
 
-from .. import deform_conv_cuda
-
 
 class DeformConvFunction(Function):
 
@@ -18,6 +16,8 @@ class DeformConvFunction(Function):
                 groups=1,
                 deformable_groups=1,
                 im2col_step=64):
+        from .. import deform_conv_cuda
+
         if input is not None and input.dim() != 4:
             raise ValueError(
                 "Expected 4D tensor as input, got {}D tensor instead.".format(

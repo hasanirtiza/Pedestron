@@ -2,13 +2,14 @@ import math
 import torch
 from torch.autograd import Function
 from torch.nn.modules.utils import _pair
-from .. import masked_conv2d_cuda
 
 
 class MaskedConv2dFunction(Function):
 
     @staticmethod
     def forward(ctx, features, mask, weight, bias, padding=0, stride=1):
+        from .. import masked_conv2d_cuda
+
         assert mask.dim() == 3 and mask.size(0) == 1
         assert features.dim() == 4 and features.size(0) == 1
         assert features.size()[2:] == mask.size()[1:]

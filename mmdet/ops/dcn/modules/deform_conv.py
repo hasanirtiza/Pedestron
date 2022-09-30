@@ -4,8 +4,6 @@ import torch
 import torch.nn as nn
 from torch.nn.modules.utils import _pair
 
-from ..functions.deform_conv import deform_conv, modulated_deform_conv
-
 
 class DeformConv(nn.Module):
 
@@ -52,6 +50,8 @@ class DeformConv(nn.Module):
         self.weight.data.uniform_(-stdv, stdv)
 
     def forward(self, x, offset):
+        from ..functions.deform_conv import deform_conv
+
         return deform_conv(x, offset, self.weight, self.stride, self.padding,
                            self.dilation, self.groups, self.deformable_groups)
 
@@ -76,6 +76,8 @@ class DeformConvPack(DeformConv):
         self.conv_offset.bias.data.zero_()
 
     def forward(self, x):
+        from ..functions.deform_conv import deform_conv
+
         offset = self.conv_offset(x)
         return deform_conv(x, offset, self.weight, self.stride, self.padding,
                            self.dilation, self.groups, self.deformable_groups)
@@ -123,6 +125,8 @@ class ModulatedDeformConv(nn.Module):
             self.bias.data.zero_()
 
     def forward(self, x, offset, mask):
+        from ..functions.deform_conv import modulated_deform_conv
+
         return modulated_deform_conv(x, offset, mask, self.weight, self.bias,
                                      self.stride, self.padding, self.dilation,
                                      self.groups, self.deformable_groups)
@@ -148,6 +152,8 @@ class ModulatedDeformConvPack(ModulatedDeformConv):
         self.conv_offset_mask.bias.data.zero_()
 
     def forward(self, x):
+        from ..functions.deform_conv import modulated_deform_conv
+
         out = self.conv_offset_mask(x)
         o1, o2, mask = torch.chunk(out, 3, dim=1)
         offset = torch.cat((o1, o2), dim=1)

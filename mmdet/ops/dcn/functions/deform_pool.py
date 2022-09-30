@@ -1,8 +1,6 @@
 import torch
 from torch.autograd import Function
 
-from .. import deform_pool_cuda
-
 
 class DeformRoIPoolingFunction(Function):
 
@@ -19,6 +17,8 @@ class DeformRoIPoolingFunction(Function):
                 part_size=None,
                 sample_per_part=4,
                 trans_std=.0):
+        from .. import deform_pool_cuda
+
         ctx.spatial_scale = spatial_scale
         ctx.out_size = out_size
         ctx.out_channels = out_channels
@@ -48,6 +48,8 @@ class DeformRoIPoolingFunction(Function):
 
     @staticmethod
     def backward(ctx, grad_output):
+        from .. import deform_pool_cuda
+
         if not grad_output.is_cuda:
             raise NotImplementedError
 
