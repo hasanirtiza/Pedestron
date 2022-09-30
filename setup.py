@@ -140,10 +140,9 @@ if __name__ == '__main__':
             'Programming Language :: Python :: 3.6',
         ],
         license='Apache License 2.0',
-        setup_requires=['pytest-runner', 'cython', 'numpy'],
         tests_require=['pytest'],
         install_requires=[
-            'mmcv>=0.2.6', 'numpy', 'matplotlib', 'six', 'terminaltables',
+            'mmcv==0.2.10', 'numpy', 'matplotlib', 'six', 'terminaltables',
             'pycocotools', 'torch>=1.1'
         ],
         ext_modules=[

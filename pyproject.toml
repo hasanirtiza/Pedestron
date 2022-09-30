@@ -1,0 +1,3 @@
+[build-system]
+requires = ["setuptools>=18", "pytest-runner", "Cython", "numpy", "torch"]
+build-backend = "setuptools.build_meta"
