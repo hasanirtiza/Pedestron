@@ -75,7 +75,7 @@ sudo docker run --gpus all --shm-size=8g -it --rm pedestron
 
 ### CUDA 11+ instllation
 
-1) Please follow the tips and instructions given at this [PR request](https://github.com/hasanirtiza/Pedestron/pull/150)). 
+1) Please follow the tips and instructions given at this [PR request](https://github.com/hasanirtiza/Pedestron/pull/150). 
 
 ### Prepare COCO dataset.
 
