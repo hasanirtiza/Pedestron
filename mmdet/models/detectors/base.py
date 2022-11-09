@@ -1,6 +1,7 @@
 import logging
 from abc import ABCMeta, abstractmethod
 
+import torch
 import mmcv
 import numpy as np
 import torch.nn as nn
@@ -60,12 +61,17 @@ class BaseDetector(nn.Module):
             logger = logging.getLogger()
             logger.info('load model from: {}'.format(pretrained))
 
-    def forward_test(self, imgs, img_metas, **kwargs):
+    def forward_test(self, imgs, img_metas, gt_bboxes=None, gt_bboxes_ignore=None, **kwargs):
         for var, name in [(imgs, 'imgs'), (img_metas, 'img_metas')]:
+            if isinstance(var, torch.Tensor):
+                var = [var]
             if not isinstance(var, list):
                 raise TypeError('{} must be a list, but got {}'.format(
                     name, type(var)))
 
+        if isinstance(imgs, torch.Tensor):
+            imgs = [imgs]
+            img_metas = [img_metas]
         num_augs = len(imgs)
         if num_augs != len(img_metas):
             raise ValueError(
@@ -73,7 +79,7 @@ class BaseDetector(nn.Module):
                     len(imgs), len(img_metas)))
         # TODO: remove the restriction of imgs_per_gpu == 1 when prepared
         imgs_per_gpu = imgs[0].size(0)
-        assert imgs_per_gpu == 1
+        #assert imgs_per_gpu == 1
 
         if num_augs == 1:
             return self.simple_test(imgs[0], img_metas[0], **kwargs)
