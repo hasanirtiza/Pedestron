@@ -143,57 +143,57 @@ if __name__ == '__main__':
         setup_requires=['pytest-runner', 'cython', 'numpy'],
         tests_require=['pytest'],
         install_requires=[
-            'mmcv>=0.2.6', 'numpy', 'matplotlib', 'six', 'terminaltables',
+            'mmcv==0.2.10', 'numpy', 'matplotlib', 'six', 'terminaltables',
             'pycocotools', 'torch>=1.1'
         ],
         ext_modules=[
-            make_cython_ext(
-                name='soft_nms_cpu',
-                module='mmdet.ops.nms',
-                sources=['src/soft_nms_cpu.pyx']),
-            make_cuda_ext(
-                name='roi_align_cuda',
-                module='mmdet.ops.roi_align',
-                sources=['src/roi_align_cuda.cpp', 'src/roi_align_kernel.cu']),
-            make_cuda_ext(
-                name='roi_pool_cuda',
-                module='mmdet.ops.roi_pool',
-                sources=['src/roi_pool_cuda.cpp', 'src/roi_pool_kernel.cu']),
-            make_cuda_ext(
-                name='nms_cpu',
-                module='mmdet.ops.nms',
-                sources=['src/nms_cpu.cpp']),
-            make_cuda_ext(
-                name='nms_cuda',
-                module='mmdet.ops.nms',
-                sources=['src/nms_cuda.cpp', 'src/nms_kernel.cu']),
-            make_cuda_ext(
-                name='deform_conv_cuda',
-                module='mmdet.ops.dcn',
-                sources=[
-                    'src/deform_conv_cuda.cpp',
-                    'src/deform_conv_cuda_kernel.cu'
-                ]),
-            make_cuda_ext(
-                name='deform_pool_cuda',
-                module='mmdet.ops.dcn',
-                sources=[
-                    'src/deform_pool_cuda.cpp',
-                    'src/deform_pool_cuda_kernel.cu'
-                ]),
-            make_cuda_ext(
-                name='sigmoid_focal_loss_cuda',
-                module='mmdet.ops.sigmoid_focal_loss',
-                sources=[
-                    'src/sigmoid_focal_loss.cpp',
-                    'src/sigmoid_focal_loss_cuda.cu'
-                ]),
-            make_cuda_ext(
-                name='masked_conv2d_cuda',
-                module='mmdet.ops.masked_conv',
-                sources=[
-                    'src/masked_conv2d_cuda.cpp', 'src/masked_conv2d_kernel.cu'
-                ]),
+#            make_cython_ext(
+#                name='soft_nms_cpu',
+#                module='mmdet.ops.nms',
+#                sources=['src/soft_nms_cpu.pyx']),
+#            make_cuda_ext(
+#                name='roi_align_cuda',
+#                module='mmdet.ops.roi_align',
+#                sources=['src/roi_align_cuda.cpp', 'src/roi_align_kernel.cu']),
+#            make_cuda_ext(
+#                name='roi_pool_cuda',
+#                module='mmdet.ops.roi_pool',
+#                sources=['src/roi_pool_cuda.cpp', 'src/roi_pool_kernel.cu']),
+#            make_cuda_ext(
+#                name='nms_cpu',
+#                module='mmdet.ops.nms',
+#                sources=['src/nms_cpu.cpp']),
+#            make_cuda_ext(
+#                name='nms_cuda',
+#                module='mmdet.ops.nms',
+#                sources=['src/nms_cuda.cpp', 'src/nms_kernel.cu']),
+#            make_cuda_ext(
+#                name='deform_conv_cuda',
+#                module='mmdet.ops.dcn',
+#                sources=[
+#                    'src/deform_conv_cuda.cpp',
+#                    'src/deform_conv_cuda_kernel.cu'
+#                ]),
+#            make_cuda_ext(
+#                name='deform_pool_cuda',
+#                module='mmdet.ops.dcn',
+#                sources=[
+#                    'src/deform_pool_cuda.cpp',
+#                    'src/deform_pool_cuda_kernel.cu'
+#                ]),
+#            make_cuda_ext(
+#                name='sigmoid_focal_loss_cuda',
+#                module='mmdet.ops.sigmoid_focal_loss',
+#                sources=[
+#                    'src/sigmoid_focal_loss.cpp',
+#                    'src/sigmoid_focal_loss_cuda.cu'
+#                ]),
+#            make_cuda_ext(
+#                name='masked_conv2d_cuda',
+#                module='mmdet.ops.masked_conv',
+#                sources=[
+#                    'src/masked_conv2d_cuda.cpp', 'src/masked_conv2d_kernel.cu'
+#                ]),
         ],
         cmdclass={'build_ext': BuildExtension},
         zip_safe=False)

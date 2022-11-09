@@ -140,6 +140,7 @@ def parse_args():
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument('--mean_teacher', action='store_true', help='test the mean teacher pth')
     parser.add_argument('--ecp', action='store_true', help='use ECP params')
+    parser.add_argument('--batch_size', type=int, default=1)
 
     args = parser.parse_args()
     if 'LOCAL_RANK' not in os.environ:
@@ -151,7 +152,7 @@ def main():
     args = parse_args()
 
     work_dir = "/".join(args.checkpoint.split("/")[:-1] + ['runs'])
-    Path(work_dir).mkdir(parents=True, exist_ok=True)
+    #Path(work_dir).mkdir(parents=True, exist_ok=True)
     
     cfg = mmcv.Config.fromfile(args.config)
 
@@ -160,8 +161,8 @@ def main():
 
     cfg.model.pretrained = None
     cfg.data.test.test_mode = True
-    tval_writer = SummaryWriter(work_dir + '/lamr_val')
-    ttrain_writer = SummaryWriter(work_dir + '/lamr_train')
+    #tval_writer = SummaryWriter(work_dir + '/lamr_val')
+    #ttrain_writer = SummaryWriter(work_dir + '/lamr_train')
 
     # init distributed env first, since logger depends on the dist info.
     if args.launcher == 'none':
@@ -178,8 +179,8 @@ def main():
     for i in range(args.checkpoint_start, args.checkpoint_end):
         data_loader = build_dataloader(
             dataset,
-            imgs_per_gpu=1,
-            workers_per_gpu=1,
+            imgs_per_gpu=args.batch_size,
+            workers_per_gpu=2,
             dist=distributed,
             shuffle=False)
 
@@ -225,6 +226,7 @@ def main():
 
         if rank == 0:
             check = []
+            nu_wh_ratio = []
             for j in range(len(outputs)):
                 out, img_id = outputs[j]
                 if len(out) > 0:
@@ -240,19 +242,22 @@ def main():
                             temp['image_id'] = img_id
                             temp['category_id'] = 1
                             temp['bbox'] = box[:4].tolist()
+                            nu_wh_ratio.append(box[2]/box[3])
                             temp['score'] = float(box[4])
                             check.append(temp)
-            with open(args.out, 'w') as f:
+            nu_wh_ratio = np.array(nu_wh_ratio)
+            print(f"Wh_ratio => nu: {nu_wh_ratio.mean()}, min: {nu_wh_ratio.min()}, max: {nu_wh_ratio.max()}")
+            with open(args.out, 'w') as f:  
                 json.dump(check, f)
             stats = validate(test_json, args.out, ecp=args.ecp)
             MRs = stats
             
             print("Checkpoint %d: [VR: %.2f], [VS: %.2f], [VH: %.2f], [VA: %.2f]" % (i, MRs[0], MRs[1], MRs[2], MRs[3]))
-            tval_writer.add_scalar('Reasonable', MRs[0], i)
-            tval_writer.add_scalar('Small', MRs[1], i)
-            tval_writer.add_scalar('Heavy', MRs[2], i)
-            tval_writer.add_scalar('All', MRs[3], i)
-            tval_writer.flush()
+            #tval_writer.add_scalar('Reasonable', MRs[0], i)
+            #tval_writer.add_scalar('Small', MRs[1], i)
+            #tval_writer.add_scalar('Heavy', MRs[2], i)
+            #tval_writer.add_scalar('All', MRs[3], i)
+            #tval_writer.flush()
             print("Checkpoint %d: " % i)
             print(stats)
 

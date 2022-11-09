@@ -372,6 +372,7 @@ class COCOeval:
                 dtIg = np.concatenate([e['dtIgnore'][:, 0:maxDet] for e in E], axis=1)[:, inds]
                 gtIg = np.concatenate([e['gtIgnore'] for e in E])
                 npig = np.count_nonzero(gtIg == 0)
+                print("GtCount: ", npig)
                 if npig == 0:
                     continue
                 tps = np.logical_and(dtm, np.logical_not(dtIg))
@@ -404,7 +405,11 @@ class COCOeval:
                             q[ri] = recall[pi]
                     except:
                         pass
-                    ys[t,:,k,m] = np.array(q)
+                    pi = inds[-1]
+                    precision_cut = tp[pi]/(tp[pi]+fp[pi])
+                    print("Pcut: ", precision_cut)
+                    ys[t,:,k,m] = np.array(q).clip(0, 1-1e-6)
+                    print(ys[t,:,k,m])
         self.eval = {
             'params': p,
             'counts': [T, R, K, M],

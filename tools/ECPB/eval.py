@@ -125,13 +125,13 @@ def eval(time='day', mode='val', eval_type='pedestrian', det_path=None):
     assert time in ['day', 'night']
     assert mode in ['val', 'test']
 
-    gt_path = './datasets/EuroCity/ECP/{}/labels/{}'.format(time, mode)
+    gt_path = '/netscratch/hkhan/ECP/ECP/{}/labels/{}'.format(time, mode)
     if det_path is None:
-        det_path = './results/mock_detections/{}/{}'.format(time, mode)
-    det_method_name = 'Faster R-CNN'
+        det_path = '/netscratch/hkhan/results/mock_detections/{}/{}'.format(time, mode)
+    det_method_name = 'LSFM'
 
     # folder where you find all the results (unless you change other paths...)
-    results_path = os.path.abspath('./results')
+    results_path = os.path.abspath('/netscratch/hkhan/results')
     if not os.path.exists(results_path):
         os.makedirs(results_path)
 
