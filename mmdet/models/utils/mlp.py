@@ -29,7 +29,7 @@ def window_reverse(windows, window_size, W, H):
         x: (B, C, W, H)
     """
     B = windows.shape[0]
-    x = windows.reshape(B, W // window_size, H // window_size, window_size, window_size, -1)
+    x = windows.view(B, W // window_size, H // window_size, window_size, window_size, -1)
     x = x.permute(0, 5, 1, 3, 2, 4).contiguous().view(B, -1, W, H)
     return x
 
