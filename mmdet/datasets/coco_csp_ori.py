@@ -47,6 +47,7 @@ class CocoCSPORIDataset(CustomDataset):
                  with_mask=True,
                  with_crowd=True,
                  with_label=True,
+                 with_aspect_ratio=False,
                  with_semantic_seg=False,
                  seg_prefix=None,
                  seg_scale_factor=1,
@@ -67,9 +68,10 @@ class CocoCSPORIDataset(CustomDataset):
         self.small_box_to_ignore = small_box_to_ignore
         self.img_prefix = img_prefix
         self.mixup_prob = mixup_prob
+        self.with_aspect_ratio = with_aspect_ratio
         self.mixup = mixup
         self.mixup_ratio = mixup_ratio
-        if self.mixup:
+        if self.mixup and flip_ratio > 0:
             print(":::::: Mixing it up at (", self.mixup_ratio[0], "-", self.mixup_ratio[1], ")" )
         # load annotations (and proposals)
         self.img_infos = self.load_annotations(ann_file)
@@ -285,6 +287,8 @@ class CocoCSPORIDataset(CustomDataset):
         gt_bboxes = ann['bboxes']
         gt_labels = ann['labels']
 
+        gt_bboxes_ignore = np.zeros((0, 4))
+
         if self.with_crowd:
             gt_bboxes_ignore = ann['bboxes_ignore']
 
@@ -305,7 +309,11 @@ class CocoCSPORIDataset(CustomDataset):
 
         assert len(self.img_scales[0]) == 2 and isinstance(self.img_scales[0][0], int)
 
-        img, gt_bboxes, gt_labels, gt_bboxes_ignore = augment(img, gt_bboxes, gt_labels, gt_bboxes_ignore, self.img_scales[0], small_box_to_ignore=self.small_box_to_ignore)
+        oimg, ogt_bboxes, ogt_labels, ogt_bboxes_ignore = augment(img, gt_bboxes, gt_labels, gt_bboxes_ignore, self.img_scales[0], small_box_to_ignore=self.small_box_to_ignore)
+        while oimg.shape[0] != self.img_scales[0][1] or oimg.shape[1] != self.img_scales[0][0]:
+            oimg, ogt_bboxes, ogt_labels, ogt_bboxes_ignore = augment(img, gt_bboxes, gt_labels, gt_bboxes_ignore, self.img_scales[0], small_box_to_ignore=self.small_box_to_ignore)
+            print("Target size  not met, trying again!!!")
+        img, gt_bboxes, gt_labels, gt_bboxes_ignore =  oimg, ogt_bboxes, ogt_labels, ogt_bboxes_ignore
         ori_shape = img.shape[:2]
         img, img_shape, pad_shape, scale_factor = self.img_transform(
             img, img.shape[:2], False, keep_ratio=self.resize_keep_ratio)
@@ -331,7 +339,6 @@ class CocoCSPORIDataset(CustomDataset):
             scale_maps.append(scale_map)
             offset_maps.append(offset_map)
 
-
         data = dict(
             img=DC(to_tensor(img), stack=True),
             img_meta=DC(img_meta, cpu_only=True),
@@ -346,6 +353,7 @@ class CocoCSPORIDataset(CustomDataset):
         data['classification_maps'] = DC([to_tensor(pos_map) for pos_map in pos_maps])
         data['scale_maps'] = DC([to_tensor(scale_map) for scale_map in scale_maps])
         data['offset_maps'] = DC([to_tensor(offset_map) for offset_map in offset_maps])
+
         return data
 
     def calc_gt_center(self, gts, igs, radius=8, stride=4, regress_range=(-1, INF), image_shape=None):
@@ -356,7 +364,7 @@ class CocoCSPORIDataset(CustomDataset):
             dx = np.exp(-np.square(np.arange(kernel) - int(kernel / 2)) / s)
             return np.reshape(dx, (-1, 1))
         radius = int(radius/stride)
-        if not self.with_width:
+        if not (self.with_width or self.with_aspect_ratio):
             scale_map = np.zeros((2, int(image_shape[0] / stride), int(image_shape[1] / stride)), dtype=np.float32)
         else:
             scale_map = np.zeros((3, int(image_shape[0] / stride), int(image_shape[1] / stride)), dtype=np.float32)
@@ -387,12 +395,15 @@ class CocoCSPORIDataset(CustomDataset):
                 pos_map[1, y1:y2, x1:x2] = 1  # 1-mask map
                 pos_map[2, c_y, c_x] = 1  # center map
 
-                if not self.with_width:
+                if not (self.with_width or self.with_aspect_ratio):
                     scale_map[0, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 3] - gts[ind, 1]) # value of height
                     scale_map[1, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = 1  # 1-mask
                 else:
                     scale_map[0, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 3] - gts[ind, 1]) # value of height
-                    scale_map[1, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 2] - gts[ind, 0]) # value of height
+                    if self.with_aspect_ratio:
+                        scale_map[1, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = (gts[ind, 2] - gts[ind, 0])/(gts[ind, 3] - gts[ind, 1])
+                    else:
+                        scale_map[1, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = np.log(gts[ind, 2] - gts[ind, 0]) # value of height
                     scale_map[2, c_y-radius:c_y+radius+1, c_x-radius:c_x+radius+1] = 1  # 1-mask
 
 
@@ -427,7 +438,7 @@ def resize_image(image, gts, igs, scale=(0.4, 1.5)):
     ratio = np.random.uniform(scale[0], scale[1])
     # if len(gts)>0 and np.max(gts[:,3]-gts[:,1])>300:
     #     ratio = np.random.uniform(scale[0], 1.0)
-    new_height, new_width = int(ratio * height), int(ratio * width)
+    new_height, new_width = int(np.ceil(ratio * height)), int(np.ceil(ratio * width))
     image = cv2.resize(image, (new_width, new_height))
     if len(gts) > 0:
         gts = np.asarray(gts, dtype=float)
@@ -451,8 +462,8 @@ def random_crop(image, gts, gt_labels, igs, crop_size, limit=8, small_box_to_ign
         sel_center_x = int((gts[sel_id, 0] + gts[sel_id, 2]) / 2.0)
         sel_center_y = int((gts[sel_id, 1] + gts[sel_id, 3]) / 2.0)
     else:
-        sel_center_x = int(np.random.randint(0, img_width - crop_w + 1) + crop_w * 0.5)
-        sel_center_y = int(np.random.randint(0, img_height - crop_h + 1) + crop_h * 0.5)
+        sel_center_x = int(np.random.randint(0, max(img_width - crop_w + 1, 1)) + crop_w * 0.5)
+        sel_center_y = int(np.random.randint(0, max(img_height - crop_h + 1, 1)) + crop_h * 0.5)
 
     crop_x1 = max(sel_center_x - int(crop_w * 0.5), int(0))
     crop_y1 = max(sel_center_y - int(crop_h * 0.5), int(0))
@@ -500,9 +511,9 @@ def random_pave(image, gts, gt_labels, igs, pave_size, limit=8, small_box_to_ign
     pave_h, pave_w = pave_size
     # paved_image = np.zeros((pave_h, pave_w, 3), dtype=image.dtype)
     paved_image = np.ones((pave_h, pave_w, 3), dtype=image.dtype) * np.mean(image, dtype=int)
-    pave_x = int(np.random.randint(0, pave_w - img_width + 1))
+    pave_x = int(np.random.randint(0, max(pave_w - img_width + 1, 1)))
     pave_y = int(np.random.randint(0, pave_h - img_height + 1))
-    paved_image[pave_y:pave_y + img_height, pave_x:pave_x + img_width] = image
+    paved_image[pave_y:pave_y + img_height, pave_x:min(pave_x + img_width, pave_w)] = image[:, :(min(pave_x + img_width, pave_w) - pave_x)]
     # pave detections
     add_ign = None
 
