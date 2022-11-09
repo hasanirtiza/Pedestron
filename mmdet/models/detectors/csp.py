@@ -5,6 +5,7 @@ from mmdet.core import bbox2result
 import torch.nn as nn
 import torch
 from .. import builder
+from ..utils import window_reverse
 import numpy as np
 import cv2
 from mmdet.core import bbox2roi, bbox2result, build_assigner, build_sampler
@@ -33,6 +34,8 @@ class CSP(SingleStageDetector):
         self.train_cfg = train_cfg
         self.test_cfg = test_cfg
         self.detached = detached
+        if hasattr(self.neck, 'backlinks'):
+            self.neck.backlinks.append(self)
 
     def show_input_debug(self, img, classification_maps, scale_maps, offset_maps):
         img_numpy = img.cpu().numpy().copy()[0]
@@ -223,6 +226,8 @@ class CSP(SingleStageDetector):
         if self.refine:
             if self.detached:
                 x = tuple([i.detach() for i in x])
+            if hasattr(self.bbox_head, "windowed_input") and self.bbox_head.windowed_input:
+                x = (window_reverse(x[0], self.bbox_head.patch_dim, int(self.bbox_head.width), int(self.bbox_head.height)),)
             bbox_inputs = outs + (img_metas, self.train_cfg.csp_head, False)
             bbox_list = self.bbox_head.get_bboxes(*bbox_inputs, no_strides=False)  # no_strides to not upscale yet
             
@@ -308,6 +313,8 @@ class CSP(SingleStageDetector):
         if self.refine:
             if self.detached:
                 x = (x[0].detach(),)
+            if hasattr(self.bbox_head, "windowed_input") and self.bbox_head.windowed_input:
+                x = (window_reverse(x[0], self.bbox_head.patch_dim, int(self.bbox_head.width), int(self.bbox_head.height)),)
             bbox_list = [
                 bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)[0]
                 for det_bboxes, det_labels in bbox_list

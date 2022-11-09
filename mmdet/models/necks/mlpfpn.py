@@ -37,6 +37,7 @@ class MLPFPN(nn.Module):
         self.end_stage = end_stage
         self.feat_channels = feat_channels
         self.linear_reduction = linear_reduction
+        self.backlinks=[]
 
         pc = int(np.sum([self.feat_channels[i] * 2**(2*(self.num_ins-1 - i)) for i in range(len(feat_channels))]))
         self.intprL = nn.Linear(pc, (self.patch_dim**2)*self.out_channels)
@@ -60,7 +61,9 @@ class MLPFPN(nn.Module):
 
     def forward(self, inputs):
 
-        B, H4, W4, _ = inputs[0].shape
+        B, _, H4, W4 = inputs[0].shape
+        self.backlinks[0].bbox_head.width = H4
+        self.backlinks[0].bbox_head.height = W4
         parts = []
 
         for i in range(len(self.feat_channels)):
@@ -82,5 +85,4 @@ class MLPFPN(nn.Module):
 
         if self.mixers is not None:
             outputs = self.mixers(outputs)
-
         return tuple([outputs])
