@@ -1,11 +1,11 @@
 # model settings
 model = dict(
     type='CSP',
-    pretrained='http://ix.cs.uoregon.edu/~alih/conv-mlp/checkpoints/convmlp_l_imagenet.pth',
-    backbone=dict(type='DetConvMLPLarge'),
+    pretrained="/home/hkhan/Convolutional-MLPs/output/train/20220426-234622-convmlp_hr_classification-224/model_best.pth.tar",
+    backbone=dict(type='DetConvMLPHR'),
     neck=dict(
         type='MLPFPN',
-        in_channels=[96, 192, 384, 768],
+        in_channels=[64, 128, 256, 512],
         out_channels=32,
         mixer_count=1,
         linear_reduction=False,
@@ -16,11 +16,12 @@ model = dict(
         num_classes=2,
         in_channels=32,
         windowed_input=True,
-        width=1024,
-        height=1920,
         patch_dim=8,
+        width=1024,
+        height=2048,
         stacked_convs=1,
         feat_channels=32,
+        predict_width=True,
         strides=[4],
         loss_cls=dict(
             type='FocalLoss',
@@ -68,8 +69,8 @@ test_cfg = dict(
     max_per_img=100,
 )
 # dataset settings
-dataset_type = 'ECPCocoDataset'
-data_root = '/netscratch/hkhan/ECP/'
+dataset_type = 'CocoCSPORIDataset'
+data_root = '/netscratch/hkhan/cp/'
 INF = 1e8
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
@@ -78,10 +79,10 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file='./datasets/EuroCity/day_train_all_area.json',
+        ann_file='./datasets/CityPersons/train.json',
         img_prefix=data_root,
-        mixup=False,
-        img_scale=(1920, 1024),
+        mixup=True,
+        img_scale=(2048, 1024),
         img_norm_cfg=img_norm_cfg,
         small_box_to_ignore=False,
         size_divisor=32,
@@ -89,29 +90,33 @@ data = dict(
         with_mask=False,
         with_crowd=True,
         with_label=True,
+        with_width=True,
         remove_small_box=True,
         small_box_size=8,
         strides=[4],
         regress_ranges=((-1, INF),)),
     val=dict(
         type=dataset_type,
-        ann_file='./datasets/EuroCity/day_val_visT.json',
-        img_prefix=data_root,
-        img_scale=(1920, 1024),
+        ann_file='./datasets/CityPersons/val_gt_mm_nested.json',
+        img_prefix=data_root + "leftImg8bit_trainvaltest/leftImg8bit/val/",
+        #img_scale=(1333, 800),
+        img_scale = (2048, 1024),
         img_norm_cfg=img_norm_cfg,
         size_divisor=128,
         flip_ratio=0,
+        with_width=True,
         with_mask=False,
         with_crowd=False,
         with_label=True),
     test=dict(
         type=dataset_type,
-        ann_file='./datasets/EuroCity/day_val_visT.json',
-        img_prefix=data_root,
-        img_scale=(1920, 1024),
+        ann_file='./datasets/CityPersons/val_gt_mm_nested.json',
+        img_prefix=data_root + "leftImg8bit_trainvaltest/leftImg8bit/val/",
+        img_scale=(2048, 1024),
         img_norm_cfg=img_norm_cfg,
         size_divisor=128,
         flip_ratio=0,
+        with_width=True,
         with_mask=False,
         with_crowd=False,
         with_label=False,
@@ -137,7 +142,7 @@ lr_config = dict(
     warmup_iters=250,
     warmup_ratio=1.0 / 3,
     gamma=0.3,
-    step=[240])
+    step=[80])
 
 checkpoint_config = dict(interval=1)
 evaluation = dict(interval=1, eval_hook='CocoDistEvalMRHook')
@@ -153,9 +158,9 @@ log_config = dict(
 
 wandb = dict(
     init_kwargs=dict(
-        project="ECP",
-        name="conv_mlp_l_4x4",
+        project="MLPOD",
         entity="mlpthesis",
+        name="convmlpHR_mixup_width_tju_ecp",
         config=dict(
             work_dirs="${work_dir}",
             total_step="${runner.max_epochs}",
@@ -164,13 +169,13 @@ wandb = dict(
         interval=50,
     )
 
-total_epochs = 240
+total_epochs = 80
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = '/netscratch/hkhan/work_dirs/mlpod/ecp/convmlpL'
-load_from = None
-# load_from = '/netscratch/hkhan/work_dirs/csp_hrnet_ext/epoch_34.pth'
+work_dir = '/netscratch/hkhan/work_dirs/mlpod/convmlp_hr_mixup_width_tju_ecp/'
+# load_from = None
+load_from = '/netscratch/hkhan/work_dirs/mlpod/ecp/convmlpHRMixWidthTJU2x4/epoch_57.pth'
 resume_from = None
 # resume_from = '/home/ljp/code/mmdetection/work_dirs/csp4_mstrain_640_800_x101_64x4d_fpn_gn_2x/epoch_10.pth'
 workflow = [('train', 1)]

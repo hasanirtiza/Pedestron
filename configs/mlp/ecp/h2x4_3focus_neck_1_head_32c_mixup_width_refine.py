@@ -1,24 +1,57 @@
 # model settings
 model = dict(
     type='CSP',
-    pretrained='http://ix.cs.uoregon.edu/~alih/conv-mlp/checkpoints/convmlp_l_imagenet.pth',
-    backbone=dict(type='DetConvMLPLarge'),
+    pretrained='open-mmlab://msra/hrnetv2_w32',
+    backbone=dict(
+        type='HRNet',
+        extra=dict(
+            stage1=dict(
+                num_modules=1,
+                num_branches=1,
+                block='BOTTLENECK',
+                num_blocks=(4,),
+                num_channels=(64,)),
+            stage2=dict(
+                num_modules=1,
+                num_branches=2,
+                block='BASIC',
+                num_blocks=(4, 4),
+                num_channels=(32, 64)),
+            stage3=dict(
+                num_modules=4,
+                num_branches=3,
+                block='BASIC',
+                num_blocks=(4, 4, 4),
+                num_channels=(32, 64, 128)),
+            stage4=dict(
+                num_modules=3,
+                num_branches=4,
+                block='BASIC',
+                fuse_till=3,
+                num_blocks=(4, 4, 4, 4),
+                num_channels=(32, 64, 128, 256))
+        ),
+        # frozen_stages=-1,
+        norm_eval=False,
+    ),
     neck=dict(
         type='MLPFPN',
-        in_channels=[96, 192, 384, 768],
+        in_channels=[32, 64, 128, 256],
         out_channels=32,
         mixer_count=1,
-        linear_reduction=False,
-        feat_channels=[4, 16, 128, 1024]
+        start_stage=2,
+        end_stage=3,
+        feat_channels=[4, 16, 128]
     ),
     bbox_head=dict(
         type='CSPMLPHead',
         num_classes=2,
+        predict_width=True,
         in_channels=32,
         windowed_input=True,
+        patch_dim=8,
         width=1024,
         height=1920,
-        patch_dim=8,
         stacked_convs=1,
         feat_channels=32,
         strides=[4],
@@ -31,18 +64,40 @@ model = dict(
         loss_bbox=dict(type='IoULoss', loss_weight=0.05),
         loss_offset=dict(
             type='CrossEntropyLoss', use_sigmoid=True, loss_weight=0.1)),
+    refine_roi_extractor=dict(
+        type='SingleRoIExtractor',
+        roi_layer=dict(type='RoIAlign', out_size=7, sample_num=2),
+        out_channels=32,
+        featmap_strides=[4]
+    ),
+    refine_head=dict(
+        type='RefineHead',
+        num_cls_fcs=2,
+        num_cls_convs=2,
+        use_gm=True,
+        in_channels=32,
+        conv_out_channels=32,
+        fc_out_channels=1024,
+        alpha=0.5,
+        dropout_prob=0.5,
+        weight_decay=0.0005,
+        roi_feat_size=7,
+        loss_cls=dict(
+            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
+        ),
 )
-# training and testing settings
+# training and testing config
+
 train_cfg = dict(
     rcnn=dict(
         assigner=dict(
             type='MaxIoUAssigner',
-            pos_iou_thr=0.7,
-            neg_iou_thr=0.3,
-            min_pos_iou=0.3,
-            rescale_labels=True,
-            soft_labels=True,
-            ignore_iof_thr=0.7),
+            pos_iou_thr=0.5,
+            neg_iou_thr=0.5,
+            min_pos_iou=0.5,
+            rescale_labels=False,
+            soft_labels=False,
+            ignore_iof_thr=-1),
         sampler=dict(
             type='RandomSampler',
             num=512,
@@ -60,13 +115,18 @@ train_cfg = dict(
         max_per_img=100,
     )
 )
+
 test_cfg = dict(
-    nms_pre=1000,
-    min_bbox_size=0,
-    score_thr=0.1, #0.2, #0.05,
-    nms=dict(type='nms', iou_thr=0.5),
-    max_per_img=100,
+    csp_head=dict(
+        nms_pre=1000,
+        min_bbox_size=0,
+        score_thr=0.001, #0.2, #0.05,
+        nms=dict(type='nms', iou_thr=0.5),
+        max_per_img=100,
+    ),
 )
+
+
 # dataset settings
 dataset_type = 'ECPCocoDataset'
 data_root = '/netscratch/hkhan/ECP/'
@@ -80,7 +140,7 @@ data = dict(
         type=dataset_type,
         ann_file='./datasets/EuroCity/day_train_all_area.json',
         img_prefix=data_root,
-        mixup=False,
+        mixup=True,
         img_scale=(1920, 1024),
         img_norm_cfg=img_norm_cfg,
         small_box_to_ignore=False,
@@ -89,6 +149,7 @@ data = dict(
         with_mask=False,
         with_crowd=True,
         with_label=True,
+        with_width=True,
         remove_small_box=True,
         small_box_size=8,
         strides=[4],
@@ -97,21 +158,25 @@ data = dict(
         type=dataset_type,
         ann_file='./datasets/EuroCity/day_val_visT.json',
         img_prefix=data_root,
-        img_scale=(1920, 1024),
+        #img_scale=(1333, 800),
+        img_scale = (1920, 1024),
         img_norm_cfg=img_norm_cfg,
-        size_divisor=128,
+        size_divisor=32,
         flip_ratio=0,
         with_mask=False,
         with_crowd=False,
+        with_width=True,
         with_label=True),
     test=dict(
         type=dataset_type,
+        # ann_file='./datasets/EuroCity/train_images.json',
         ann_file='./datasets/EuroCity/day_val_visT.json',
         img_prefix=data_root,
         img_scale=(1920, 1024),
         img_norm_cfg=img_norm_cfg,
-        size_divisor=128,
+        size_divisor=32,
         flip_ratio=0,
+        with_width=True,
         with_mask=False,
         with_crowd=False,
         with_label=False,
@@ -154,8 +219,8 @@ log_config = dict(
 wandb = dict(
     init_kwargs=dict(
         project="ECP",
-        name="conv_mlp_l_4x4",
         entity="mlpthesis",
+        name="nh_hr_mixup_width_refine",
         config=dict(
             work_dirs="${work_dir}",
             total_step="${runner.max_epochs}",
@@ -168,9 +233,9 @@ total_epochs = 240
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = '/netscratch/hkhan/work_dirs/mlpod/ecp/convmlpL'
+work_dir = '/netscratch/hkhan/work_dirs/mlpod/ecp/NH_HR_mixup_width_refine/'
 load_from = None
 # load_from = '/netscratch/hkhan/work_dirs/csp_hrnet_ext/epoch_34.pth'
 resume_from = None
-# resume_from = '/home/ljp/code/mmdetection/work_dirs/csp4_mstrain_640_800_x101_64x4d_fpn_gn_2x/epoch_10.pth'
+# load_from = '/netscratch/hkhan/work_dirs/mlpod/tju/HR2x4_mixup_width_ECPData/epoch_83.pth'
 workflow = [('train', 1)]

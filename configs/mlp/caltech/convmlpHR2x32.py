@@ -153,7 +153,8 @@ log_config = dict(
 
 wandb = dict(
     init_kwargs=dict(
-        project="MLPOD_caltech",
+        project="Caltech",
+        entity="mlpthesis",
         name="conv_mlp_hr_2x32",
         config=dict(
             work_dirs="${work_dir}",
@@ -163,7 +164,7 @@ wandb = dict(
         interval=50,
     )
 
-total_epochs = 240
+total_epochs = 80
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'

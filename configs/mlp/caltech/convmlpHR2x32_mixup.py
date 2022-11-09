@@ -154,7 +154,7 @@ log_config = dict(
 wandb = dict(
     init_kwargs=dict(
         project="MLPOD_caltech",
-        name="conv_mlp_hr_mixup_2x32",
+        name="cal_e2e_2x4_conv_mlp_hr_mixup_2x32",
         config=dict(
             work_dirs="${work_dir}",
             total_step="${runner.max_epochs}",
@@ -163,7 +163,7 @@ wandb = dict(
         interval=50,
     )
 
-total_epochs = 240
+total_epochs = 120
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
