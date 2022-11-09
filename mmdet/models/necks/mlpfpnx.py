@@ -3,7 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from ..registry import NECKS
 import numpy as np
-from ..utils import window_partition, MixerBlock,  ConvModule
+from .csp_neck import L2Norm
+from ..utils import window_partition, MixerBlock,  ConvModule, MLP
 
 
 @NECKS.register_module
@@ -39,14 +40,16 @@ class MLPFPNX(nn.Module):
         self.linear_reduction = linear_reduction
 
         pc = int(np.sum([self.feat_channels[i] * 2**(2*(self.num_ins-1 - i)) for i in range(len(feat_channels))]))
-        self.intprL = nn.Linear(pc, (self.patch_dim**2)*self.out_channels)
+        self.intprL = MLP(pc, embedding_dim_out=(self.patch_dim**2)*self.out_channels)
 
         self.intpr = nn.ModuleList()
+        self.norms = nn.ModuleList()
         for i in range(len(self.feat_channels)):
             if self.linear_reduction:
                 tokens = 2**(2*(self.num_ins-1 - i))
                 self.intpr.append(nn.Linear(self.in_channels[i] * tokens, self.feat_channels[i] * tokens))
             else:
+                self.norms.append(L2Norm(self.in_channels[i], 10))
                 self.intpr.append(ConvModule(self.in_channels[i], self.feat_channels[i], 3, padding=i+1, dilation=i+1,
                                              activation=None))
 
@@ -70,7 +73,8 @@ class MLPFPNX(nn.Module):
                 part = torch.flatten(part, -2)
                 part = self.intpr[i](part)
             else:
-                part = self.intpr[i](inputs[i])
+                part = self.norms[i](inputs[i])
+                part = self.intpr[i](part)
                 part = window_partition(part, 2 ** (self.num_ins - 1 - i), channel_last=False)
                 part = torch.flatten(part, -2)
             parts.append(part)
