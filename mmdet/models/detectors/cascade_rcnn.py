@@ -237,7 +237,7 @@ class CascadeRCNN(BaseDetector, RPNTestMixin):
 
         return losses
 
-    def simple_test(self, img, img_meta, proposals=None, rescale=False):
+    def simple_test(self, img, img_meta, proposals=None, rescale=False, return_id=True):
         x = self.extract_feat(img)
         proposal_list = self.simple_test_rpn(
             x, img_meta, self.test_cfg.rpn) if proposals is None else proposals
@@ -245,6 +245,11 @@ class CascadeRCNN(BaseDetector, RPNTestMixin):
         img_shape = img_meta[0]['img_shape']
         ori_shape = img_meta[0]['ori_shape']
         scale_factor = img_meta[0]['scale_factor']
+
+        if "id" in img_meta[0]:
+            img_id = img_meta[0]["id"]
+        else:
+            img_id = 0
 
         # "ms" in variable names means multi-stage
         ms_bbox_result = {}
@@ -360,7 +365,8 @@ class CascadeRCNN(BaseDetector, RPNTestMixin):
                 }
             else:
                 results = ms_bbox_result
-
+        if return_id:
+            return results, img_id
         return results
 
     def aug_test(self, img, img_meta, proposals=None, rescale=False):
