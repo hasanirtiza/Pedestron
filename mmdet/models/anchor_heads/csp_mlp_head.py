@@ -12,12 +12,16 @@ INF = 1e8
 @HEADS.register_module
 class CSPMLPHead(CSPHead):
 
-    def __init__(self, *args, patch_dim=4, width=2048, height=1024, windowed_input=True, **kwargs):
+    def __init__(self, *args, patch_dim=4, width=2048, height=1024, windowed_input=True, predict_aspect_ratio=False, predict_width=False, **kwargs):
         self.patch_dim = patch_dim
-        super(CSPMLPHead, self).__init__(*args, **kwargs)
+
+        super(CSPMLPHead, self).__init__(*args, **kwargs, predict_width=predict_width, predict_aspect_ratio=predict_aspect_ratio)
         self.windowed_input = windowed_input
         self.width = width/4
         self.height = height/4
+        self.predict_width = predict_width
+        self.predict_aspect_ratio = predict_aspect_ratio
+        print("Predict Width: ", self.predict_width, " or Aspect Ratio: ", self.predict_aspect_ratio)
 
     def _init_layers(self):
         self.mlp_with_feat_reduced = nn.Sequential(
@@ -30,10 +34,16 @@ class CSPMLPHead(CSPHead):
             nn.Linear(self.feat_channels, 1),
         )
 
-        self.reg_mlp = nn.Sequential(
-            MixerBlock(self.patch_dim**2, self.feat_channels),
-            nn.Linear(self.feat_channels, 1)
-        )
+        if self.predict_width or self.predict_aspect_ratio:
+            self.reg_mlp = nn.Sequential(
+                MixerBlock(self.patch_dim**2, self.feat_channels),
+                nn.Linear(self.feat_channels, 2) #Predict width and height
+            )
+        else:
+            self.reg_mlp = nn.Sequential(
+                MixerBlock(self.patch_dim**2, self.feat_channels),
+                nn.Linear(self.feat_channels, 1) #Predict only height
+            )
 
         self.off_mlp = nn.Sequential(
             MixerBlock(self.patch_dim**2, self.feat_channels),
