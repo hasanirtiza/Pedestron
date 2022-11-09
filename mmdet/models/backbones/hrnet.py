@@ -21,6 +21,7 @@ class HRModule(nn.Module):
                  num_blocks,
                  in_channels,
                  num_channels,
+                 fuse_till=None,
                  multiscale_output=True,
                  with_cp=False,
                  conv_cfg=None,
@@ -38,6 +39,8 @@ class HRModule(nn.Module):
         self.with_cp = with_cp
         self.branches = self._make_branches(num_branches, blocks, num_blocks,
                                             num_channels)
+        num_branches = num_branches if self.multiscale_output else 1
+        self.fuse_till = fuse_till if fuse_till is not None else num_branches
         self.fuse_layers = self._make_fuse_layers()
         self.relu = nn.ReLU(inplace=False)
 
@@ -119,7 +122,7 @@ class HRModule(nn.Module):
         in_channels = self.in_channels
         fuse_layers = []
         num_out_branches = num_branches if self.multiscale_output else 1
-        for i in range(num_out_branches):
+        for i in range(self.fuse_till):
             fuse_layer = []
             for j in range(num_branches):
                 if j > i:
@@ -181,7 +184,7 @@ class HRModule(nn.Module):
             x[i] = self.branches[i](x[i])
 
         x_fuse = []
-        for i in range(len(self.fuse_layers)):
+        for i in range(self.fuse_till):
             y = 0
             for j in range(self.num_branches):
                 if i == j:
@@ -395,6 +398,10 @@ class HRNet(nn.Module):
         num_branches = layer_config['num_branches']
         num_blocks = layer_config['num_blocks']
         num_channels = layer_config['num_channels']
+        fuse_till = None
+
+        if 'fuse_till' in layer_config:
+            fuse_till = layer_config["fuse_till"]
         block = self.blocks_dict[layer_config['block']]
 
         hr_modules = []
@@ -412,6 +419,7 @@ class HRNet(nn.Module):
                     num_blocks,
                     in_channels,
                     num_channels,
+                    fuse_till if i == (num_modules - 1) else None,
                     reset_multiscale_output,
                     with_cp=self.with_cp,
                     norm_cfg=self.norm_cfg,
