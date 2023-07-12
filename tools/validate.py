@@ -246,7 +246,7 @@ def main():
                             temp['score'] = float(box[4])
                             check.append(temp)
             nu_wh_ratio = np.array(nu_wh_ratio)
-            print(f"Wh_ratio => nu: {nu_wh_ratio.mean()}, min: {nu_wh_ratio.min()}, max: {nu_wh_ratio.max()}")
+            # print(f"Wh_ratio => nu: {nu_wh_ratio.mean()}, min: {nu_wh_ratio.min()}, max: {nu_wh_ratio.max()}")
             with open(args.out, 'w') as f:  
                 json.dump(check, f)
             stats = validate(test_json, args.out, ecp=args.ecp)

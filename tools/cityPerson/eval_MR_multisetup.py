@@ -407,9 +407,9 @@ class COCOeval:
                         pass
                     pi = inds[-1]
                     precision_cut = tp[pi]/(tp[pi]+fp[pi])
-                    print("Pcut: ", precision_cut)
+                    # print("Pcut: ", precision_cut)
                     ys[t,:,k,m] = np.array(q).clip(0, 1-1e-6)
-                    print(ys[t,:,k,m])
+                    # print(ys[t,:,k,m])
         self.eval = {
             'params': p,
             'counts': [T, R, K, M],

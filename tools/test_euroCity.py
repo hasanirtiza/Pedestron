@@ -43,7 +43,7 @@ def parse_args():
 
 def mock_detector(model, image):
     image = cv2.imread(image)
-    results = inference_detector(model, image)[0]
+    results = inference_detector(model, image)
     mock_detections = []
     if len(results) > 1:
         results = results[:][0]
@@ -104,5 +104,5 @@ def run_detector_on_dataset(day='day', mode='val'):
         eval(day, mode)
 
 if __name__ == '__main__':
-    run_detector_on_dataset()
+    run_detector_on_dataset(day='night', mode='val')
     # run_detector_on_dataset(mode='test')

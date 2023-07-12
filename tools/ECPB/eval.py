@@ -110,15 +110,16 @@ def evaluate(difficulty, ignore_other_vru, results_path, det_path, gt_path, det_
 
 def evaluate_detection(results_path, det_path, gt_path, det_method_name, eval_type='pedestrian'):
     # print ('Start evaluation for {}'.format(det_method_name))
-    results = []
+    results = {}
     for difficulty in ['reasonable', 'small', 'occluded', 'all']:
         # False is the default case used by the benchmark server,
         # use [True, False] if you want to compare the enforce with the ignore setting
         for ignore_other_vru in [True,]:
             result = evaluate(difficulty, ignore_other_vru, results_path, det_path, gt_path, det_method_name,
                      use_cache=False, eval_type=eval_type)
-            results.append(result)
-    print(['reasonable', 'small', 'occluded', 'all'], results)
+            results[difficulty] = result
+    print(results)
+    return results
 
 
 def eval(time='day', mode='val', eval_type='pedestrian', det_path=None):
@@ -135,15 +136,15 @@ def eval(time='day', mode='val', eval_type='pedestrian', det_path=None):
     if not os.path.exists(results_path):
         os.makedirs(results_path)
 
-    evaluate_detection(results_path, det_path, gt_path, det_method_name, eval_type)
+    return evaluate_detection(results_path, det_path, gt_path, det_method_name, eval_type)
     # print ('')
     # print ('# -----------------------------------------------------------------')
     # print ('Finished evaluation, results can be found here: {}'.format(results_path))
     # print ('# -----------------------------------------------------------------')
 
 
-    import matplotlib.pyplot as plt
-    plt.show()  # comment this if you don't want plots to pop up
+    # import matplotlib.pyplot as plt
+    # plt.show()  # comment this if you don't want plots to pop up
 
 if __name__ == "__main__":
     eval(time='day', mode='val', eval_type='pedestrian')
