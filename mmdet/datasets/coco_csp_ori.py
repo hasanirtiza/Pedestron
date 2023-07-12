@@ -13,6 +13,7 @@ from .transforms import (ImageTransform, BboxTransform, MaskTransform,
                          SegMapTransform, Numpy2Tensor)
 from .utils import to_tensor, random_scale
 from .extra_aug import ExtraAugmentation
+from .backend import ZipBackend
 
 INF = 1e8
 
@@ -63,6 +64,7 @@ class CocoCSPORIDataset(CustomDataset):
                  mixup=True,
                  mixup_ratio=(0.4, 0.6),
                  mixup_prob=0.5,
+                 zip_backend=False,
                  with_width=False):
         # prefix of images path
         self.small_box_to_ignore = small_box_to_ignore
@@ -156,6 +158,9 @@ class CocoCSPORIDataset(CustomDataset):
 
         #predict width
         self.with_width = with_width
+        self.backend = None
+        if zip_backend:
+            self.backend = ZipBackend()
 
     def load_annotations(self, ann_file):
         self.coco = COCO(ann_file)

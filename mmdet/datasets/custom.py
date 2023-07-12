@@ -10,6 +10,7 @@ from .transforms import (ImageTransform, BboxTransform, MaskTransform,
                          SegMapTransform, Numpy2Tensor)
 from .utils import to_tensor, random_scale
 from .extra_aug import ExtraAugmentation
+from .backend import ZipBackend
 
 
 @DATASETS.register_module
@@ -59,11 +60,15 @@ class CustomDataset(Dataset):
                  remove_small_box=False,
                  small_box_size=8,
                  strides=None,
+                 zip_backend=False,
                  regress_ranges=None,
                  upper_factor=None,
                  upper_more_factor=None):
         # prefix of images path
         self.img_prefix = img_prefix
+        self.backend = None
+        if zip_backend:
+            self.backend = ZipBackend()
 
         # load annotations (and proposals)
         self.img_infos = self.load_annotations(ann_file)
@@ -192,10 +197,18 @@ class CustomDataset(Dataset):
                 continue
             return data
 
+    def load_image(self, filename):
+        if self.backend is not None:
+            img_bytes = self.backend.get(filename)
+            img = mmcv.imfrombytes(img_bytes, flag='color')
+            return img.astype(np.float32)
+
+        return mmcv.imread(osp.join(self.img_prefix, filename))
+
     def prepare_train_img(self, idx):
         img_info = self.img_infos[idx]
         # load image
-        img = mmcv.imread(osp.join(self.img_prefix, img_info['filename']))
+        img = self.load_image(img_info['filename'])
         # load proposals if necessary
         if self.proposals is not None:
             proposals = self.proposals[idx][:self.num_max_proposals]
@@ -308,7 +321,7 @@ class CustomDataset(Dataset):
         ann = self.get_ann_info(idx)
         gt_bboxes = ann['bboxes']
 
-        img = mmcv.imread(osp.join(self.img_prefix, img_info['filename']))
+        img = self.load_image(img_info['filename'])
         if self.proposals is not None:
             proposal = self.proposals[idx][:self.num_max_proposals]
             if not (proposal.shape[1] == 4 or proposal.shape[1] == 5):

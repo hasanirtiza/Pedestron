@@ -11,11 +11,13 @@ from .registry import DATASETS
 from .builder import build_dataset
 from .coco_csp_ori import CocoCSPORIDataset
 from .ecp_coco import ECPCocoDataset
+from .backend import ZipBackend
 
 __all__ = [
     'CustomDataset', 'XMLDataset', 'CocoDataset',
     'VOCDataset', 'GroupSampler', 'ECPCocoDataset',
     'DistributedGroupSampler', 'build_dataloader', 'to_tensor', 'random_scale',
     'show_ann', 'ConcatDataset', 'RepeatDataset', 'ExtraAugmentation',
-    'WIDERFaceDataset', 'DATASETS', 'build_dataset', 'CocoCSPORIDataset'
+    'WIDERFaceDataset', 'DATASETS', 'build_dataset', 'CocoCSPORIDataset',
+    'ZipBackend'
 ]
