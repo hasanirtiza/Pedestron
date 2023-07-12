@@ -220,7 +220,7 @@ test_cfg = dict(
     keep_all_stages=False)
 # dataset settings
 dataset_type = 'CocoDataset'
-data_root = 'datasets/CityPersons/'
+data_root = '/netscratch/hkhan/cp/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53],
     std=[58.395, 57.12, 57.375],
@@ -248,8 +248,8 @@ data = dict(
     ),
     test=dict(
         type=dataset_type,
-	ann_file=data_root + 'val_gt_for_mmdetction.json',
-        img_prefix=data_root + '/leftImg8bit_trainvaltest/leftImg8bit/val_all_in_folder/',
+        ann_file='./datasets/CityPersons/val_gt_mm_nested.json',
+        img_prefix=data_root + "leftImg8bit_trainvaltest/leftImg8bit/val/",
         img_scale=(2048, 1024),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
