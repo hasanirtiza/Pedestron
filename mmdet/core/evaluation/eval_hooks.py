@@ -1,5 +1,6 @@
 import os
 import os.path as osp
+import json
 
 import mmcv
 import numpy as np
@@ -13,12 +14,13 @@ from torch.utils.data import Dataset
 from .coco_utils import results2json, fast_eval_recall
 from .mean_ap import eval_map
 from .eval_mr import COCOeval as COCOMReval
+from tools.ECPB.eval import eval
 from mmdet import datasets
 
 
 class DistEvalHook(Hook):
 
-    def __init__(self, dataset, interval=1):
+    def __init__(self, dataset, interval=1, kitti=False):
         if isinstance(dataset, Dataset):
             self.dataset = dataset
         elif isinstance(dataset, dict):
@@ -29,6 +31,7 @@ class DistEvalHook(Hook):
                 'dataset must be a Dataset object or a dict, not {}'.format(
                     type(dataset)))
         self.interval = interval
+        self.kitti = kitti
 
     def after_train_epoch(self, runner):
         if not self.every_n_epochs(runner, self.interval):
@@ -150,6 +153,8 @@ class CocoDistEvalmAPHook(DistEvalHook):
             iou_type = res_type
             cocoEval = COCOeval(cocoGt, cocoDt, iou_type)
             cocoEval.params.imgIds = imgIds
+            if self.kitti:
+                cocoEval.params.recThrs = np.linspace(.0, 1.00, 40, endpoint=True)
             cocoEval.evaluate()
             cocoEval.accumulate()
             cocoEval.summarize()
@@ -164,6 +169,49 @@ class CocoDistEvalmAPHook(DistEvalHook):
         runner.log_buffer.ready = True
         for res_type in res_types:
             os.remove(result_files[res_type])
+
+
+class CocoDistEvalECPMRHook(DistEvalHook):
+    def __init__(self, dataset, interval=1, res_types=['bbox'], day='day', mode='val'):
+        super().__init__(dataset, interval)
+        self.res_types = res_types
+        self.day = day
+        self.mode = mode
+
+    def convert_results(self, results):
+        mock_detections = []
+        if len(results) > 1:
+            results = results[:][0]
+        if len(results) == 0:
+            return mock_detections
+
+        for box in results[0]:
+            box = {'x0': float(box[0]),
+                   'x1': float(box[2]),
+                   'y0': float(box[1]),
+                   'y1': float(box[3]),
+                   'score': float(box[4]),
+                   'identity': 'pedestrian',
+                   'orient': 0.0}
+            mock_detections.append(box)
+        return mock_detections
+
+    def evaluate(self, runner, results):
+        tmp_file = f'/netscratch/hkhan/results/mock_detections/{self.day}/{self.mode}/'
+
+        i = 0
+        for id, im in self.dataset.coco.imgs.items():
+            dest = osp.join(tmp_file, os.path.basename(im['file_name']).replace('.png', '.json'))
+            detections = self.convert_results(results[i])
+            frame = dict(identity='frame', children=detections)
+            json.dump(frame, open(dest, 'w'), indent=1)
+            i += 1
+
+        res = eval(self.day, self.mode)
+        for key, value in res.items():
+            runner.log_buffer.output[key] = value
+
+        runner.log_buffer.ready = True
 
 
 class CocoDistEvalMRHook(DistEvalHook):
