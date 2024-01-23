@@ -17,6 +17,8 @@ We have tested the following versions of OS and softwares:
 - NCCL: 2.1.15/2.2.13/2.3.7/2.4.2
 - GCC: 4.9/5.3/5.4/7.3
 
+
+
 ### Install mmdetection
 
 a. Create a conda virtual environment and activate it. Then install Cython.
@@ -39,6 +41,10 @@ cd Pedestron
 
 d. Install Pedestron (other dependencies will be installed automatically).
 
+1. If your environment is cuda 10.2+/11, you need **modify Pedestron code to change all AT_CHECK to TORCH_CHECK**, then the following command can compile successfully.
+
+2. If your environment is cuda 9.0/9.2/10.0, just run the following command.
+   
 ```shell
 python setup.py develop
 # or "pip install -v -e ."
@@ -65,6 +71,11 @@ sudo docker build . -t pedestron
 ```shell
 sudo docker run --gpus all --shm-size=8g -it --rm pedestron
 ```
+
+
+### CUDA 11+ instllation
+
+1) Please follow the tips and instructions given at this [PR request](https://github.com/hasanirtiza/Pedestron/pull/150). 
 
 ### Prepare COCO dataset.
 
