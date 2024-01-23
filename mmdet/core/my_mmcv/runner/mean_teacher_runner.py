@@ -16,6 +16,7 @@ from mmcv.runner.priority import get_priority
 from mmcv.runner.utils import get_dist_info, get_host_info, get_time_str, obj_from_dict
 from collections import OrderedDict
 
+
 class Mean_teacher_Runner(Runner):
     """mean teacher runner.
 
@@ -49,6 +50,7 @@ class Mean_teacher_Runner(Runner):
             self.optimizer = None
         self.batch_processor = batch_processor
         self.teacher_dict = {}
+        self.student_dict = {}
         self.mean_teacher = mean_teacher
 
         # create work_dir
@@ -81,6 +83,16 @@ class Mean_teacher_Runner(Runner):
         self._inner_iter = 0
         self._max_epochs = 0
         self._max_iters = 0
+
+    def load_teacher_dict_to_model(self):
+        print("Loading teacher dict for evaluation ...")
+        self.student_dict = self.weights_to_cpu(self.model.module.state_dict())
+        self.model.module.load_state_dict(self.teacher_dict)
+
+    def load_student_dict_to_model(self):
+        print("Loading back student dict for training ...")
+        self.model.module.load_state_dict(self.student_dict)
+        self.model = self.model.cuda()
 
     def load_mean_teacher_checkpoint(self, cfg):
         if cfg.load_from or cfg.resume_from:
@@ -165,5 +177,54 @@ class Mean_teacher_Runner(Runner):
         self.register_hook(self.build_hook(optimizer_config, OptimizerHook))
         self.register_hook(self.build_hook(checkpoint_config, CheckpointHook))
         self.register_hook(IterTimerHook())
+
         if log_config is not None:
             self.register_logger_hooks(log_config)
+
+    def current_lr(self):
+        """Get current learning rates.
+        Returns:
+            list[float] | dict[str, list[float]]: Current learning rates of all
+            param groups. If the runner has a dict of optimizers, this method
+            will return a dict.
+        """
+        if isinstance(self.optimizer, torch.optim.Optimizer):
+            lr = [group['lr'] for group in self.optimizer.param_groups]
+        elif isinstance(self.optimizer, dict):
+            lr = dict()
+            for name, optim in self.optimizer.items():
+                lr[name] = [group['lr'] for group in optim.param_groups]
+        else:
+            raise RuntimeError(
+                'lr is not applicable because optimizer does not exist.')
+        return lr
+
+    def current_momentum(self):
+        """Get current momentums.
+        Returns:
+            list[float] | dict[str, list[float]]: Current momentums of all
+            param groups. If the runner has a dict of optimizers, this method
+            will return a dict.
+        """
+
+        def _get_momentum(optimizer):
+            momentums = []
+            for group in optimizer.param_groups:
+                if 'momentum' in group.keys():
+                    momentums.append(group['momentum'])
+                elif 'betas' in group.keys():
+                    momentums.append(group['betas'][0])
+                else:
+                    momentums.append(0)
+            return momentums
+
+        if self.optimizer is None:
+            raise RuntimeError(
+                'momentum is not applicable because optimizer does not exist.')
+        elif isinstance(self.optimizer, torch.optim.Optimizer):
+            momentums = _get_momentum(self.optimizer)
+        elif isinstance(self.optimizer, dict):
+            momentums = dict()
+            for name, optim in self.optimizer.items():
+                momentums[name] = _get_momentum(optim)
+        return momentums

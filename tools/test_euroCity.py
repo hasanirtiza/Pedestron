@@ -47,6 +47,9 @@ def mock_detector(model, image):
     mock_detections = []
     if len(results) > 1:
         results = results[:][0]
+    if len(results) == 0:
+        return mock_detections
+    
     for box in results[0]:
         box = {'x0': float(box[0]),
                'x1': float(box[2]),
@@ -69,8 +72,8 @@ def run_detector_on_dataset(day='day', mode='val'):
 
     args = parse_args()
 
-    eval_imgs = glob.glob('datasets/EuroCity/ECP/{}/img/{}/*/*'.format(day, mode))
-    destdir = './results/mock_detections/{}/{}/'.format(day, mode)
+    eval_imgs = glob.glob('/netscratch/hkhan/ECP/ECP/{}/img/{}/*/*'.format(day, mode))
+    destdir = '/netscratch/hkhan/results/mock_detections/{}/{}/'.format(day, mode)
     create_base_dir(destdir)
     for i in range(args.checkpoint_start, args.checkpoint_end):
         if not args.mean_teacher:
@@ -97,8 +100,9 @@ def run_detector_on_dataset(day='day', mode='val'):
             frame['children'] = detections
             json.dump(frame, open(destfile, 'w'), indent=1)
             prog_bar.update()
+        print("\n", i, ": ")
         eval(day, mode)
 
 if __name__ == '__main__':
-    run_detector_on_dataset()
+    run_detector_on_dataset(day='night', mode='val')
     # run_detector_on_dataset(mode='test')

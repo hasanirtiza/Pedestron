@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from mmcv.cnn import normal_init
 
-from mmdet.core import multi_apply, multiclass_nms, csp_height2bbox, csp_heightwidth2bbox, force_fp32
+from mmdet.core import multi_apply, multiclass_nms, csp_height2bbox, csp_heightwidth2bbox, csp_heightratio2bbox, force_fp32
 from ..builder import build_loss
 from ..registry import HEADS
 from ..utils import bias_init_with_prob, Scale, ConvModule
@@ -19,8 +19,10 @@ class CSPHead(nn.Module):
     def __init__(self,
                  num_classes,
                  in_channels,
+                 use_log_scale=True,
                  feat_channels=256,
                  stacked_convs=4,
+                 wh_ratio = 0.41,
                  strides=(4, 8, 16, 32, 64),
                  regress_ranges=((-1, 64), (64, 128), (128, 256), (256, 512),
                                  (512, INF)),
@@ -28,6 +30,7 @@ class CSPHead(nn.Module):
                      type='FocalLoss',
                      use_sigmoid=True,
                      gamma=2.0,
+                     beta=4.0,
                      alpha=0.25,
                      loss_weight=1.0),
                  loss_bbox=dict(type='IoULoss', loss_weight=1.0),
@@ -37,18 +40,25 @@ class CSPHead(nn.Module):
                      loss_weight=1.0),
                  conv_cfg=None,
                  norm_cfg=dict(type='GN', num_groups=32, requires_grad=True),
-                 predict_width=False):
+                 predict_width=False, predict_aspect_ratio=False, ignore_width=False):
         super(CSPHead, self).__init__()
 
+        self.use_log_scale = use_log_scale
         self.num_classes = num_classes
+        self.wh_ratio = wh_ratio
+        self.ignore_width = ignore_width
         self.cls_out_channels = num_classes - 1
         self.in_channels = in_channels
         self.feat_channels = feat_channels
         self.stacked_convs = stacked_convs
         self.strides = strides
         self.regress_ranges = regress_ranges
-        self.loss_cls = cls_pos()
-        if not predict_width:
+        if "beta" not in loss_cls:
+            loss_cls["beta"] = 4.0
+        else:
+            print("!!!Background loss scaling factor explicitly set to: ", loss_cls["beta"])
+        self.loss_cls = cls_pos(loss_cls["gamma"], loss_cls["beta"])
+        if not (predict_width or predict_aspect_ratio):
             self.loss_bbox = reg_pos()
         else:
             self.loss_bbox = reg_hw_pos()
@@ -60,6 +70,8 @@ class CSPHead(nn.Module):
         self.norm_cfg = norm_cfg
         self.fp16_enabled = False
         self.predict_width = predict_width
+        self.predict_aspect_ratio = predict_aspect_ratio
+        print("PREDICT",self.predict_width)
 
         self._init_layers()
 
@@ -195,7 +207,7 @@ class CSPHead(nn.Module):
                    offset_preds,
                    img_metas,
                    cfg,
-                   rescale=None):
+                   rescale=None, no_strides=False):
         assert len(cls_scores) == len(bbox_preds)
         num_levels = len(cls_scores)
 
@@ -218,7 +230,7 @@ class CSPHead(nn.Module):
             det_bboxes = self.get_bboxes_single(cls_score_list, bbox_pred_list,
                                                 offset_pred_list,
                                                 mlvl_points, img_shape,
-                                                scale_factor, cfg, rescale)
+                                                scale_factor, cfg, rescale, no_strides=no_strides)
             result_list.append(det_bboxes)
         return result_list
 
@@ -230,7 +242,7 @@ class CSPHead(nn.Module):
                           img_shape,
                           scale_factor,
                           cfg,
-                          rescale=False):
+                          rescale=False, no_strides=False):
         assert len(cls_scores) == len(bbox_preds) == len(mlvl_points)
         mlvl_bboxes = []
         mlvl_scores = []
@@ -240,10 +252,15 @@ class CSPHead(nn.Module):
             # self.show_debug_info(cls_score, bbox_pred, offset_pred, stride)
             scores = cls_score.permute(1, 2, 0).reshape(
                 -1, self.cls_out_channels).sigmoid()
-            if not self.predict_width:
-                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 1).exp()
+            if not (self.predict_width or self.predict_aspect_ratio):
+                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 1)
             else:
-                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 2).exp()
+                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 2)
+            if self.use_log_scale:
+                if not self.predict_aspect_ratio:
+                    bbox_pred = bbox_pred.exp()
+                else:
+                    bbox_pred[:, 0] = bbox_pred[:, 0].exp()
             offset_pred = offset_pred.permute(1,2,0).reshape(-1, 2)
 
             nms_pre = cfg.get('nms_pre', -1)
@@ -255,10 +272,18 @@ class CSPHead(nn.Module):
                 scores = scores[topk_inds, :]
                 offset_pred = offset_pred[topk_inds, :]
             # bboxes = distance2bbox(points, bbox_pred, max_shape=img_shape)
-            if not self.predict_width:
-                bboxes = csp_height2bbox(points, bbox_pred, offset_pred, stride=stride, max_shape=img_shape)
-            else:
+            if not (self.predict_width or self.predict_aspect_ratio) or self.ignore_width:
+                bboxes = csp_height2bbox(points, bbox_pred, offset_pred, stride=stride, wh_ratio=self.wh_ratio, max_shape=img_shape)
+                if no_strides:
+                    bboxes = bboxes/stride
+            elif self.predict_width:
                 bboxes = csp_heightwidth2bbox(points, bbox_pred, offset_pred, stride=stride, max_shape=img_shape)
+                if no_strides:
+                    bboxes = bboxes/stride
+            else:
+                bboxes = csp_heightratio2bbox(points, bbox_pred, offset_pred, stride=stride, max_shape=img_shape)
+                if no_strides:
+                    bboxes = bboxes/stride
             mlvl_bboxes.append(bboxes)
             mlvl_scores.append(scores)
         mlvl_bboxes = torch.cat(mlvl_bboxes)
@@ -325,9 +350,11 @@ def sigmoid(x, derivative=False):
     return sigm
 
 class cls_pos(nn.Module):
-    def __init__(self):
+    def __init__(self, gamma=2, beta=4):
         super(cls_pos, self).__init__()
         self.bce = nn.BCEWithLogitsLoss(reduction='none')
+        self.gamma = gamma
+        self.beta = beta
 
     def forward(self, pos_pred, pos_label):  # 0-gauss 1-mask 2-center
         log_loss = self.bce(pos_pred[:, 0, :, :], pos_label[:, 2, :, :])
@@ -340,8 +367,8 @@ class cls_pos(nn.Module):
         positives = pos_label[:, 2, :, :]
         negatives = pos_label[:, 1, :, :] - pos_label[:, 2, :, :]
 
-        fore_weight = positives * (1.0-pos_pred[:, 0, :, :]) ** 2
-        back_weight = negatives * ((1.0-pos_label[:, 0, :, :])**4.0) * (pos_pred[:, 0, :, :]**2.0)
+        fore_weight = positives * (1.0-pos_pred[:, 0, :, :]) ** self.gamma
+        back_weight = negatives * ((1.0-pos_label[:, 0, :, :])**self.beta) * (pos_pred[:, 0, :, :]**self.gamma)
         focal_weight = fore_weight + back_weight
 
         # weight_numpy = focal_weight.cpu().detach().numpy()[0]
@@ -362,10 +389,10 @@ class cls_pos(nn.Module):
 class reg_pos(nn.Module):
     def __init__(self):
         super(reg_pos, self).__init__()
-        self.smoothl1 = nn.SmoothL1Loss(reduction='none')
+        self.l1 = nn.L1Loss(reduction='none')
 
     def forward(self, h_pred, h_label):
-        l1_loss = h_label[:, 1, :, :]*self.smoothl1(h_pred[:, 0, :, :]/(h_label[:, 0, :, :]+1e-10),
+        l1_loss = h_label[:, 1, :, :]*self.l1(h_pred[:, 0, :, :]/(h_label[:, 0, :, :]+1e-10),
                                                     h_label[:, 0, :, :]/(h_label[:, 0, :, :]+1e-10))
         # pos_points = h_label[:,1,:,:].reshape(-1).nonzero()
         # if pos_points.shape[0] != 0:
@@ -377,7 +404,7 @@ class reg_pos(nn.Module):
 class reg_hw_pos(nn.Module):
     def __init__(self):
         super(reg_hw_pos, self).__init__()
-        self.smoothl1 = nn.SmoothL1Loss(reduction='none')
+        self.smoothl1 = nn.L1Loss(reduction='none')
 
     def forward(self, h_pred, h_label):
         l1_loss = h_label[:, 2, :, :]*self.smoothl1(h_pred[:, 0, :, :]/(h_label[:, 0, :, :]+1e-10),

@@ -31,6 +31,7 @@ class HRFPN(nn.Module):
                  out_channels,
                  num_outs=5,
                  pooling_type='AVG',
+                 upscale_factor=None,
                  conv_cfg=None,
                  norm_cfg=None,
                  with_cp=False):
@@ -43,6 +44,10 @@ class HRFPN(nn.Module):
         self.with_cp = with_cp
         self.conv_cfg = conv_cfg
         self.norm_cfg = norm_cfg
+        if upscale_factor is not None:
+            self.upscale_factor = upscale_factor
+        else:
+            self.upscale_factor = [2**i for i in range(1, self.num_ins)]
 
         self.reduction_conv = ConvModule(
             sum(in_channels),
@@ -77,7 +82,7 @@ class HRFPN(nn.Module):
         outs = [inputs[0]]
         for i in range(1, self.num_ins):
             outs.append(
-                F.interpolate(inputs[i], scale_factor=2**i, mode='bilinear'))
+                F.interpolate(inputs[i], scale_factor=self.upscale_factor[i-1], mode='bilinear'))
         out = torch.cat(outs, dim=1)
         if out.requires_grad and self.with_cp:
             out = checkpoint(self.reduction_conv, out)

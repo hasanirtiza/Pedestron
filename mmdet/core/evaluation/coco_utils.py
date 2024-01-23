@@ -21,7 +21,7 @@ def coco_eval(result_files, result_types, coco, max_dets=(100, 300, 1000)):
         for i, num in enumerate(max_dets):
             print('AR@{}\t= {:.4f}'.format(num, ar[i]))
         return
-
+    print(result_files)
     for res_type in result_types:
         result_file = result_files[res_type]
         assert result_file.endswith('.json')

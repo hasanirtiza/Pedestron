@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-
+import json
 from mmdet.core import coco_eval
 
 
@@ -21,7 +21,8 @@ def main():
         default=[100, 300, 1000],
         help='proposal numbers, only used for recall evaluation')
     args = parser.parse_args()
-    coco_eval(args.result, args.types, args.ann, args.max_dets)
+    res = dict(bbox=args.result)
+    coco_eval(res, args.types, args.ann, args.max_dets)
 
 
 if __name__ == '__main__':

@@ -10,6 +10,7 @@ from .transforms import (ImageTransform, BboxTransform, MaskTransform,
                          SegMapTransform, Numpy2Tensor)
 from .utils import to_tensor, random_scale
 from .extra_aug import ExtraAugmentation
+from .backend import ZipBackend
 
 
 @DATASETS.register_module
@@ -59,11 +60,15 @@ class CustomDataset(Dataset):
                  remove_small_box=False,
                  small_box_size=8,
                  strides=None,
+                 zip_backend=False,
                  regress_ranges=None,
                  upper_factor=None,
                  upper_more_factor=None):
         # prefix of images path
         self.img_prefix = img_prefix
+        self.backend = None
+        if zip_backend:
+            self.backend = ZipBackend()
 
         # load annotations (and proposals)
         self.img_infos = self.load_annotations(ann_file)
@@ -192,10 +197,18 @@ class CustomDataset(Dataset):
                 continue
             return data
 
+    def load_image(self, filename):
+        if self.backend is not None:
+            img_bytes = self.backend.get(filename)
+            img = mmcv.imfrombytes(img_bytes, flag='color')
+            return img.astype(np.float32)
+
+        return mmcv.imread(osp.join(self.img_prefix, filename))
+
     def prepare_train_img(self, idx):
         img_info = self.img_infos[idx]
         # load image
-        img = mmcv.imread(osp.join(self.img_prefix, img_info['filename']))
+        img = self.load_image(img_info['filename'])
         # load proposals if necessary
         if self.proposals is not None:
             proposals = self.proposals[idx][:self.num_max_proposals]
@@ -305,7 +318,10 @@ class CustomDataset(Dataset):
     def prepare_test_img(self, idx):
         """Prepare an image for testing (multi-scale and flipping)"""
         img_info = self.img_infos[idx]
-        img = mmcv.imread(osp.join(self.img_prefix, img_info['filename']))
+        ann = self.get_ann_info(idx)
+        gt_bboxes = ann['bboxes']
+
+        img = self.load_image(img_info['filename'])
         if self.proposals is not None:
             proposal = self.proposals[idx][:self.num_max_proposals]
             if not (proposal.shape[1] == 4 or proposal.shape[1] == 5):
@@ -323,8 +339,10 @@ class CustomDataset(Dataset):
                 ori_shape=(img_info['height'], img_info['width'], 3),
                 img_shape=img_shape,
                 pad_shape=pad_shape,
+                id=img_info["id"],
                 scale_factor=scale_factor,
                 flip=flip)
+            
             if proposal is not None:
                 if proposal.shape[1] == 5:
                     score = proposal[:, 4, None]
@@ -338,19 +356,20 @@ class CustomDataset(Dataset):
                 _proposal = to_tensor(_proposal)
             else:
                 _proposal = None
-            return _img, _img_meta, _proposal
+            return _img, _img_meta, _proposal, scale_factor
 
         imgs = []
         img_metas = []
         proposals = []
         for scale in self.img_scales:
-            _img, _img_meta, _proposal = prepare_single(
+            _img, _img_meta, _proposal, scale_factor = prepare_single(
                 img, scale, False, proposal)
+            _img_meta["gts"] = gt_bboxes*scale_factor
             imgs.append(_img)
             img_metas.append(DC(_img_meta, cpu_only=True))
             proposals.append(_proposal)
             if self.flip_ratio > 0:
-                _img, _img_meta, _proposal = prepare_single(
+                _img, _img_meta, _proposal, scale_factor = prepare_single(
                     img, scale, True, proposal)
                 imgs.append(_img)
                 img_metas.append(DC(_img_meta, cpu_only=True))

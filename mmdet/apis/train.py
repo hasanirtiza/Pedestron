@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 import torch
 from mmdet.core.my_mmcv.runner.mean_teacher_runner import Mean_teacher_Runner as Runner
+from mmdet.core.my_mmcv.runner.hooks.logger.wandb import WandbLoggerHook
 from mmcv.runner import DistSamplerSeedHook, obj_from_dict
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 
@@ -166,6 +167,9 @@ def _dist_train(model, dataset, cfg, validate=False):
     runner.register_training_hooks(cfg.lr_config, optimizer_config,
                                    cfg.checkpoint_config, cfg.log_config)
     runner.register_hook(DistSamplerSeedHook())
+    wandb_cfg = cfg.get('wandb', None)
+    if wandb_cfg is not None:
+        runner.register_hook(WandbLoggerHook(**wandb_cfg), priority='LOW')
     # register eval hooks
     if validate:
         val_dataset_cfg = cfg.data.val
